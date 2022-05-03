@@ -9,7 +9,35 @@ MODEL_FOLDER = os.path.join(ROOT_FOLDER, "model")
 OUT_FOLDER = os.path.join(ROOT_FOLDER, "src", "out")
 UTILS_FOLDER = os.path.join(ROOT_FOLDER, "src", "utils")
 
-LIST_OF_DATASETS = []
+DATASET_CONSTRAIN = {
+    'n_default_datasets': 200,
+    'small': {
+        'MinNumberOfInstances': 0 ,
+        'MaxNumberOfInstances': 1000 ,
+        'MinNumberOfClasses': 0 ,
+        'MaxNumberOfClasses': 5 ,
+        'MinNumberOfFeatures': 0,
+        'MaxNumberOfFeatures': 50,
+    },
+    'medium': {
+        'MinNumberOfInstances': 0 ,
+        'MaxNumberOfInstances': 1000 ,
+        'MinNumberOfClasses': 0 ,
+        'MaxNumberOfClasses': 5 ,
+        'MinNumberOfFeatures': 0,
+        'MaxNumberOfFeatures': 50,
+    },
+    'large': {
+        'MinNumberOfInstances': 0 ,
+        'MaxNumberOfInstances': 1000 ,
+        'MinNumberOfClasses': 0 ,
+        'MaxNumberOfClasses': 5 ,
+        'MinNumberOfFeatures': 0,
+        'MaxNumberOfFeatures': 50,
+    }
+
+} 
+
 
 LIST_OF_PREPROCESSING = []
 

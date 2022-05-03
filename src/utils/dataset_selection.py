@@ -2,94 +2,70 @@ import openml
 import pandas as pd
 from openml.datasets import get_dataset
 from ..config import DATASET_FOLDER
+from ..config import DATASET_CONSTRAIN
 
-def select_datasets(save_path = DATASET_FOLDER):
+def select_datasets(size='small', save_path = DATASET_FOLDER, verbose=False):
+    """
+        Select a series of databases from OpenML based on the 'size' 
+        and save them in the folder 'save_path'.
 
-    openml_list = openml.datasets.list_datasets()  # returns a dict
+        :param size: Should be 'small', 'medium' or 'large'.
+        It decide the size of the datasets selected.
+        :param save_path: Path where the datasets are saved.
+        
+        :return: Number of datasets saved.
+    """ 
+    # TO DO 
+    # - settle size constrain
 
-    # Show a nice table with some key data properties
-    datalist = pd.DataFrame.from_dict(openml_list, orient="index")
-    datalist = datalist[["did", "name", "NumberOfInstances", "NumberOfFeatures", "NumberOfClasses"]]
 
-    print(f"First 10 of {len(datalist)} datasets...")
-    datalist.head(n=10)
+    size = size.lower()
+    if size not in ["small", "medium", "large"]:
+        raise ValueError("size should be 'small', 'medium' or 'large'")
 
-    # The same can be done with lesser lines of code
+    # Get a list of the datasets
     openml_df = openml.datasets.list_datasets(output_format="dataframe")
-    print( openml_df.head(n=10) )
+    # Discard the datasets with missing values
+    openml_df = openml_df.loc[openml_df['NumberOfMissingValues'] == 0]
     
-    # ## Exercise 1
-    # 
-    # * Find datasets with more than 10000 examples.
-    # * Find a dataset called 'eeg_eye_state'.
-    # * Find all datasets with more than 50 classes.
-    # 
-    # 
+    constrain = DATASET_CONSTRAIN[size]
 
-    print( datalist[datalist.NumberOfInstances > 10000].sort_values(["NumberOfInstances"]).head(n=20) )
-    ""
-    print( datalist.query('name == "eeg-eye-state"') )
-    ""
-    print( datalist.query("NumberOfClasses > 50") )
+    selected_dataset = openml_df[
+        ( openml_df.NumberOfInstances < constrain["MaxNumberOfInstances"] ) & 
+        ( openml_df.NumberOfInstances > constrain["MinNumberOfInstances"] ) & 
+        ( openml_df.NumberOfClasses < constrain["MaxNumberOfClasses"] ) & 
+        ( openml_df.NumberOfClasses > constrain["MinNumberOfClasses"] ) & 
+        ( openml_df.NumberOfFeatures < constrain["MaxNumberOfFeatures"] ) & 
+        ( openml_df.NumberOfFeatures > constrain["MinNumberOfFeatures"] ) 
+        ]
 
-    # ### Download datasets
-    # 
-    # 
+    n_dataset = DATASET_CONSTRAIN['n_default_datasets']
+    if( len(selected_dataset) < n_dataset ):
+        n_dataset = len(selected_dataset)
 
-    # This is done based on the dataset ID.
-    dataset = openml.datasets.get_dataset(1471)
+    if verbose:
+        print( str(len(selected_dataset)) + " datasets were found, " + str(n_dataset) + " were selected.")
 
-    # Print a summary
-    print(
-        f"This is dataset '{dataset.name}', the target feature is "
-        f"'{dataset.default_target_attribute}'"
-    )
-    print(f"URL: {dataset.url}")
-    print(dataset.description[:500])
+    for i, (index, dataset) in enumerate(selected_dataset.iterrows()):
 
-    # Get the actual data.
-    # 
-    # The dataset can be returned in 3 possible formats: as a NumPy array, a SciPy
-    # sparse matrix, or as a Pandas DataFrame. The format is
-    # controlled with the parameter ``dataset_format`` which can be either 'array'
-    # (default) or 'dataframe'. Let's first build our dataset from a NumPy array
-    # and manually create a dataframe.
-    # 
-    # 
+        print( dataset )
+        print( type(dataset) )
+        dataset_id = index
+        dataset_name = dataset['name']
+        ds = openml.datasets.get_dataset(dataset_id)
 
-    X, y, categorical_indicator, attribute_names = dataset.get_data(
-        dataset_format="array", target=dataset.default_target_attribute
-    )
-    eeg = pd.DataFrame(X, columns=attribute_names)
-    eeg["class"] = y
-    print(eeg[:10])
+        X, y, categorical_indicator, attribute_names = ds.get_data(
+        target=ds.default_target_attribute, dataset_format="dataframe"
+        )
 
-    # Instead of manually creating the dataframe, you can already request a
-    # dataframe with the correct dtypes.
-    # 
-    # 
+        #save the dataframe
+        path = save_path + '/' + dataset_name + '.csv'
+        X.to_csv(path, index=False)
+        print(i)
 
-    X, y, categorical_indicator, attribute_names = dataset.get_data(
-        target=dataset.default_target_attribute, dataset_format="dataframe"
-    )
-    print(X.head())
-    print(X.info())
+        if i >= 10:
+            break
 
-    #save the dataframe
-    path = save_path + '/test_dataset.csv'
-    print(path)
-    X.to_csv(path, index=False) 
-
-    # Sometimes you only need access to a dataset's metadata.
-    # In those cases, you can download the dataset without downloading the
-    # data file. The dataset object can be used as normal.
-    # Whenever you use any functionality that requires the data,
-    # such as `get_data`, the data will be downloaded.
-    # 
-    # 
-
-    dataset = openml.datasets.get_dataset(1471, download_data=False)
-
-
+    return n_dataset
 
 
