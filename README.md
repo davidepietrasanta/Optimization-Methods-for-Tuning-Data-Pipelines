@@ -5,3 +5,21 @@ Code connected with the master's thesis "Optimization Methods for Tuning Data Pi
 ## Mind Map
 
 ![Mind map](/Images/Mind%20Map.jpg)
+
+## Folders
+
+### data
+
+This folder is intended to contain the different datasets.
+
+### images
+
+This folder contains all the images for the presentation and the README.
+
+### model
+
+This folder contains all the trained models.
+
+### src
+
+This folder contains all the actual code.
