@@ -4,7 +4,7 @@ Code connected with the master's thesis "Optimization Methods for Tuning Data Pi
 
 ## Mind Map
 
-![Mind map](/Images/Mind%20Map.jpg)
+![Mind map](/images/Mind%20Map.jpg)
 
 ## Folders
 
