@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from numpy import integer
+
 ROOT_FOLDER = Path(__file__).parent.parent
 
 CODE_FOLDER = os.path.join(ROOT_FOLDER, "src", "code")
@@ -8,6 +10,8 @@ DATASET_FOLDER = os.path.join(ROOT_FOLDER, "dataset")
 MODEL_FOLDER = os.path.join(ROOT_FOLDER, "model")
 OUT_FOLDER = os.path.join(ROOT_FOLDER, "src", "out")
 UTILS_FOLDER = os.path.join(ROOT_FOLDER, "src", "utils")
+
+SEED_VALUE = int(100)
 
 DATASET_CONSTRAIN = {
     'n_default_datasets': 200,
@@ -24,8 +28,8 @@ DATASET_CONSTRAIN = {
         'MaxNumberOfInstances': 1000000,
         'MinNumberOfClasses': 0 ,
         'MaxNumberOfClasses': 25 ,
-        'MinNumberOfFeatures': 0,
-        'MaxNumberOfFeatures': 200,
+        'MinNumberOfFeatures': 10,
+        'MaxNumberOfFeatures': 20000,
     },
     'large': {
         'MinNumberOfInstances': 1000000 ,

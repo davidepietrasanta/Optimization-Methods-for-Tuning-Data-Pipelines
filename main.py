@@ -3,5 +3,5 @@ from src.utils.dataset_selection import select_datasets
 
 if __name__ == '__main__':
 
-    select_datasets(size='small', verbose=True)
+    select_datasets(size='medium', verbose=True)
     
