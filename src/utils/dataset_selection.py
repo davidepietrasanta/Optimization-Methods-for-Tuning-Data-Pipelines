@@ -87,7 +87,6 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
     for i, (index, dataset) in enumerate(selected_dataset.iterrows()):
 
         dataset_name = dataset['name']
-        list_dataset_name.append( dataset_name )
 
         try:
             task_openML = openml.tasks.get_task(dataset['tid'])
@@ -110,6 +109,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
             X.to_csv(path, index=False)
 
             actual_dataset_num = actual_dataset_num + 1
+            list_dataset_name.append( dataset_name )
 
             if verbose:
                     print( str(actual_dataset_num) + "/" + str(n_dataset) + " " + dataset_name)

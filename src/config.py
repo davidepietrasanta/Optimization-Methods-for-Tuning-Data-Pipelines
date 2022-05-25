@@ -17,27 +17,27 @@ DATASET_CONSTRAIN = {
     'n_default_datasets': 200,
     'small': {
         'MinNumberOfInstances': 0 ,
-        'MaxNumberOfInstances': 1000 ,
+        'MaxNumberOfInstances': 500 ,
         'MinNumberOfClasses': 0 ,
         'MaxNumberOfClasses': 5 ,
         'MinNumberOfFeatures': 0,
-        'MaxNumberOfFeatures': 50,
+        'MaxNumberOfFeatures': 1000,
     },
     'medium': {
-        'MinNumberOfInstances': 1000 ,
-        'MaxNumberOfInstances': 1000000,
+        'MinNumberOfInstances': 500 ,
+        'MaxNumberOfInstances': 100000,
         'MinNumberOfClasses': 0 ,
         'MaxNumberOfClasses': 25 ,
         'MinNumberOfFeatures': 10,
-        'MaxNumberOfFeatures': 20000,
+        'MaxNumberOfFeatures': 5000,
     },
     'large': {
-        'MinNumberOfInstances': 1000000 ,
+        'MinNumberOfInstances': 100000 ,
         'MaxNumberOfInstances': 1000000000 ,
         'MinNumberOfClasses': 0 ,
         'MaxNumberOfClasses': 50 ,
         'MinNumberOfFeatures': 0,
-        'MaxNumberOfFeatures': 500,
+        'MaxNumberOfFeatures': 5000,
     }
 
 } 
