@@ -31,6 +31,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         task_type=TaskType.SUPERVISED_CLASSIFICATION, output_format="dataframe"
     )
     # Just consider 10-fold Crossvalidation
+    # TO DO: See if it's ok to do this or useless
     openml_df = openml_df.query('estimation_procedure == "10-fold Crossvalidation"')
     # Drop useless columns
     # ttid tid did target_feature
@@ -51,6 +52,27 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         ( openml_df.NumberOfFeatures >= constrain["MinNumberOfFeatures"] ) 
         ].sample(frac=1, random_state=SEED_VALUE)
 
+    # If size is medium we can also take the benchmark datasets from OpenML.
+    # They are around 100.
+    if size == "medium":
+        # Benchmark dataset
+        tasks_OpenML100 = openml.tasks.list_tasks(tag="OpenML100", output_format="dataframe")
+        tasks_OpenMLCC18 = openml.tasks.list_tasks(tag="OpenML-CC18", output_format="dataframe")
+        # Concat of datasets
+        tasks = pd.concat( [tasks_OpenMLCC18,tasks_OpenML100] )
+        # Drop duplicated
+        tasks.drop_duplicates(subset ="tid", inplace = True)
+
+        if verbose:
+            print("Since the size selected is 'medium' we also select from OpenML benchmark datasets.")
+            print("We have found " + str(len(tasks)) + " datasets from the benchmark.")
+
+        selected_dataset = pd.concat( [tasks, selected_dataset] )
+
+    # Drop duplicated name and tid
+    selected_dataset.drop_duplicates(subset ="name", inplace = True)
+    selected_dataset.drop_duplicates(subset ="tid", inplace = True)
+
     n_dataset = DATASET_CONSTRAIN['n_default_datasets']
     if( len(selected_dataset) < n_dataset ):
         n_dataset = len(selected_dataset)
@@ -64,44 +86,37 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
 
     for i, (index, dataset) in enumerate(selected_dataset.iterrows()):
 
-        #dataset_id = dataset['tid']
-        #print(dataset_id)
         dataset_name = dataset['name']
-        if dataset_name not in list_dataset_name:
-            list_dataset_name.append( dataset_name )
+        list_dataset_name.append( dataset_name )
 
-            try:
-                task_openML = openml.tasks.get_task(dataset['tid'])
-                dataset_openML = task_openML.get_dataset()
-                X, y, categorical_indicator, attribute_names = dataset_openML.get_data(
-                target=dataset_openML.default_target_attribute, dataset_format="dataframe"
-                )
+        try:
+            task_openML = openml.tasks.get_task(dataset['tid'])
+            dataset_openML = task_openML.get_dataset()
+            X, y, categorical_indicator, attribute_names = dataset_openML.get_data(
+            target=dataset_openML.default_target_attribute, dataset_format="dataframe"
+            )
 
-                # Add y (target) label to the dataframe
-                X['y'] = y
+            # Add y (target) label to the dataframe
+            X['y'] = y
 
-                # Save the dataframe
-                path = os.path.join(save_path, size)
-                # Create the dir if it doesn't exist
-                if not os.path.exists(path):
-                    os.makedirs(path)
+            # Save the dataframe
+            path = os.path.join(save_path, size)
+            # Create the dir if it doesn't exist
+            if not os.path.exists(path):
+                os.makedirs(path)
 
-                path = os.path.join(path, dataset_name + '.csv')
+            path = os.path.join(path, dataset_name + '.csv')
 
-                X.to_csv(path, index=False)
+            X.to_csv(path, index=False)
 
-                actual_dataset_num = actual_dataset_num + 1
+            actual_dataset_num = actual_dataset_num + 1
 
-                if verbose:
-                        print( str(actual_dataset_num) + "/" + str(n_dataset) + " " + dataset_name)
-
-            except:
-                if verbose:
-                    print( "Error while dowloading, dataset skipped" )
-            
-        else:
             if verbose:
-                print( "(duplicate) " + dataset_name)
+                    print( str(actual_dataset_num) + "/" + str(n_dataset) + " " + dataset_name)
+
+        except:
+            if verbose:
+                print( "Error while dowloading, dataset skipped" )
 
 
         if actual_dataset_num >= n_dataset:
