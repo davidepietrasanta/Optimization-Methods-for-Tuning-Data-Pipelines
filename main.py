@@ -9,3 +9,4 @@ if __name__ == '__main__':
     #select_datasets(size='medium', verbose=True)
     dataset_path = os.path.join(DATASET_FOLDER, "medium/artificial-characters.csv")
     metafeature(dataset_path)
+    

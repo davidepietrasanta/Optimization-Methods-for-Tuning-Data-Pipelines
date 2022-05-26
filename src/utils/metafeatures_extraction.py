@@ -5,6 +5,8 @@ import skdim
 from ..config import DATASET_FOLDER
 from pymfe.mfe import MFE
 
+# TO DO:
+# ALL 
 def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER, verbose=False):
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
@@ -16,7 +18,7 @@ def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER, verbose=F
         
         :return: Metafeatures, as pandas Dataframe.
     """ 
-
+    
     return None
 
 
