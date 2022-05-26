@@ -15,6 +15,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         :param size: Should be 'small', 'medium' or 'large'.
         It decide the size of the datasets selected.
         :param save_path: Path where the datasets are saved.
+        :param verbose: If True more info are printed.
         
         :return: List of names of selected datasets.
     """ 
@@ -62,6 +63,9 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         tasks = pd.concat( [tasks_OpenMLCC18,tasks_OpenML100] )
         # Drop duplicated
         tasks.drop_duplicates(subset ="tid", inplace = True)
+
+        # TO DO:
+        # Check for Missing Values!
 
         if verbose:
             print("Since the size selected is 'medium' we also select from OpenML benchmark datasets.")
