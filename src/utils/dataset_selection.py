@@ -105,7 +105,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         try:
             task_openml = openml.tasks.get_task(dataset['tid'])
             dataset_openml = task_openml.get_dataset()
-            X, y, _, _ = dataset_openml.get_data(
+            X, y, _, _ = dataset_openml.get_data( # pylint: disable=invalid-name
             target=dataset_openml.default_target_attribute, dataset_format="dataframe"
             )
 
@@ -113,12 +113,12 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
             X['y'] = y
 
             # Save the dataframe
-            path = os.path.join(save_path, size)
+            path = join(save_path, size)
             # Create the dir if it doesn't exist
             if not os.path.exists(path):
                 os.makedirs(path)
 
-            path = os.path.join(path, dataset_name + '.csv')
+            path = join(path, dataset_name + '.csv')
 
             X.to_csv(path, index=False)
 
@@ -164,8 +164,8 @@ def check_missing_values(datasets_path, verbose=False):
 
         dataset_path = join(datasets_path, dataset_name)
 
-        df = pd.read_csv (dataset_path)
-        count_missing_values = df.isnull().values.any()
+        dataset = pd.read_csv (dataset_path)
+        count_missing_values = dataset.isnull().values.any()
         if count_missing_values > 0 :
             missing_values_datasets.append(dataset_path)
 

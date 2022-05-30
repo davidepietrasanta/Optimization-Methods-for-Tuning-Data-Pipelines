@@ -47,15 +47,15 @@ name_saved_csv = None, verbose = False):
                 print( "'" + dataset_name + "' skipped because of missing values.")
 
 
-    df = pd.DataFrame(datasets_metafeatures)
+    dataset = pd.DataFrame(datasets_metafeatures)
 
     if name_saved_csv is None:
         name_saved_csv = "metafeatures.csv"
 
-    df.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
-    df.to_csv(join(save_path, name_saved_csv), index=False)
+    dataset.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
+    dataset.to_csv(join(save_path, name_saved_csv), index=False)
 
-    return df
+    return dataset
 
 
 def metafeature(dataset_path, verbose=False):
@@ -70,10 +70,10 @@ def metafeature(dataset_path, verbose=False):
     """
     try:
         # Read the CSV
-        df = pd.read_csv(dataset_path)
+        dataset = pd.read_csv(dataset_path)
         # Separate X from y
-        y = df["y"].to_list()
-        X = df.drop(["y"], axis=1).to_numpy()
+        y = dataset["y"].to_list() # pylint: disable=invalid-name
+        X = dataset.drop(["y"], axis=1).to_numpy() # pylint: disable=invalid-name
 
         # Extract general, statistical and information-theoretic measures
         mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)
@@ -164,14 +164,19 @@ def kl_divergence(distr_p, distr_q):
     """
     return np.sum(np.where(distr_p != 0, distr_p * np.log(distr_p / distr_q), 0))
 
-
 # TO DO:
-# Only if we use sklearn models
+# Test
 def aic(model, data):
     """
+        Compute the The Akaike Information Criterion (AIC).\n
         AIC = 2K - 2ln(L) \n
         K is the Number of independent variables + 2 \n
         L is the likelihood \n
+
+        :param model: A sklearn trained model
+        :param data: The dataset
+
+        :return: The Akaike Information Criterion
     """
     return model.aic(data)
  
