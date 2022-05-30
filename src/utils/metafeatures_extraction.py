@@ -1,25 +1,56 @@
 import math
 import pandas as pd
 import numpy as np
+from os import listdir
+from os.path import isfile, join
 import skdim
 from ..config import DATASET_FOLDER
 from pymfe.mfe import MFE
+from .dataset_selection import check_missing_values
 
-# TO DO:
-# ALL 
-def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER, verbose=False):
+
+def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER, name_saved_csv = None, verbose=False):
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
 
         :param datasets_path: Path where the datasets are. 
         Datasets should be in a CSV format.
         :param save_path: Path where the metafeatures are saved.
+        :param name_saved_csv: The name of the csv file with all the metafeatures. If None the name is 'metafeatures.csv'.
         :param verbose: If True more info are printed.
         
         :return: Metafeatures, as pandas Dataframe.
     """ 
+    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    n_datasets = len(list_datasets)
+    datasets_metafeatures = []
+
+    missing_values_datasets = check_missing_values(datasets_path)
+
+    for i, dataset_name in enumerate(list_datasets):
+        if verbose:
+            print( "Extracting metafeatures from '" + dataset_name + "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+
+        dataset_path = join(datasets_path, dataset_name)
+        if (dataset_path not in missing_values_datasets):
+            metafeatures_data = metafeature(dataset_path)
+            if ( metafeatures_data != None ):
+                metafeatures_data['dataset_name'] = dataset_name
+                datasets_metafeatures.append( metafeatures_data )
+        else:
+            if verbose:
+                print( "'" + dataset_name + "' skipped because of missing values.")
+
     
-    return None
+    df = pd.DataFrame(datasets_metafeatures) 
+
+    if (name_saved_csv == None):
+        name_saved_csv = "metafeatures.csv"
+
+    df.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
+    df.to_csv(join(save_path, name_saved_csv), index=False) 
+
+    return df
 
 
 def metafeature(dataset_path, verbose=False):
@@ -30,35 +61,46 @@ def metafeature(dataset_path, verbose=False):
         It should be in a CSV format.
         :param verbose: If True more info are printed.
         
-        :return: Metafeatures, as Dict.
+        :return: Metafeatures, as Dict, or None.
     """ 
-    # Read the CSV
-    df = pd.read_csv(dataset_path)
-    # Separate X from y
-    y = df["y"].to_list()    
-    X = df.drop(["y"], axis=1).to_numpy()
+    try:
+        # Read the CSV
+        df = pd.read_csv(dataset_path)
+        # Separate X from y
+        y = df["y"].to_list()    
+        X = df.drop(["y"], axis=1).to_numpy()
 
-    # Extract general, statistical and information-theoretic measures
-    mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)
-    mfe.fit(X, y)
-    ft = mfe.extract(suppress_warnings= not verbose )
-    keys = ft[0]
-    values = ft[1]
+        # Extract general, statistical and information-theoretic measures
+        mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)
+        mfe.fit(X, y)
+        ft = mfe.extract(suppress_warnings= not verbose )
+        keys = ft[0]
+        values = ft[1]
 
-    dict_ft = {}
-    for i in range(len(keys)):
-        # Not insert NaN values
-        if( not math.isnan(values[i]) ):
-            dict_ft[keys[i]] = values[i]
-    
-    intrinsic_dim = intrinsic_dimensionality(X)
-    dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
-    dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
+        dict_ft = {}
+        for i in range(len(keys)):
+            # Not insert NaN values
+            if( not math.isnan(values[i]) ):
+                dict_ft[keys[i]] = values[i]
+        
+        intrinsic_dim = intrinsic_dimensionality(X)
+        dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
+        dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
 
-    if verbose:
-        print( str(len(dict_ft)) + " meta-features were extracted from the dataset: " + str(dataset_path))
+        # TO DO:
+        # Kullback-Leibler divergence and AKAIKE Information Criterion
+        #dict_ft['kl_divergence'] = 
+        #dict_ft['AIC'] = 
 
-    return dict_ft
+        if verbose:
+            print( str(len(dict_ft)) + " meta-features were extracted from the dataset: " + str(dataset_path))
+
+        return dict_ft
+
+    except:
+        if verbose:
+            print( "Error while extracting metafeature of '" + str(dataset_path) + "', skipped.")
+        return None 
 
 
 def intrinsic_dimensionality(data):
@@ -122,3 +164,4 @@ def AIC(model, data):
         L is the likelihood \n
     """
     return model.aic(data)
+ 

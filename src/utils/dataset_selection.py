@@ -1,7 +1,8 @@
 import openml
 import os
 import pandas as pd
-from openml.datasets import get_dataset
+from os import listdir
+from os.path import isfile, join
 from ..config import DATASET_FOLDER
 from ..config import DATASET_CONSTRAIN
 from ..config import SEED_VALUE
@@ -11,6 +12,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
     """
         Select a series of databases from OpenML based on the 'size' 
         and save them in the folder 'save_path'.
+        Dataset with missing values are not considered.
 
         :param size: Should be 'small', 'medium' or 'large'.
         It decide the size of the datasets selected.
@@ -32,7 +34,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         task_type=TaskType.SUPERVISED_CLASSIFICATION, output_format="dataframe"
     )
     # Just consider 10-fold Crossvalidation
-    # TO DO: See if it's ok to do this or useless
+    # TO DO: See if it's ok or useless
     openml_df = openml_df.query('estimation_procedure == "10-fold Crossvalidation"')
     # Drop useless columns
     # ttid tid did target_feature
@@ -63,15 +65,15 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         tasks = pd.concat( [tasks_OpenMLCC18,tasks_OpenML100] )
         # Drop duplicated
         tasks.drop_duplicates(subset ="tid", inplace = True)
+        # Discard the datasets with missing values
+        tasks = tasks.loc[tasks['NumberOfMissingValues'] == 0]
 
-        # TO DO:
-        # Check for Missing Values!
+        selected_dataset = pd.concat( [tasks, selected_dataset] )
 
         if verbose:
             print("Since the size selected is 'medium' we also select from OpenML benchmark datasets.")
             print("We have found " + str(len(tasks)) + " datasets from the benchmark.")
 
-        selected_dataset = pd.concat( [tasks, selected_dataset] )
 
     # Drop duplicated name and tid
     selected_dataset.drop_duplicates(subset ="name", inplace = True)
@@ -131,3 +133,35 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
 
     return list_dataset_name
 
+
+def check_missing_values(datasets_path, verbose=False):
+    """
+        Check if datasets in a folder has missing values.
+        If true return all the name of the datasets with missing values.
+        Datasets should be csv format files.
+
+        :param datasets_path: Folder where the datasets are checked.
+        :param verbose: If True more info are printed.
+        
+        :return: List of names of datasets with missing values.
+    """ 
+    missing_values_datasets = []
+
+    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+
+    for dataset_name in list_datasets:
+        if verbose:
+            print( "Checking '" + dataset_name + "'..." )
+
+        dataset_path = join(datasets_path, dataset_name)
+
+        df = pd.read_csv (dataset_path)
+        count_missing_values = df.isnull().values.any()
+        if( count_missing_values > 0 ):
+            missing_values_datasets.append(dataset_path)
+
+            if verbose:
+                print( "'" + dataset_name + "' with missing values." )
+
+    return missing_values_datasets
+    
