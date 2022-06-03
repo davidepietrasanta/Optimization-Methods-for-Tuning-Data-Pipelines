@@ -7,6 +7,7 @@ from os.path import isfile, join
 import pandas as pd
 import numpy as np
 import skdim
+from sklearn.preprocessing import normalize
 from pymfe.mfe import MFE
 from ..config import DATASET_FOLDER # pylint: disable=relative-beyond-top-level
 from .dataset_selection import check_missing_values # pylint: disable=relative-beyond-top-level
@@ -136,9 +137,6 @@ def intrinsic_dimensionality(data):
     intrinsic_dim = [global_intrinsic_dimensionality, mean_local_intrinsic_dimensionality]
     return intrinsic_dim
 
-# TO DO:
-# Both Kullback-Leibler divergence and AKAIKE Information Criterion
-# has to be calculated after the model has fitted.
 def kl_divergence(distr_p, distr_q):
     """
         Simple implementation of the Kullback-Leibler divergence.
@@ -162,11 +160,23 @@ def kl_divergence(distr_p, distr_q):
 
         :return: A scalar, the Killback-Leibler divergence between p and q.
     """
-    return np.sum(np.where(distr_p != 0, distr_p * np.log(distr_p / distr_q), 0))
+    # We first need to normalize the vectors to Probability density function
+    # The sum should be 1
+    p_norm = normalize(
+        distr_p[:,np.newaxis],
+        axis=0,
+        norm='l1').ravel()
+    q_norm = normalize(
+        distr_q[:,np.newaxis],
+        axis=0,
+        norm='l1').ravel()
+
+    return np.sum(np.where(p_norm != 0, p_norm * np.log(p_norm / q_norm), 0))
 
 # TO DO:
-# Test
-def aic(model, data):
+# ALL
+# Should we use the Train or the whole dataset?
+def akaike(model, train_x, train_y):
     """
         Compute the The Akaike Information Criterion (AIC).\n
         AIC = 2K - 2ln(L) \n
@@ -174,9 +184,11 @@ def aic(model, data):
         L is the likelihood \n
 
         :param model: A sklearn trained model
-        :param data: The dataset
+        :param train_x: Training input variables
+        :param train_y: Training label or target value
 
         :return: The Akaike Information Criterion
     """
-    return model.aic(data)
+    ## should be for the specific model we are doing!
+    return 0
  

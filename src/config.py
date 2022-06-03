@@ -50,11 +50,6 @@ DATASET_CONSTRAIN = {
 
 }
 
-# TO DO
-LIST_OF_METAFEATURES = []
-
-LIST_OF_PREPROCESSING = []
-
 LIST_OF_ML_MODELS = [
     "logistic_regression",
     "naive_bayes",
@@ -62,4 +57,9 @@ LIST_OF_ML_MODELS = [
     "random_forest",
     "svm",
     "perceptron"]
- 
+
+
+# TO DO
+LIST_OF_PREPROCESSING = []
+
+LIST_OF_METAFEATURES = []
