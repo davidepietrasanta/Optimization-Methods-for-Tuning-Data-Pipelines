@@ -23,7 +23,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 
-from ..utils.metafeatures_extraction import akaike, kl_divergence # pylint: disable=relative-beyond-top-level
+#from ..utils.metafeatures_extraction import akaike, kl_divergence # pylint: disable=relative-beyond-top-level
 from ..config import LIST_OF_ML_MODELS, MODEL_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
 
@@ -73,15 +73,22 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
         # Save of the model
         if verbose:
             print("Saving the trained model...")
+
         save_name = dataset_name + '-' + algorithm + '.joblib'
-        dump(model, join(save_path, save_name))
+        directory = join(save_path, algorithm)
+        file_path = join(directory, save_name)
+
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        dump(model, file_path)
 
         # Test
         if verbose:
             print("Testing...")
         # TO DO:
         # Understand where to put this data.
-        prediction = prediction_metrics(model, test_x, test_y, train_x, train_y)
+        prediction = prediction_metrics(model, test_x, test_y)
         if verbose:
             print("Prediction performance on test set:")
             print(prediction)
@@ -205,7 +212,7 @@ def perceptron(X, y): # pylint: disable=invalid-name
     model = Perceptron(tol=1e-3, random_state=SEED_VALUE).fit(X, y)
     return model
 
-def prediction_metrics(model, test_x, test_y, train_x, train_y, metrics = None):
+def prediction_metrics(model, test_x, test_y, metrics = None):
     """
         Return accuracy, precision, recall and f1_score of the model.
 
@@ -239,12 +246,12 @@ def prediction_metrics(model, test_x, test_y, train_x, train_y, metrics = None):
     if (metrics is None) or ('f1_score' in metrics):
         metrics_values["f1_score"] = f1_score(test_y, prediction_test_y, average='micro')
 
-    if (metrics is None) or ('aic' in metrics):
-        metrics_values["aic"] = akaike(model, train_x, train_y)
+    #if (metrics is None) or ('aic' in metrics):
+    #    metrics_values["aic"] = akaike(model, train_x, train_y)
 
-    if (metrics is None) or ('kl_divergence' in metrics):
-        # TO DO:
-        # Is it ok to put the test prediction? Or should I put something else
-        metrics_values["kl_divergence"] = kl_divergence(test_y, prediction_test_y)
+    #if (metrics is None) or ('kl_divergence' in metrics):
+    #    # TO DO:
+    #    # Is it ok to put the test prediction? Or should I put something else
+    #    metrics_values["kl_divergence"] = kl_divergence(test_y, prediction_test_y)
 
     return metrics_values

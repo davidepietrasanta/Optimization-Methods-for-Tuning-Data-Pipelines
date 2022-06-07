@@ -14,7 +14,7 @@ from .dataset_selection import check_missing_values # pylint: disable=relative-b
 
 
 def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER,
-name_saved_csv = None, verbose = False):
+ name_saved_csv = None, verbose = False):
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
 
@@ -174,21 +174,21 @@ def kl_divergence(distr_p, distr_q):
     return np.sum(np.where(p_norm != 0, p_norm * np.log(p_norm / q_norm), 0))
 
 # TO DO:
-# ALL
+# See how to integrate Akaike and Kl-divergence
 # Should we use the Train or the whole dataset?
-def akaike(model, train_x, train_y):
-    """
-        Compute the The Akaike Information Criterion (AIC).\n
-        AIC = 2K - 2ln(L) \n
-        K is the Number of independent variables + 2 \n
-        L is the likelihood \n
-
-        :param model: A sklearn trained model
-        :param train_x: Training input variables
-        :param train_y: Training label or target value
-
-        :return: The Akaike Information Criterion
-    """
-    ## should be for the specific model we are doing!
-    return 0
+#def akaike(model, train_x, train_y):
+#    """
+#        Compute the The Akaike Information Criterion (AIC).\n
+#        AIC = 2K - 2ln(L) \n
+#        K is the Number of independent variables + 2 \n
+#        L is the likelihood \n
+#
+#       :param model: A sklearn trained model
+#        :param train_x: Training input variables
+#       :param train_y: Training label or target value
+#
+#        :return: The Akaike Information Criterion
+#    """
+#    ## should be for the specific model we are doing!
+#    return 0
  

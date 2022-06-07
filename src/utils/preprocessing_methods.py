@@ -11,20 +11,64 @@
         - Radial Basis Function Sampler (RBFS)\n
 """
 import os
-from os.path import join
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectPercentile, f_classif
+from sklearn.feature_selection import SelectPercentile, chi2
 from sklearn.decomposition import PCA
 from sklearn.decomposition import FastICA
 from sklearn import cluster
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
-from ..config import SEED_VALUE, DATASET_FOLDER, LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
+from ..config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER, LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
 
-def preprocess_dataset(dataset_path, method, save_path = DATASET_FOLDER, verbose = False):
+def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
+    """
+        Given a path to different datasets, it return, and save, the transformed datasets.
+
+        :param datasets_path: Path where the datasets are. Datasets should be in a CSV format.
+       :param method: Preprocessing method selected.
+         It should be in
+         ["min_max_scaler",
+         "standard_scaler",
+         "select_percentile",
+         "pca",
+         "fast_ica",
+         "feature_agglomeration",
+         "polynomial_features",
+         "radial_basis_function_sampler"].
+        :param verbose: If True more info are printed.
+
+        :return: List of sucessfully preprocessed datasets.
+    """
+    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    n_datasets = len(list_datasets)
+    preprocessed_datasets = []
+
+    for i, dataset_name in enumerate(list_datasets):
+        if verbose:
+            print( "Transforming dataset: '" + dataset_name +
+            "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+
+        dataset_path = join(datasets_path, dataset_name)
+        n_methods = 0
+        for method in LIST_OF_PREPROCESSING:
+            try:
+                preprocess_dataset(dataset_path, method, save_path)
+                n_methods = n_methods + 1
+            except:  # pylint: disable=bare-except
+                if verbose:
+                    print( "Error, '" + method + "' skipped in '" + dataset_name + "'.")
+
+        if n_methods == len(LIST_OF_PREPROCESSING):
+            preprocessed_datasets.append(dataset_name)
+
+    return preprocessed_datasets
+
+def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
     """
         Given a path to a dataset, it return, and save, the transformed dataset.
 
@@ -54,6 +98,7 @@ def preprocess_dataset(dataset_path, method, save_path = DATASET_FOLDER, verbose
             "' preprocessing has been selected for the '" + dataset_name + "' dataset.")
 
         dataset = pd.read_csv(dataset_path)
+        dataset = categorical_string_to_number(dataset)
 
         y_data = dataset["y"].to_numpy()
         x_data  = dataset.drop(["y"], axis=1).to_numpy()
@@ -67,14 +112,13 @@ def preprocess_dataset(dataset_path, method, save_path = DATASET_FOLDER, verbose
         if verbose:
             print("Saving the transformed data...")
 
-        save_name = dataset_name + '-' + method + '.csv'
-        file_path = join(save_path, save_name)
+        save_name = dataset_name + '.csv'
+        directory = join(save_path, method)
+        file_path = join(directory, save_name)
 
-        # concatenate transformed_data e y
-        #a = np.asarray([ [1,2], [4,5], [7,8], [7,1] ])
-        #y = np.asarray([ 1, 2, 3, 4 ])
-        #y = np.asarray([y])
-        #data = np.concatenate((a, y.T), axis=1)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         new_data = np.concatenate((transformed_data, np.asarray([y_data]).T), axis=1)
         np.savetxt(file_path, new_data, delimiter=",")
 
@@ -116,9 +160,10 @@ def preprocessing(method, x_data, y_data):
     elif method == 'pca':
         transformed_data = pca(x_data)
     elif method == 'fast_ica':
-        transformed_data = fast_ica(x_data)
+        n_components = min(100, int( x_data.shape[1] / 2 ))
+        transformed_data = fast_ica(x_data, n_components)
     elif method == 'feature_agglomeration':
-        n_clusters = int( x_data.shape[1] / 2 )
+        n_clusters = min(100, int( x_data.shape[1] / 2 ))
         transformed_data = feature_agglomeration(x_data, n_clusters)
     elif method == 'polynomial_features':
         transformed_data = polynomial_features(x_data)
@@ -161,7 +206,9 @@ def select_percentile(x_data, y_data, perc=10):
 
         :return: The transformed data.
     """
-    new_x_data = SelectPercentile(f_classif, percentile=perc).fit_transform(x_data, y_data)
+    # Shift all values to avoid negative number, since we are using chi2
+    positive_x_data = x_data - np.amin(x_data)
+    new_x_data = SelectPercentile(chi2, percentile=perc).fit_transform(positive_x_data, y_data)
     return new_x_data
 
 def pca(x_data, n_components=0.85):
@@ -178,7 +225,7 @@ def pca(x_data, n_components=0.85):
 
 # To DO:
 # See if there's a fast and simple way to determine n_components
-def fast_ica(x_data, n_components=7):
+def fast_ica(x_data, n_components):
     """
         Given x_data it return the transformed data
          after the Fast ICA.
@@ -190,7 +237,9 @@ def fast_ica(x_data, n_components=7):
     transformer = FastICA(
         n_components=n_components,
         random_state=SEED_VALUE,
-        whiten='unit-variance'
+        whiten='unit-variance',
+        max_iter= 10000,
+        tol= 0.3 , # 0.001
         ).fit(x_data)
     return transformer.transform(x_data)
 
@@ -209,7 +258,7 @@ def feature_agglomeration(x_data, n_clusters):
     agglo = cluster.FeatureAgglomeration(n_clusters=n_clusters).fit(x_data)
     return agglo.transform(x_data)
 
-def polynomial_features(x_data, min_degree=2, max_degree=5, interaction_only=True):
+def polynomial_features(x_data, degree=2, interaction_only=True):
     """
         Given x_data it return the transformed data
          after the Polynomial Features transformation.
@@ -219,7 +268,7 @@ def polynomial_features(x_data, min_degree=2, max_degree=5, interaction_only=Tru
         :return: The transformed data.
     """
     poly = PolynomialFeatures(
-        degree= (min_degree, max_degree),
+        degree= degree,
         interaction_only=interaction_only
         ).fit(x_data)
     return poly.transform(x_data)
@@ -235,3 +284,19 @@ def radial_basis_function_sampler(x_data, gamma=1):
     """
     rbf_feature = RBFSampler(gamma=gamma, random_state=SEED_VALUE).fit(x_data)
     return rbf_feature.transform(x_data)
+
+def categorical_string_to_number(dataset):
+    """
+        Given data it return the transformed data
+         after replacing categorical string into numbers.
+
+        :param dataset: A dataset, should be a dataframe.
+
+        :return: The transformed data.
+    """
+    for column in dataset:
+        # If the column type is not number
+        if dataset[column].dtype != np.number:
+            dataset[column] = dataset[column].astype('category').cat.codes
+
+    return dataset

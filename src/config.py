@@ -13,6 +13,7 @@ OUT_FOLDER = join(ROOT_FOLDER, "src", "out")
 UTILS_FOLDER = join(ROOT_FOLDER, "src", "utils")
 
 DATASET_FOLDER = join(ROOT_FOLDER, "dataset")
+DATASET_PREPROCESSING_FOLDER = join(DATASET_FOLDER, "preprocessing")
 
 DATASET_FOLDER_SMALL = join(DATASET_FOLDER, "small")
 DATASET_FOLDER_MEDIUM = join(DATASET_FOLDER, "medium")
