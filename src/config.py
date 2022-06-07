@@ -58,8 +58,16 @@ LIST_OF_ML_MODELS = [
     "svm",
     "perceptron"]
 
+LIST_OF_PREPROCESSING = [
+    "min_max_scaler",
+    "standard_scaler",
+    "select_percentile",
+    "pca",
+    "fast_ica",
+    "feature_agglomeration",
+    "polynomial_features",
+    "radial_basis_function_sampler"
+]
 
 # TO DO
-LIST_OF_PREPROCESSING = []
-
 LIST_OF_METAFEATURES = []

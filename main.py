@@ -15,7 +15,8 @@ if __name__ == '__main__':
     #print( check_missing_values(DATASET_FOLDER_MEDIUM) )
     #metafeature(dataset_path, verbose= verbose)
     #metafeatures_extraction( DATASET_FOLDER_MEDIUM, verbose= VERBOSE)
-    machine_learning_algorithm(dataset_path=dataset_path, algorithm='logistic_regression', verbose=True)
+    machine_learning_algorithm(dataset_path=dataset_path,
+    algorithm='logistic_regression', verbose=True)
     machine_learning_algorithm(dataset_path=dataset_path, algorithm='naive_bayes', verbose=True)
     machine_learning_algorithm(dataset_path=dataset_path, algorithm='knn', verbose=True)
     machine_learning_algorithm(dataset_path=dataset_path, algorithm='random_forest', verbose=True)

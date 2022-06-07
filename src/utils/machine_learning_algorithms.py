@@ -30,7 +30,7 @@ from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top
 
 def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER, verbose = False):
     """
-        Given a path to datasets, it return, and save, the matefeatures for each dataset.
+        Given a path to a dataset, it return, and save, its the matefeatures.
 
         :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
         :param algorithm: Machine Learning algorithm selected.
@@ -69,8 +69,6 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
         if verbose:
             print("Training...")
         model = train_algorithm(algorithm, train_x, train_y)
-        if model is None:
-            print("Model None")
 
         # Save of the model
         if verbose:
@@ -90,7 +88,8 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
 
     else:
         if verbose:
-            print("The algorithm '" + algorithm + "' is not between "+" ".join(LIST_OF_ML_MODELS))
+            print("The algorithm '" + algorithm + "' is not between "
+            +" ".join(LIST_OF_ML_MODELS))
 
         return model
 
