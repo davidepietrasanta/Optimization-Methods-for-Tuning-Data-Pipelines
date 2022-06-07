@@ -16,7 +16,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectPercentile, chi2
+from sklearn.feature_selection import SelectPercentile, f_classif
 from sklearn.decomposition import PCA
 from sklearn.decomposition import FastICA
 from sklearn import cluster
@@ -24,7 +24,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
 from ..config import SEED_VALUE, DATASET_FOLDER, LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
 
-def preprocessing_dataset(dataset_path, method, save_path = DATASET_FOLDER, verbose = False):
+def preprocess_dataset(dataset_path, method, save_path = DATASET_FOLDER, verbose = False):
     """
         Given a path to a dataset, it return, and save, the transformed dataset.
 
@@ -55,13 +55,13 @@ def preprocessing_dataset(dataset_path, method, save_path = DATASET_FOLDER, verb
 
         dataset = pd.read_csv(dataset_path)
 
-        y_cord = dataset["y"].to_numpy()
-        x_cord = dataset.drop(["y"], axis=1).to_numpy()
+        y_data = dataset["y"].to_numpy()
+        x_data  = dataset.drop(["y"], axis=1).to_numpy()
 
         # Preprocessing
         if verbose:
             print("Preprocessing...")
-        transformed_data = preprocessing(method, x_cord)
+        transformed_data = preprocessing(method, x_data, y_data)
 
         # Save of the transformed data
         if verbose:
@@ -75,7 +75,7 @@ def preprocessing_dataset(dataset_path, method, save_path = DATASET_FOLDER, verb
         #y = np.asarray([ 1, 2, 3, 4 ])
         #y = np.asarray([y])
         #data = np.concatenate((a, y.T), axis=1)
-        new_data = np.concatenate((transformed_data, np.asarray([y_cord]).T), axis=1)
+        new_data = np.concatenate((transformed_data, np.asarray([y_data]).T), axis=1)
         np.savetxt(file_path, new_data, delimiter=",")
 
     else:
@@ -87,7 +87,7 @@ def preprocessing_dataset(dataset_path, method, save_path = DATASET_FOLDER, verb
 
     return transformed_data
 
-def preprocessing(method, x_data):
+def preprocessing(method, x_data, y_data):
     """
         Given a preprocessing method and data, it returns transformed data.
 
@@ -112,13 +112,14 @@ def preprocessing(method, x_data):
     elif method == 'standard_scaler':
         transformed_data = standard_scaler(x_data)
     elif method == 'select_percentile':
-        transformed_data = select_percentile(x_data)
+        transformed_data = select_percentile(x_data, y_data)
     elif method == 'pca':
         transformed_data = pca(x_data)
     elif method == 'fast_ica':
         transformed_data = fast_ica(x_data)
     elif method == 'feature_agglomeration':
-        transformed_data = feature_agglomeration(x_data)
+        n_clusters = int( x_data.shape[1] / 2 )
+        transformed_data = feature_agglomeration(x_data, n_clusters)
     elif method == 'polynomial_features':
         transformed_data = polynomial_features(x_data)
     elif method == 'radial_basis_function_sampler':
@@ -151,7 +152,7 @@ def standard_scaler(x_data):
     scaler = StandardScaler().fit(x_data)
     return scaler.transform(x_data)
 
-def select_percentile(x_data, perc=10):
+def select_percentile(x_data, y_data, perc=10):
     """
         Given x_data it return the transformed data
          after selecting a percentile.
@@ -160,7 +161,7 @@ def select_percentile(x_data, perc=10):
 
         :return: The transformed data.
     """
-    new_x_data = SelectPercentile(chi2, percentile=perc).fit_transform(x_data)
+    new_x_data = SelectPercentile(f_classif, percentile=perc).fit_transform(x_data, y_data)
     return new_x_data
 
 def pca(x_data, n_components=0.85):
@@ -195,7 +196,7 @@ def fast_ica(x_data, n_components=7):
 
 # To DO:
 # See if there's a fast and simple way to determine n_clusters
-def feature_agglomeration(x_data, n_clusters=32):
+def feature_agglomeration(x_data, n_clusters):
     """
         Given x_data it return the transformed data
          after the Feature Agglomeration.
