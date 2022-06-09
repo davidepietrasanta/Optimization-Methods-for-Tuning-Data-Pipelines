@@ -9,7 +9,6 @@ __pycache__/
 #Datasets files
 dataset/
 model/
-src/out/
 
 #Test files
-test.py
+src/test/data/

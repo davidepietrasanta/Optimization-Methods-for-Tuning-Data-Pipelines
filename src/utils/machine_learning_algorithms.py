@@ -246,12 +246,4 @@ def prediction_metrics(model, test_x, test_y, metrics = None):
     if (metrics is None) or ('f1_score' in metrics):
         metrics_values["f1_score"] = f1_score(test_y, prediction_test_y, average='micro')
 
-    #if (metrics is None) or ('aic' in metrics):
-    #    metrics_values["aic"] = akaike(model, train_x, train_y)
-
-    #if (metrics is None) or ('kl_divergence' in metrics):
-    #    # TO DO:
-    #    # Is it ok to put the test prediction? Or should I put something else
-    #    metrics_values["kl_divergence"] = kl_divergence(test_y, prediction_test_y)
-
     return metrics_values

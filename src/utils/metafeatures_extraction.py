@@ -2,12 +2,12 @@
     Module for the extraction of the metafeatures.
 """
 import math
+import os
 from os import listdir
 from os.path import isfile, join
 import pandas as pd
 import numpy as np
 import skdim
-from sklearn.preprocessing import normalize
 from pymfe.mfe import MFE
 from ..config import DATASET_FOLDER # pylint: disable=relative-beyond-top-level
 from .dataset_selection import check_missing_values # pylint: disable=relative-beyond-top-level
@@ -54,6 +54,10 @@ def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER,
         name_saved_csv = "metafeatures.csv"
 
     dataset.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
+    
+    if not os.path.exists(save_path):
+            os.makedirs(save_path)
+    
     dataset.to_csv(join(save_path, name_saved_csv), index=False)
 
     return dataset
@@ -92,11 +96,6 @@ def metafeature(dataset_path, verbose=False):
         intrinsic_dim = intrinsic_dimensionality(X)
         dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
         dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
-
-        # TO DO:
-        # Kullback-Leibler divergence and AKAIKE Information Criterion
-        #dict_ft['kl_divergence'] =
-        #dict_ft['aic'] =
 
         if verbose:
             print( str(len(dict_ft))
@@ -137,44 +136,46 @@ def intrinsic_dimensionality(data):
     intrinsic_dim = [global_intrinsic_dimensionality, mean_local_intrinsic_dimensionality]
     return intrinsic_dim
 
-def kl_divergence(distr_p, distr_q):
-    """
-        Simple implementation of the Kullback-Leibler divergence.
-
-        :param p: Distribution p.
-        :param q: Distribution q.
-
-        :example of use:
-            import numpy as np \n
-            from scipy.stats import norm \n
-            from matplotlib import pyplot as plt \n
-            import tensorflow as tf \n
-            import seaborn as sns \n
-            sns.set() \n
-            \n
-            x = np.arange(-10, 10, 0.001) \n
-            p = norm.pdf(x, 0, 2) \n
-            q = norm.pdf(x, 2, 2)plt.title('KL(P||Q) = %1.3f' % kl_divergence(p, q)) \n
-            plt.plot(x, p) \n
-            plt.plot(x, q, c='red') \n
-
-        :return: A scalar, the Killback-Leibler divergence between p and q.
-    """
-    # We first need to normalize the vectors to Probability density function
-    # The sum should be 1
-    p_norm = normalize(
-        distr_p[:,np.newaxis],
-        axis=0,
-        norm='l1').ravel()
-    q_norm = normalize(
-        distr_q[:,np.newaxis],
-        axis=0,
-        norm='l1').ravel()
-
-    return np.sum(np.where(p_norm != 0, p_norm * np.log(p_norm / q_norm), 0))
-
 # TO DO:
 # See how to integrate Akaike and Kl-divergence
+#from sklearn.preprocessing import normalize
+#def kl_divergence(distr_p, distr_q):
+#    """
+#        Simple implementation of the Kullback-Leibler divergence.
+#
+#        :param p: Distribution p.
+#        :param q: Distribution q.
+#
+#        :example of use:
+#            import numpy as np \n
+#            from scipy.stats import norm \n
+#            from matplotlib import pyplot as plt \n
+#            import tensorflow as tf \n
+#            import seaborn as sns \n
+#            sns.set() \n
+#            \n
+#            x = np.arange(-10, 10, 0.001) \n
+#            p = norm.pdf(x, 0, 2) \n
+#            q = norm.pdf(x, 2, 2)plt.title('KL(P||Q) = %1.3f' % kl_divergence(p, q)) \n
+#            plt.plot(x, p) \n
+#            plt.plot(x, q, c='red') \n
+#
+#        :return: A scalar, the Killback-Leibler divergence between p and q.
+#    """
+#    # We first need to normalize the vectors to Probability density function
+#    # The sum should be 1
+#    p_norm = normalize(
+#        distr_p[:,np.newaxis],
+#        axis=0,
+#        norm='l1').ravel()
+#    q_norm = normalize(
+#        distr_q[:,np.newaxis],
+#        axis=0,
+#        norm='l1').ravel()
+#
+#   return np.sum(np.where(p_norm != 0, p_norm * np.log(p_norm / q_norm), 0))
+
+# TO DO:
 # Should we use the Train or the whole dataset?
 #def akaike(model, train_x, train_y):
 #    """

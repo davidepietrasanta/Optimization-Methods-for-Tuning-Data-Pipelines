@@ -1,15 +1,15 @@
 """
     Main module
 """
-from os.path import join
-import pandas as pd
-from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER
-from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING
-#from src.utils.dataset_selection import select_datasets
-#from src.utils.metafeatures_extraction import metafeatures_extraction
-from src.utils.machine_learning_algorithms import machine_learning_algorithm
-from src.utils.preprocessing_methods import preprocess_dataset, categorical_string_to_number
-from src.utils.preprocessing_methods import preprocess_all_datasets
+from os.path import join # pylint: disable=unused-import
+import pandas as pd # pylint: disable=unused-import
+from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=unused-import
+from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING # pylint: disable=unused-import
+from src.utils.dataset_selection import select_datasets # pylint: disable=unused-import
+from src.utils.metafeatures_extraction import metafeatures_extraction # pylint: disable=unused-import
+from src.utils.machine_learning_algorithms import machine_learning_algorithm # pylint: disable=unused-import
+from src.utils.preprocessing_methods import preprocess_dataset, categorical_string_to_number # pylint: disable=unused-import
+from src.utils.preprocessing_methods import preprocess_all_datasets # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -26,7 +26,10 @@ if __name__ == '__main__':
     #    x = preprocess_dataset(dataset_path=dataset_path, method=method, verbose=True)
 
     prova = join(DATASET_FOLDER, 'prova')
-    preprocess_all_datasets(datasets_path=DATASET_FOLDER_MEDIUM,save_path= DATASET_FOLDER_MEDIUM,verbose=True)
+    preprocess_all_datasets(
+        datasets_path = DATASET_FOLDER_MEDIUM,
+        save_path = DATASET_FOLDER_MEDIUM,
+        verbose = True)
 
     #dataset = pd.read_csv(dataset_path_2)
     #print( dataset.head() )

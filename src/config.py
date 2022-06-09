@@ -7,10 +7,10 @@ from pathlib import Path
 
 ROOT_FOLDER = Path(__file__).parent.parent
 
-CODE_FOLDER = join(ROOT_FOLDER, "src", "code")
 MODEL_FOLDER = join(ROOT_FOLDER, "model")
 OUT_FOLDER = join(ROOT_FOLDER, "src", "out")
 UTILS_FOLDER = join(ROOT_FOLDER, "src", "utils")
+TEST_FOLDER = join(ROOT_FOLDER, "src", "test")
 
 DATASET_FOLDER = join(ROOT_FOLDER, "dataset")
 DATASET_PREPROCESSING_FOLDER = join(DATASET_FOLDER, "preprocessing")

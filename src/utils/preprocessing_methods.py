@@ -14,6 +14,7 @@ import os
 from os import listdir
 from os.path import isfile, join
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
@@ -172,6 +173,22 @@ def preprocessing(method, x_data, y_data):
 
     return transformed_data
 
+def categorical_string_to_number(dataset):
+    """
+        Given data it return the transformed data
+         after replacing categorical string into numbers.
+
+        :param dataset: A dataset, should be a dataframe.
+
+        :return: The transformed data.
+    """
+    dataset_copy = dataset.copy(deep=True)
+    for column in dataset_copy:
+        # If the column type is not number
+        if not is_numeric_dtype( dataset_copy[column] ):
+            dataset_copy[column] = dataset_copy[column].astype('category').cat.codes
+    return dataset_copy
+
 
 def min_max_scaler(x_data):
     """
@@ -284,19 +301,3 @@ def radial_basis_function_sampler(x_data, gamma=1):
     """
     rbf_feature = RBFSampler(gamma=gamma, random_state=SEED_VALUE).fit(x_data)
     return rbf_feature.transform(x_data)
-
-def categorical_string_to_number(dataset):
-    """
-        Given data it return the transformed data
-         after replacing categorical string into numbers.
-
-        :param dataset: A dataset, should be a dataframe.
-
-        :return: The transformed data.
-    """
-    for column in dataset:
-        # If the column type is not number
-        if dataset[column].dtype != np.number:
-            dataset[column] = dataset[column].astype('category').cat.codes
-
-    return dataset

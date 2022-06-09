@@ -39,7 +39,6 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         task_type=TaskType.SUPERVISED_CLASSIFICATION, output_format="dataframe"
     )
     # Just consider 10-fold Crossvalidation
-    # TO DO: See if it's ok or useless
     openml_df = openml_df.query('estimation_procedure == "10-fold Crossvalidation"')
     # Drop useless columns
     # ttid tid did target_feature
