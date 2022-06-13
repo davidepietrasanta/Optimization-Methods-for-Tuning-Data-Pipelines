@@ -6,9 +6,11 @@ __pycache__/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-#Datasets files
+#Store directory
 dataset/
+metafeatures/
 model/
+src/out
 
 #Test files
 src/test/data/

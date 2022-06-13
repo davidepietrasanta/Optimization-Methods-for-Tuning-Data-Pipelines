@@ -4,6 +4,7 @@
 """
 from os.path import join
 from pathlib import Path
+from pandas import read_csv
 
 ROOT_FOLDER = Path(__file__).parent.parent
 
@@ -18,6 +19,8 @@ DATASET_PREPROCESSING_FOLDER = join(DATASET_FOLDER, "preprocessing")
 DATASET_FOLDER_SMALL = join(DATASET_FOLDER, "small")
 DATASET_FOLDER_MEDIUM = join(DATASET_FOLDER, "medium")
 DATASET_FOLDER_LARGE = join(DATASET_FOLDER, "large")
+
+METAFEATURES_FOLDER = join(ROOT_FOLDER, "metafeatures")
 
 SEED_VALUE = int(100)
 TEST_SIZE = 0.2
@@ -70,5 +73,18 @@ LIST_OF_PREPROCESSING = [
     "radial_basis_function_sampler"
 ]
 
-# TO DO
-LIST_OF_METAFEATURES = []
+def list_of_metafeatures(metafeatures_path=None):
+    """
+       Used to know the list of the metafeatures used during the pipeline.
+
+        :param metafeatures_path: Path where the metafeatures are saved.
+         Datasets should be in a CSV format.
+
+        :return: A list of metafeatures.
+    """
+    if metafeatures_path is None:
+        metafeatures_path = join(METAFEATURES_FOLDER, 'metafeatures.csv')
+
+    metafeatures_csv = read_csv(metafeatures_path)
+    list_of_columns = list(metafeatures_csv.columns)
+    return list_of_columns

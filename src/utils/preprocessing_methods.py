@@ -241,7 +241,7 @@ def pca(x_data, n_components=0.85):
     return transformer.transform(x_data)
 
 # To DO:
-# See if there's a fast and simple way to determine n_components
+# See if there's a better way to determine n_components
 def fast_ica(x_data, n_components):
     """
         Given x_data it return the transformed data
@@ -261,7 +261,7 @@ def fast_ica(x_data, n_components):
     return transformer.transform(x_data)
 
 # To DO:
-# See if there's a fast and simple way to determine n_clusters
+# See if there's a better way to determine n_clusters
 def feature_agglomeration(x_data, n_clusters):
     """
         Given x_data it return the transformed data

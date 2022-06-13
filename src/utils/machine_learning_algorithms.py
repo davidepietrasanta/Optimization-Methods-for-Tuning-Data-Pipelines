@@ -87,7 +87,7 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
         if verbose:
             print("Testing...")
         # TO DO:
-        # Understand where to put this data.
+        # Put this data with the metafeatures of the dataset
         prediction = prediction_metrics(model, test_x, test_y)
         if verbose:
             print("Prediction performance on test set:")

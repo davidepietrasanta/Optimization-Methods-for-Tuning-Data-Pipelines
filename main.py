@@ -4,6 +4,7 @@
 from os.path import join # pylint: disable=unused-import
 import pandas as pd # pylint: disable=unused-import
 from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=unused-import
+from src.config import METAFEATURES_FOLDER, list_of_metafeatures # pylint: disable=unused-import
 from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING # pylint: disable=unused-import
 from src.utils.dataset_selection import select_datasets # pylint: disable=unused-import
 from src.utils.metafeatures_extraction import metafeatures_extraction # pylint: disable=unused-import
@@ -26,11 +27,14 @@ if __name__ == '__main__':
     #    x = preprocess_dataset(dataset_path=dataset_path, method=method, verbose=True)
 
     prova = join(DATASET_FOLDER, 'prova')
-    preprocess_all_datasets(
-        datasets_path = DATASET_FOLDER_MEDIUM,
-        save_path = DATASET_FOLDER_MEDIUM,
+    #preprocess_all_datasets(
+    #    datasets_path = DATASET_FOLDER_MEDIUM,
+    #    save_path = DATASET_FOLDER_MEDIUM,
+    #    verbose = True)
+
+    metafeatures_extraction(
+        datasets_path = prova,
+        save_path = METAFEATURES_FOLDER,
         verbose = True)
 
-    #dataset = pd.read_csv(dataset_path_2)
-    #print( dataset.head() )
-    #print( categorical_string_to_number(dataset).head() )
+    print( list_of_metafeatures() )

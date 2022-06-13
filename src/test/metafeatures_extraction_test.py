@@ -34,7 +34,7 @@ def test_metafeatures_extraction():
         save_path= save_path,
         name_saved_csv = None,
         verbose=False)
-        
+
     assert exists(save_path)
     assert exists(join(save_path, "metafeatures.csv"))
     assert metafeatures is not None

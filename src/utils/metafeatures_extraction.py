@@ -9,11 +9,11 @@ import pandas as pd
 import numpy as np
 import skdim
 from pymfe.mfe import MFE
-from ..config import DATASET_FOLDER # pylint: disable=relative-beyond-top-level
+from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-level
 from .dataset_selection import check_missing_values # pylint: disable=relative-beyond-top-level
 
 
-def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER,
+def metafeatures_extraction(datasets_path, save_path = METAFEATURES_FOLDER,
  name_saved_csv = None, verbose = False):
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
@@ -54,10 +54,10 @@ def metafeatures_extraction(datasets_path, save_path = DATASET_FOLDER,
         name_saved_csv = "metafeatures.csv"
 
     dataset.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
-    
+
     if not os.path.exists(save_path):
-            os.makedirs(save_path)
-    
+        os.makedirs(save_path)
+
     dataset.to_csv(join(save_path, name_saved_csv), index=False)
 
     return dataset

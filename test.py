@@ -10,6 +10,9 @@ def test_all(verbose=True):
     """
         Function to test all the methods.
     """
+    if verbose:
+        print("Test...")
+
     assert test_preprocessing_methods()
     if verbose:
         print("Test on 'preprocessing_methods' passed.")
