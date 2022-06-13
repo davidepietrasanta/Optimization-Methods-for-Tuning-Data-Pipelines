@@ -59,7 +59,7 @@ def test_machine_learning_algorithm():
 
     assert not exists(save_path)
 
-    # Test function with methods not in list
+    # Test function with algorithm not in list
     [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='',
@@ -69,6 +69,7 @@ def test_machine_learning_algorithm():
     assert prediction is None
     assert not exists(save_path)
 
+    # Test function with algorithm not in list
     [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='LogisticRegression',
@@ -78,86 +79,81 @@ def test_machine_learning_algorithm():
     assert prediction is None
     assert not exists(save_path)
 
-    # Test function with methods in list
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='logistic_regression',
-        save_path = save_path,
-        verbose = False)
-    assert model is not None
-    assert prediction is not None
-    assert exists(save_path)
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+    algorithm = 'logistic_regression',
+    dataset_path = dataset_path,
+    save_path = save_path)
 
     # Delete save directory and all its files
     if exists(save_path):
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='naive_bayes',
-        save_path = save_path,
-        verbose = False)
-    assert model is not None
-    assert prediction is not None
-    assert exists(save_path)
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+    algorithm = 'naive_bayes',
+    dataset_path = dataset_path,
+    save_path = save_path)
 
     # Delete save directory and all its files
     if exists(save_path):
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='knn',
-        save_path = save_path,
-        verbose = False)
-    assert model is not None
-    assert prediction is not None
-    assert exists(save_path)
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+        algorithm = 'knn',
+        dataset_path = dataset_path,
+        save_path = save_path)
 
     # Delete save directory and all its files
     if exists(save_path):
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='random_forest',
-        save_path = save_path,
-        verbose = False)
-    assert model is not None
-    assert prediction is not None
-    assert exists(save_path)
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+        algorithm = 'random_forest',
+        dataset_path = dataset_path,
+        save_path = save_path)
 
     # Delete save directory and all its files
     if exists(save_path):
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='svm',
-        save_path = save_path,
-        verbose = False)
-    assert model is not None
-    assert prediction is not None
-    assert exists(save_path)
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+        algorithm = 'svm',
+        dataset_path = dataset_path,
+        save_path = save_path)
 
     # Delete save directory and all its files
     if exists(save_path):
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
+    # Test function with algorithm in list
+    assert _valid_machine_learning_algorithm_test(
+        algorithm = 'perceptron',
+        dataset_path = dataset_path,
+        save_path = save_path)
+
+    return True
+
+def _valid_machine_learning_algorithm_test(algorithm, dataset_path, save_path):
+    """
+        Test function with algorithm in list 
+    """
     [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='perceptron',
-        save_path = save_path,
-        verbose = False)
+    dataset_path=dataset_path,
+    algorithm=algorithm,
+    save_path = save_path,
+    verbose = False)
     assert model is not None
     assert prediction is not None
     assert exists(save_path)
-
     return True
 
 def test_train_algorithm():

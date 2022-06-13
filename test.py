@@ -33,6 +33,4 @@ def test_all(verbose=True):
 
 if __name__ == '__main__':
     VERBOSE = True
-    #test_all(verbose=VERBOSE)
-    from src.test.machine_learning_test import test_extract_machine_learning_performances
-    test_extract_machine_learning_performances()
+    test_all(verbose=VERBOSE)
