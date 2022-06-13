@@ -3,7 +3,7 @@
 """
 import shutil
 from os.path import join, exists
-from ..utils.metafeatures_extraction import metafeatures_extraction # pylint: disable=relative-beyond-top-level
+from ..utils.metafeatures_extraction import metafeatures_extraction_data # pylint: disable=relative-beyond-top-level
 from ..utils.metafeatures_extraction import metafeature # pylint: disable=relative-beyond-top-level
 from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
 
@@ -11,11 +11,11 @@ def test_all():
     """
         Function to test all the preprocessing methods.
     """
-    assert test_metafeatures_extraction()
+    assert test_metafeatures_extraction_data()
     assert test_metafeature()
     return True
 
-def test_metafeatures_extraction():
+def test_metafeatures_extraction_data():
     """
         Function to test the function 'metafeatures_extraction'.
     """
@@ -29,14 +29,14 @@ def test_metafeatures_extraction():
 
     assert not exists(save_path)
 
-    metafeatures = metafeatures_extraction(
+    metafeatures = metafeatures_extraction_data(
         datasets_path=dataset_path,
         save_path= save_path,
         name_saved_csv = None,
         verbose=False)
 
     assert exists(save_path)
-    assert exists(join(save_path, "metafeatures.csv"))
+    assert exists(join(save_path, "metafeatures_data.csv"))
     assert metafeatures is not None
 
     return True

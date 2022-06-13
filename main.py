@@ -7,7 +7,8 @@ from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=u
 from src.config import METAFEATURES_FOLDER, list_of_metafeatures # pylint: disable=unused-import
 from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING # pylint: disable=unused-import
 from src.utils.dataset_selection import select_datasets # pylint: disable=unused-import
-from src.utils.metafeatures_extraction import metafeatures_extraction # pylint: disable=unused-import
+from src.utils.metafeatures_extraction import metafeatures_extraction_data # pylint: disable=unused-import
+from src.utils.machine_learning_algorithms import extract_machine_learning_performances # pylint: disable=unused-import
 from src.utils.machine_learning_algorithms import machine_learning_algorithm # pylint: disable=unused-import
 from src.utils.preprocessing_methods import preprocess_dataset, categorical_string_to_number # pylint: disable=unused-import
 from src.utils.preprocessing_methods import preprocess_all_datasets # pylint: disable=unused-import
@@ -32,9 +33,14 @@ if __name__ == '__main__':
     #    save_path = DATASET_FOLDER_MEDIUM,
     #    verbose = True)
 
-    metafeatures_extraction(
-        datasets_path = prova,
-        save_path = METAFEATURES_FOLDER,
-        verbose = True)
+    #metafeatures_extraction_data(
+    #    datasets_path = prova,
+    #    save_path = METAFEATURES_FOLDER,
+    #    verbose = True)
 
-    print( list_of_metafeatures() )
+    extract_machine_learning_performances(
+        datasets_path = prova,
+        save_model_path = prova,
+        save_performance_path = METAFEATURES_FOLDER,
+        preprocessing = None,
+        verbose = True)

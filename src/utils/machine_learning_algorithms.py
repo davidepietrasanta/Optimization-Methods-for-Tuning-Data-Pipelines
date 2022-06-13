@@ -9,7 +9,8 @@
     - Perceptron\n
 """
 import os
-from os.path import join
+from os import listdir
+from os.path import isfile, join
 import pandas as pd
 from joblib import dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -23,14 +24,80 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 
-#from ..utils.metafeatures_extraction import akaike, kl_divergence # pylint: disable=relative-beyond-top-level
 from ..config import LIST_OF_ML_MODELS, MODEL_FOLDER # pylint: disable=relative-beyond-top-level
+from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
 
+def extract_machine_learning_performances(
+    datasets_path,
+    save_model_path = MODEL_FOLDER,
+    save_performance_path = METAFEATURES_FOLDER,
+    preprocessing = None,
+    verbose = False):
+    """
+        Given a path to a dataset and an algorithm, it return, and save,
+         the trained model and the performance.
+
+        :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
+        :param save_path: The path were to save the trained model.
+        :param verbose: If True more info are printed.
+
+        :return: A trained model with the performance.
+    """
+    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    n_datasets = len(list_datasets)
+
+    performances = {
+        'dataset_name' : [],
+        'algorithm': [],
+        'performance' : []
+    }
+
+    if preprocessing is not None:
+        performances['preprocessing'] = []
+
+    for i, dataset_name in enumerate(list_datasets):
+        if verbose:
+            print( "Dataset: '" + dataset_name +
+            "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+
+        dataset_path = join(datasets_path, dataset_name)
+
+        for algorithm in LIST_OF_ML_MODELS:
+
+            if verbose:
+                print("Extracting performance from '" + dataset_name +
+                "' with '" + algorithm + "'.")
+            try:
+                [_, performance] = machine_learning_algorithm(
+                    dataset_path,
+                    algorithm,
+                    save_path = save_model_path,
+                    verbose = False)
+
+                performances['dataset_name'].append(dataset_name)
+                performances['algorithm'].append(algorithm)
+                performances['performance'].append(performance)
+                if preprocessing is not None:
+                    performances['preprocessing'] = [preprocessing]
+            except: # pylint: disable=bare-except
+                if verbose:
+                    print( "Error while extracting performance from '"
+                    + dataset_name + "' with '" + algorithm + "', skipped.")
+
+    save_path = save_performance_path
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    perf_path = join(save_path, "performances.csv")
+    pd.DataFrame.from_dict(performances).to_csv(perf_path)
+
+    return performances
 
 def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER, verbose = False):
     """
-        Given a path to a dataset, it return, and save, its the matefeatures.
+        Given a path to a dataset and an algorithm, it return, and save,
+         the trained model and the performance.
 
         :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
         :param algorithm: Machine Learning algorithm selected.
@@ -44,9 +111,10 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
         :param save_path: The path were to save the trained model.
         :param verbose: If True more info are printed.
 
-        :return: A trained model.
+        :return: A trained model with the performance.
     """
     model = None
+    prediction = None
 
     if algorithm in LIST_OF_ML_MODELS:
         dataset_name = os.path.basename(dataset_path)
@@ -86,8 +154,7 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
         # Test
         if verbose:
             print("Testing...")
-        # TO DO:
-        # Put this data with the metafeatures of the dataset
+
         prediction = prediction_metrics(model, test_x, test_y)
         if verbose:
             print("Prediction performance on test set:")
@@ -98,9 +165,9 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
             print("The algorithm '" + algorithm + "' is not between "
             +" ".join(LIST_OF_ML_MODELS))
 
-        return model
+        return [model, prediction]
 
-    return model
+    return [model, prediction]
 
 def train_algorithm(algorithm, train_x, train_y):
     """
@@ -225,9 +292,7 @@ def prediction_metrics(model, test_x, test_y, metrics = None):
          ["accuracy",
          "precision",
          "recall",
-         "f1_score",
-         "aic",
-         "kl_divergence"].
+         "f1_score"].
 
         :return: Accuracy, precision, recall and f1_score as a dictionary.
     """

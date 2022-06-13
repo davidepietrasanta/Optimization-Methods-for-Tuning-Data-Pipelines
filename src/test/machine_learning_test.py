@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from ..utils.machine_learning_algorithms import machine_learning_algorithm # pylint: disable=relative-beyond-top-level
 from ..utils.machine_learning_algorithms import train_algorithm # pylint: disable=relative-beyond-top-level
+from ..utils.machine_learning_algorithms import extract_machine_learning_performances # pylint: disable=relative-beyond-top-level
 from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
 
@@ -14,8 +15,35 @@ def test_all():
     """
         Function to test all the preprocessing methods.
     """
+    assert test_extract_machine_learning_performances()
     assert test_machine_learning_algorithm()
     assert test_train_algorithm()
+    return True
+
+def test_extract_machine_learning_performances():
+    """
+        Function to test the function 'extract_machine_learning_performances'.
+    """
+    datasets_path = join(TEST_FOLDER, 'data')
+    save_path = join(TEST_FOLDER, 'data', 'save')
+
+    # Delete save directory and all its files
+    if exists(save_path):
+        shutil.rmtree(save_path)
+
+    assert not exists(save_path)
+
+    performances = extract_machine_learning_performances(
+        datasets_path=datasets_path,
+        save_model_path= save_path,
+        save_performance_path = save_path,
+        preprocessing = None,
+        verbose=False)
+
+    assert exists(save_path)
+    assert exists(join(save_path, "performances.csv"))
+    assert performances is not None
+
     return True
 
 def test_machine_learning_algorithm():
@@ -32,29 +60,32 @@ def test_machine_learning_algorithm():
     assert not exists(save_path)
 
     # Test function with methods not in list
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='',
         save_path = save_path,
         verbose = False)
     assert model is None
+    assert prediction is None
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='LogisticRegression',
         save_path = save_path,
         verbose = False)
     assert model is None
+    assert prediction is None
     assert not exists(save_path)
 
     # Test function with methods in list
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='logistic_regression',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     # Delete save directory and all its files
@@ -62,12 +93,13 @@ def test_machine_learning_algorithm():
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='naive_bayes',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     # Delete save directory and all its files
@@ -75,12 +107,13 @@ def test_machine_learning_algorithm():
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='knn',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     # Delete save directory and all its files
@@ -88,12 +121,13 @@ def test_machine_learning_algorithm():
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='random_forest',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     # Delete save directory and all its files
@@ -101,12 +135,13 @@ def test_machine_learning_algorithm():
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='svm',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     # Delete save directory and all its files
@@ -114,12 +149,13 @@ def test_machine_learning_algorithm():
         shutil.rmtree(save_path)
     assert not exists(save_path)
 
-    model = machine_learning_algorithm(
+    [model, prediction] = machine_learning_algorithm(
         dataset_path=dataset_path,
         algorithm='perceptron',
         save_path = save_path,
         verbose = False)
     assert model is not None
+    assert prediction is not None
     assert exists(save_path)
 
     return True

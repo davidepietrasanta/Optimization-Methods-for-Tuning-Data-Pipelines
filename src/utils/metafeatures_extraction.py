@@ -13,7 +13,7 @@ from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-l
 from .dataset_selection import check_missing_values # pylint: disable=relative-beyond-top-level
 
 
-def metafeatures_extraction(datasets_path, save_path = METAFEATURES_FOLDER,
+def metafeatures_extraction_data(datasets_path, save_path = METAFEATURES_FOLDER,
  name_saved_csv = None, verbose = False):
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
@@ -51,7 +51,7 @@ def metafeatures_extraction(datasets_path, save_path = METAFEATURES_FOLDER,
     dataset = pd.DataFrame(datasets_metafeatures)
 
     if name_saved_csv is None:
-        name_saved_csv = "metafeatures.csv"
+        name_saved_csv = "metafeatures_data.csv"
 
     dataset.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
 
