@@ -58,7 +58,7 @@ def metafeatures_extraction_data(datasets_path, save_path = METAFEATURES_FOLDER,
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    dataset.to_csv(join(save_path, name_saved_csv), index=False)
+    dataset.to_csv(join(save_path, name_saved_csv), index=True)
 
     return dataset
 
@@ -76,9 +76,17 @@ def metafeature(dataset_path, verbose=False):
     try:
         # Read the CSV
         dataset = pd.read_csv(dataset_path)
+
         # Separate X from y
-        y = dataset["y"].to_list() # pylint: disable=invalid-name
-        X = dataset.drop(["y"], axis=1).to_numpy() # pylint: disable=invalid-name
+        if 'y' in list(dataset.columns):
+            y = dataset["y"].to_list() # pylint: disable=invalid-name
+            X = dataset.drop(["y"], axis=1).to_numpy() # pylint: disable=invalid-name
+        else:
+            # This is because we may want to work with pre-processed data
+            # Preprocess can change che nature of the features so it's not
+            # possible to keep the original features name.
+            y = dataset.iloc[: , -1].tolist() # pylint: disable=invalid-name
+            X = dataset.iloc[: , :-1].to_numpy() # pylint: disable=invalid-name
 
         # Extract general, statistical and information-theoretic measures
         mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)

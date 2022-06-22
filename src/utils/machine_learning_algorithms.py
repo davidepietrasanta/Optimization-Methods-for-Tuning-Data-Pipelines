@@ -32,6 +32,7 @@ def extract_machine_learning_performances(
     datasets_path,
     save_model_path = MODEL_FOLDER,
     save_performance_path = METAFEATURES_FOLDER,
+    performance_file_name = 'performances.csv',
     preprocessing = None,
     verbose = False):
     """
@@ -79,7 +80,7 @@ def extract_machine_learning_performances(
                 performances['algorithm'].append(algorithm)
                 performances['performance'].append(performance)
                 if preprocessing is not None:
-                    performances['preprocessing'] = [preprocessing]
+                    performances['preprocessing'].append(preprocessing)
             except: # pylint: disable=bare-except
                 if verbose:
                     print( "Error while extracting performance from '"
@@ -89,7 +90,7 @@ def extract_machine_learning_performances(
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    perf_path = join(save_path, "performances.csv")
+    perf_path = join(save_path, performance_file_name)
     pd.DataFrame.from_dict(performances).to_csv(perf_path)
 
     return performances
@@ -127,11 +128,18 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
 
         train, test = train_test_split(dataset, test_size=TEST_SIZE, random_state=SEED_VALUE)
 
-        train_y = train["y"].to_numpy()
-        train_x = train.drop(["y"], axis=1).to_numpy()
+        if 'y' in list(dataset.columns):
+            train_y = train["y"].to_numpy()
+            train_x = train.drop(["y"], axis=1).to_numpy()
 
-        test_y = test["y"].to_numpy()
-        test_x = test.drop(["y"], axis=1).to_numpy()
+            test_y = test["y"].to_numpy()
+            test_x = test.drop(["y"], axis=1).to_numpy()
+        else:
+            train_y = train.iloc[: , -1].tolist()
+            train_x = train.iloc[: , :-1].to_numpy()
+
+            test_y = test.iloc[: , -1].tolist()
+            test_x = test.iloc[: , :-1].to_numpy()
 
         # Train
         if verbose:

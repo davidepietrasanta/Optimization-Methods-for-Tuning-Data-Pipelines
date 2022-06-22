@@ -113,7 +113,7 @@ def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOL
         if verbose:
             print("Saving the transformed data...")
 
-        save_name = dataset_name + '.csv'
+        save_name = dataset_name #+ '.csv'
         directory = join(save_path, method)
         file_path = join(directory, save_name)
 
@@ -240,8 +240,6 @@ def pca(x_data, n_components=0.85):
     transformer = PCA(n_components=n_components, svd_solver='full').fit(x_data)
     return transformer.transform(x_data)
 
-# To DO:
-# See if there's a better way to determine n_components
 def fast_ica(x_data, n_components):
     """
         Given x_data it return the transformed data
@@ -260,8 +258,6 @@ def fast_ica(x_data, n_components):
         ).fit(x_data)
     return transformer.transform(x_data)
 
-# To DO:
-# See if there's a better way to determine n_clusters
 def feature_agglomeration(x_data, n_clusters):
     """
         Given x_data it return the transformed data
@@ -304,3 +300,8 @@ def radial_basis_function_sampler(x_data, gamma=1):
 
 # To DO:
 # ADD IMAGE PREPROCESSING
+# Should I detect if image or not first or maybe better not?
+# Should make the previous function able to work also with images
+#
+# Data Aug
+# Black and White
