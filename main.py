@@ -21,7 +21,7 @@ if __name__ == '__main__':
         data_path=prova,
         data_preprocess = False,
         metafeatures_extraction = False,
-        model_training = True,
+        model_training = False,
         verbose=VERBOSE)
 
     # TO DO:
