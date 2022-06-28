@@ -14,6 +14,7 @@ from os.path import isfile, join
 import pandas as pd
 from joblib import dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -256,7 +257,6 @@ def random_forest(X, y): # pylint: disable=invalid-name
 
         :param X: Input variables
         :param y: Label or Target value
-        :param max_depth:
 
         :return: A trained model.
     """
@@ -287,7 +287,7 @@ def perceptron(X, y): # pylint: disable=invalid-name
     model = Perceptron(tol=1e-3, random_state=SEED_VALUE).fit(X, y)
     return model
 
-def prediction_metrics(model, test_x, test_y, metrics = None):
+def prediction_metrics(model, test_x, test_y, metrics = None, regression = False):
     """
         Return accuracy, precision, recall and f1_score of the model.
 
@@ -301,22 +301,30 @@ def prediction_metrics(model, test_x, test_y, metrics = None):
          "precision",
          "recall",
          "f1_score"].
+        :param regression: If True return metrics for regression
 
         :return: Accuracy, precision, recall and f1_score as a dictionary.
     """
     prediction_test_y = model.predict(test_x)
     metrics_values = {}
+    if not regression:
+        if (metrics is None) or ('accuracy' in metrics):
+            metrics_values["accuracy"] = accuracy_score(test_y, prediction_test_y)
 
-    if (metrics is None) or ('accuracy' in metrics):
-        metrics_values["accuracy"] = accuracy_score(test_y, prediction_test_y)
+        if (metrics is None) or ('precision' in metrics):
+            metrics_values["precision"]=precision_score(test_y, prediction_test_y, average='micro')
 
-    if (metrics is None) or ('precision' in metrics):
-        metrics_values["precision"] = precision_score(test_y, prediction_test_y, average='micro')
+        if (metrics is None) or ('recall' in metrics):
+            metrics_values["recall"] = recall_score(test_y, prediction_test_y, average='micro')
 
-    if (metrics is None) or ('recall' in metrics):
-        metrics_values["recall"] = recall_score(test_y, prediction_test_y, average='micro')
-
-    if (metrics is None) or ('f1_score' in metrics):
-        metrics_values["f1_score"] = f1_score(test_y, prediction_test_y, average='micro')
+        if (metrics is None) or ('f1_score' in metrics):
+            metrics_values["f1_score"] = f1_score(test_y, prediction_test_y, average='micro')
+    else:
+        if (metrics is None) or ('mse' in metrics):
+            metrics_values["mse"] = mean_squared_error(test_y, prediction_test_y)
+        if (metrics is None) or ('rmse' in metrics):
+            metrics_values["rmse"] = mean_squared_error(test_y, prediction_test_y, squared=False)
+        if (metrics is None) or ('mae' in metrics):
+            metrics_values["mae"] = mean_absolute_error(test_y, prediction_test_y)
 
     return metrics_values

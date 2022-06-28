@@ -62,6 +62,10 @@ LIST_OF_ML_MODELS = [
     "svm",
     "perceptron"]
 
+LIST_OF_ML_MODELS_FOR_METALEARNING = [
+    "knn",
+    "random_forest"]
+
 LIST_OF_PREPROCESSING = [
     "min_max_scaler",
     "standard_scaler",

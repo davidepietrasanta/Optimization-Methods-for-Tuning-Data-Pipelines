@@ -24,5 +24,6 @@ lib
 │   ├─ out                      # Store eventual data
 |   └─ config.py
 |── main.py
+|── Tutorial.ipynb
 └── test.py
 ```

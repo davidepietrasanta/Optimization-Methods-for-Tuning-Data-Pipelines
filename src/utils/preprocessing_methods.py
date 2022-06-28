@@ -297,11 +297,3 @@ def radial_basis_function_sampler(x_data, gamma=1):
     """
     rbf_feature = RBFSampler(gamma=gamma, random_state=SEED_VALUE).fit(x_data)
     return rbf_feature.transform(x_data)
-
-# To DO:
-# ADD IMAGE PREPROCESSING
-# Should I detect if image or not first or maybe better not?
-# Should make the previous function able to work also with images
-#
-# Data Aug
-# Black and White
