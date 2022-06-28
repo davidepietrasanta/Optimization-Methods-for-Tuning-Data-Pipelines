@@ -7,20 +7,20 @@ from pathlib import Path
 from pandas import read_csv
 
 ROOT_FOLDER = Path(__file__).parent.parent
+DATA_FOLDER = join(ROOT_FOLDER, "data")
 
-MODEL_FOLDER = join(ROOT_FOLDER, "model")
-OUT_FOLDER = join(ROOT_FOLDER, "src", "out")
+MODEL_FOLDER = join(DATA_FOLDER, "model")
+METAFEATURES_FOLDER = join(DATA_FOLDER, "metafeatures")
+
 UTILS_FOLDER = join(ROOT_FOLDER, "src", "utils")
 TEST_FOLDER = join(ROOT_FOLDER, "src", "test")
 
-DATASET_FOLDER = join(ROOT_FOLDER, "dataset")
+DATASET_FOLDER = join(DATA_FOLDER, "dataset")
 DATASET_PREPROCESSING_FOLDER = join(DATASET_FOLDER, "preprocessing")
 
 DATASET_FOLDER_SMALL = join(DATASET_FOLDER, "small")
 DATASET_FOLDER_MEDIUM = join(DATASET_FOLDER, "medium")
 DATASET_FOLDER_LARGE = join(DATASET_FOLDER, "large")
-
-METAFEATURES_FOLDER = join(ROOT_FOLDER, "metafeatures")
 
 SEED_VALUE = int(100)
 TEST_SIZE = 0.2

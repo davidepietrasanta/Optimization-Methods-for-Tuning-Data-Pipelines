@@ -14,10 +14,11 @@ Code connected with the master's thesis "Optimization Methods for Tuning Data Pi
 
 ```text
 lib
-├── dataset                     # Store datasets
+├── data                        # Store data
+│   ├─ dataset                  # Store datasets
+│   ├─ metafeatures             # Store metafeatures
+│   └─ model                    # Store trained ML models
 ├── images                      # Images for presentations, README, etc.
-├── metafeatures                # Store metafeatures
-├── model                       # Store trained ML models
 ├── src                         # Actual code
 │   ├─ test                     # Test code
 │   ├─ utils                    # General utility code
