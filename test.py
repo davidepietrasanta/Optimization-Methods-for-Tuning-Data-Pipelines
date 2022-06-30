@@ -4,7 +4,8 @@
 
 from src.test.preprocessing_methods_test import test_all as test_preprocessing_methods
 from src.test.metafeatures_extraction_test import test_all as test_metafeatures_extraction
-from src.test.machine_learning_test import test_all as test_machine_learning_test
+from src.test.machine_learning_test import test_all as test_machine_learning
+from src.test.metalearner_test import test_all as test_metalearner
 
 def test_all(verbose=True):
     """
@@ -21,9 +22,13 @@ def test_all(verbose=True):
     if verbose:
         print("Test on 'metafeatures_extraction' passed.")
 
-    assert test_machine_learning_test()
+    assert test_machine_learning()
     if verbose:
         print("Test on 'machine_learning' passed.")
+
+    assert test_metalearner()
+    if verbose:
+        print("Test on 'metalearner' passed.")
 
 
     if verbose:

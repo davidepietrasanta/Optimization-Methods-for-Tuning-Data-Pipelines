@@ -7,7 +7,8 @@ from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=u
 from src.config import METAFEATURES_FOLDER, list_of_metafeatures # pylint: disable=unused-import
 from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING # pylint: disable=unused-import
 from src.utils.metalearner import data_preparation, train_metalearner # pylint: disable=unused-import
-from src.utils.metalearner import choose_performance_from_metafeatures # pylint: disable=unused-import
+from src.utils.metalearner import choose_performance_from_metafeatures, split_train_test # pylint: disable=unused-import
+from src.test.metalearner_test import test_split_train_test # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     #    metafeatures_extraction = True,
     #    model_training = True,
     #    verbose=VERBOSE)
-
+    """
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
     train_metalearner(
         metafeatures_path = delta_path,
@@ -45,3 +46,6 @@ if __name__ == '__main__':
         metafeatures_path = new_metafeatures_path,
         algorithm='random_forest',
         verbose=VERBOSE)
+    """
+
+    test_split_train_test()

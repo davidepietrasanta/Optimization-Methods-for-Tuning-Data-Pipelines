@@ -10,7 +10,7 @@ import ast
 from joblib import dump
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from .machine_learning_algorithms import prediction_metrics # pylint: disable=relative-beyond-top-level
@@ -419,12 +419,15 @@ def train_metalearner(metafeatures_path, algorithm='random_forest',
 
     metafeatures = pd.read_csv(metafeatures_path)
     metafeatures = categorical_string_to_number(metafeatures)
-    metafeatures = metafeatures.drop(["dataset_name"], axis=1)
 
     # Split train and test
     if verbose:
         print("Splitting train and test...")
-    train, test = train_test_split(metafeatures, test_size=TEST_SIZE, random_state=SEED_VALUE)
+    [train, test] = split_train_test(metafeatures, group_name='dataset_name')
+
+    # Drop dataset_name
+    train = train.drop(["dataset_name"], axis=1)
+    test = test.drop(["dataset_name"], axis=1)
 
     train_y = train["performance"].to_numpy()
     train_x = train.drop(["performance"], axis=1).to_numpy()
@@ -493,6 +496,34 @@ def random_forest_regression(X, y): # pylint: disable=invalid-name
     model = RandomForestRegressor(random_state=SEED_VALUE).fit(X, y)
     return model
 
+def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SEED_VALUE):
+    """
+        Split a dataframe into train and test keeping
+         in the same split items with the same group_name.
+
+        :param dataframe: Dataframe to split.
+        :param group_name: Label of the dataframe you want
+         to consider to keep the same items in the same split.
+        :param test_size: Represent the proportion
+        of the dataset to include in the test split.
+        :param random_state: Controls the shuffling applied
+         to the data before applying the split.
+
+        :return: Return train and test [train, test]
+    """
+
+    splitter = GroupShuffleSplit(test_size=test_size, n_splits=2, random_state=random_state)
+    split = splitter.split(dataframe, groups=dataframe[group_name])
+    train_inds, test_inds = next(split)
+
+    train = dataframe.iloc[train_inds]
+    test = dataframe.iloc[test_inds]
+
+    return [train, test]
+
+# To DO:
+# Choose a model
+
 # To DO:
 # See if it's better to use delta_metafeatures or metafeatures
-# Choose a model
+# Is MSE enough?

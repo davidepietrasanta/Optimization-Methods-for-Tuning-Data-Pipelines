@@ -23,7 +23,7 @@ DATASET_FOLDER_MEDIUM = join(DATASET_FOLDER, "medium")
 DATASET_FOLDER_LARGE = join(DATASET_FOLDER, "large")
 
 SEED_VALUE = int(100)
-TEST_SIZE = 0.2
+TEST_SIZE = 0.20
 
 DATASET_CONSTRAIN = {
     'n_default_datasets': 200,
