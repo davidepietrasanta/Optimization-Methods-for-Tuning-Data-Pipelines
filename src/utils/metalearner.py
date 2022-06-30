@@ -522,8 +522,53 @@ def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SE
     return [train, test]
 
 # To DO:
-# Choose a model
+# Is MSE enough?
+def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_forest', verbose=False):
+    """
+        Check if it's better to use delta_metafeatures or metafeatures.
+        True if delta_metafeatures is better than metafeatures, else False.
+
+        :param delta_path: Path to delta_metafeatures CSV file.
+        :param metafeatures_path: Path to metafeatures CSV file.
+        :param algorithm: A machine learning model/algorithm.
+        :param verbose: If True more info are printed.
+        
+
+        :return: True if delta_metafeatures is better than metafeatures, else False.
+
+    """
+    #delta_path = join(METAFEATURES_FOLDER, "delta.csv")
+    #metafeatures_path = join(METAFEATURES_FOLDER, "metafeatures.csv")
+
+    [_, delta_performances ] = train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm=algorithm,
+        verbose=verbose)
+
+    choose_performance_from_metafeatures(
+        metafeatures_path = metafeatures_path,
+        metric='f1_score',
+        copy_name='new_metafeatures.csv')
+
+    new_metafeatures_path = join(METAFEATURES_FOLDER, "new_metafeatures.csv")
+
+    [_, meta_performances ] = train_metalearner(
+        metafeatures_path = new_metafeatures_path,
+        algorithm=algorithm,
+        verbose=verbose)
+
+    d_or_m = delta_performances['mse'] < meta_performances['mse']
+    if verbose:
+        print("The delta mse is: " + str(delta_performances['mse']) )
+        print("The metafeatures mse is: " + str(meta_performances['mse']) )
+
+        winner = "'metafeatures'"
+        if d_or_m:
+            winner = "'delta'"
+
+        print('The performances of ' + winner + ' are better.')
+
+    return d_or_m
 
 # To DO:
-# See if it's better to use delta_metafeatures or metafeatures
-# Is MSE enough?
+# Choose a model/algorithm

@@ -8,7 +8,7 @@ from src.config import METAFEATURES_FOLDER, list_of_metafeatures # pylint: disab
 from src.config import LIST_OF_ML_MODELS, LIST_OF_PREPROCESSING # pylint: disable=unused-import
 from src.utils.metalearner import data_preparation, train_metalearner # pylint: disable=unused-import
 from src.utils.metalearner import choose_performance_from_metafeatures, split_train_test # pylint: disable=unused-import
-from src.test.metalearner_test import test_split_train_test # pylint: disable=unused-import
+from src.utils.metalearner import delta_or_metafeatures # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -26,26 +26,11 @@ if __name__ == '__main__':
     #    metafeatures_extraction = True,
     #    model_training = True,
     #    verbose=VERBOSE)
-    """
+
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
-    train_metalearner(
-        metafeatures_path = delta_path,
-        algorithm='random_forest',
-        verbose=VERBOSE)
-
     metafeatures_path = join(METAFEATURES_FOLDER, "metafeatures.csv")
+    delta_or_metafeatures(delta_path=delta_path, metafeatures_path=metafeatures_path, verbose=True)
 
-    choose_performance_from_metafeatures(
-        metafeatures_path = metafeatures_path,
-        metric='f1_score',
-        copy_name='new_metafeatures.csv')
-
-    new_metafeatures_path = join(METAFEATURES_FOLDER, "new_metafeatures.csv")
-
-    train_metalearner(
-        metafeatures_path = new_metafeatures_path,
-        algorithm='random_forest',
-        verbose=VERBOSE)
-    """
-
-    test_split_train_test()
+# TO DO:
+# Add more test
+# Add exceptions
