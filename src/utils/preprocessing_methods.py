@@ -24,7 +24,9 @@ from sklearn.decomposition import FastICA
 from sklearn import cluster
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
-from ..config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER, LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
+from ..config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER # pylint: disable=relative-beyond-top-level
+from ..config import LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
+from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
     """
@@ -60,7 +62,7 @@ def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDE
             try:
                 preprocess_dataset(dataset_path, method, save_path)
                 n_methods = n_methods + 1
-            except:  # pylint: disable=bare-except
+            except Exception:  # pylint: disable=broad-except
                 if verbose:
                     print( "Error, '" + method + "' skipped in '" + dataset_name + "'.")
 
@@ -91,44 +93,39 @@ def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOL
     """
     transformed_data = None
 
-    if method in LIST_OF_PREPROCESSING:
-        dataset_name = os.path.basename(dataset_path)
+    if method not in LIST_OF_PREPROCESSING:
+        raise CustomValueError(list_name='preprocessing', input_value=method)
 
-        if verbose:
-            print("The '" + method +
-            "' preprocessing has been selected for the '" + dataset_name + "' dataset.")
+    dataset_name = os.path.basename(dataset_path)
 
-        dataset = pd.read_csv(dataset_path)
-        dataset = categorical_string_to_number(dataset)
+    if verbose:
+        print("The '" + method +
+        "' preprocessing has been selected for the '" + dataset_name + "' dataset.")
 
-        y_data = dataset["y"].to_numpy()
-        x_data  = dataset.drop(["y"], axis=1).to_numpy()
+    dataset = pd.read_csv(dataset_path)
+    dataset = categorical_string_to_number(dataset)
 
-        # Preprocessing
-        if verbose:
-            print("Preprocessing...")
-        transformed_data = preprocessing(method, x_data, y_data)
+    y_data = dataset["y"].to_numpy()
+    x_data  = dataset.drop(["y"], axis=1).to_numpy()
 
-        # Save of the transformed data
-        if verbose:
-            print("Saving the transformed data...")
+    # Preprocessing
+    if verbose:
+        print("Preprocessing...")
+    transformed_data = preprocessing(method, x_data, y_data)
 
-        save_name = dataset_name #+ '.csv'
-        directory = join(save_path, method)
-        file_path = join(directory, save_name)
+    # Save of the transformed data
+    if verbose:
+        print("Saving the transformed data...")
 
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+    save_name = dataset_name #+ '.csv'
+    directory = join(save_path, method)
+    file_path = join(directory, save_name)
 
-        new_data = np.concatenate((transformed_data, np.asarray([y_data]).T), axis=1)
-        np.savetxt(file_path, new_data, delimiter=",")
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
-    else:
-        if verbose:
-            print("The preprocessing '" + method + "' is not between "
-            +" ".join(LIST_OF_PREPROCESSING))
-
-        return transformed_data
+    new_data = np.concatenate((transformed_data, np.asarray([y_data]).T), axis=1)
+    np.savetxt(file_path, new_data, delimiter=",")
 
     return transformed_data
 
@@ -152,6 +149,9 @@ def preprocessing(method, x_data, y_data):
     """
 
     transformed_data = None
+    if method not in LIST_OF_PREPROCESSING:
+        raise CustomValueError(list_name='preprocessing', input_value=method)
+
     if method == 'min_max_scaler':
         transformed_data = min_max_scaler(x_data)
     elif method == 'standard_scaler':

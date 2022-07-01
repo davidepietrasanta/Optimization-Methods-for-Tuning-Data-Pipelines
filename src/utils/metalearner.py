@@ -23,6 +23,7 @@ from ..config import METAFEATURES_FOLDER, MODEL_FOLDER # pylint: disable=relativ
 from ..config import LIST_OF_PREPROCESSING, LIST_OF_ML_MODELS # pylint: disable=relative-beyond-top-level
 from ..config import LIST_OF_ML_MODELS_FOR_METALEARNING # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
+from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def data_preparation( # pylint: disable=too-many-arguments
     data_selection = False,
@@ -411,11 +412,7 @@ def train_metalearner(metafeatures_path, algorithm='random_forest',
         print("Training meta-learner...")
 
     if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
-        if verbose:
-            print("The algorithm '" + algorithm + "' is not between "
-            +" ".join(LIST_OF_ML_MODELS_FOR_METALEARNING))
-
-        return None
+        raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
 
     metafeatures = pd.read_csv(metafeatures_path)
     metafeatures = categorical_string_to_number(metafeatures)
@@ -532,7 +529,6 @@ def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_fores
         :param metafeatures_path: Path to metafeatures CSV file.
         :param algorithm: A machine learning model/algorithm.
         :param verbose: If True more info are printed.
-        
 
         :return: True if delta_metafeatures is better than metafeatures, else False.
 

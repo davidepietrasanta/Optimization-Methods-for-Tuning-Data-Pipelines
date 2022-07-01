@@ -38,3 +38,7 @@ def test_split_train_test():
     assert np.array_equal(all_unique.sort() ,conc.sort())
 
     return True
+
+# TO DO:
+# Add more test
+# Test exception CustomValueError

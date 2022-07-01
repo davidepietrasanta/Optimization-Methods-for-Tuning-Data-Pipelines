@@ -127,7 +127,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
             if verbose:
                 print( str(actual_dataset_num) + "/" + str(n_dataset) + " " + dataset_name)
 
-        except: # pylint: disable=bare-except
+        except Exception: # pylint: disable=broad-except
             if verbose:
                 print( "Error while dowloading, dataset skipped" )
 

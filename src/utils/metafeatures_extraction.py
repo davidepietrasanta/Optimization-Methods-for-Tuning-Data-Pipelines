@@ -112,7 +112,7 @@ def metafeature(dataset_path, verbose=False):
 
         return dict_ft
 
-    except: # pylint: disable=bare-except
+    except Exception: # pylint: disable=broad-except
         if verbose:
             print( "Error while extracting metafeature of '" + str(dataset_path) + "', skipped.")
         return None

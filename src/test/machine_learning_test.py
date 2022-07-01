@@ -10,6 +10,7 @@ from ..utils.machine_learning_algorithms import train_algorithm # pylint: disabl
 from ..utils.machine_learning_algorithms import extract_machine_learning_performances # pylint: disable=relative-beyond-top-level
 from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
+from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def test_all():
     """
@@ -60,23 +61,29 @@ def test_machine_learning_algorithm():
     assert not exists(save_path)
 
     # Test function with algorithm not in list
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='',
-        save_path = save_path,
-        verbose = False)
-    assert model is None
-    assert prediction is None
+    flag = False
+    try:
+        [_, _] = machine_learning_algorithm(
+            dataset_path=dataset_path,
+            algorithm='',
+            save_path = save_path,
+            verbose = False)
+    except CustomValueError:
+        flag = True
+    assert flag
     assert not exists(save_path)
 
     # Test function with algorithm not in list
-    [model, prediction] = machine_learning_algorithm(
-        dataset_path=dataset_path,
-        algorithm='LogisticRegression',
-        save_path = save_path,
-        verbose = False)
-    assert model is None
-    assert prediction is None
+    flag = False
+    try:
+        [_, _] = machine_learning_algorithm(
+            dataset_path=dataset_path,
+            algorithm='LogisticRegression',
+            save_path = save_path,
+            verbose = False)
+    except CustomValueError:
+        flag = True
+    assert flag
     assert not exists(save_path)
 
     # Test function with algorithm in list
@@ -144,7 +151,7 @@ def test_machine_learning_algorithm():
 
 def _valid_machine_learning_algorithm_test(algorithm, dataset_path, save_path):
     """
-        Test function with algorithm in list 
+        Test function with algorithm in list
     """
     [model, prediction] = machine_learning_algorithm(
     dataset_path=dataset_path,

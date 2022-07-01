@@ -28,6 +28,7 @@ from sklearn.linear_model import Perceptron
 from ..config import LIST_OF_ML_MODELS, MODEL_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-level
 from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
+from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def extract_machine_learning_performances(
     datasets_path,
@@ -82,7 +83,7 @@ def extract_machine_learning_performances(
                 performances['performance'].append(performance)
                 if preprocessing is not None:
                     performances['preprocessing'].append(preprocessing)
-            except: # pylint: disable=bare-except
+            except Exception: # pylint: disable=broad-except
                 if verbose:
                     print( "Error while extracting performance from '"
                     + dataset_name + "' with '" + algorithm + "', skipped.")
@@ -118,63 +119,58 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
     model = None
     prediction = None
 
-    if algorithm in LIST_OF_ML_MODELS:
-        dataset_name = os.path.basename(dataset_path)
+    if algorithm not in LIST_OF_ML_MODELS:
+        raise CustomValueError(list_name='ml_models', input_value=algorithm)
 
-        if verbose:
-            print("The '" + algorithm +
-            "' algorithm has been selected for the '" + dataset_name + "' dataset.")
+    dataset_name = os.path.basename(dataset_path)
 
-        dataset = pd.read_csv(dataset_path)
+    if verbose:
+        print("The '" + algorithm +
+        "' algorithm has been selected for the '" + dataset_name + "' dataset.")
 
-        train, test = train_test_split(dataset, test_size=TEST_SIZE, random_state=SEED_VALUE)
+    dataset = pd.read_csv(dataset_path)
 
-        if 'y' in list(dataset.columns):
-            train_y = train["y"].to_numpy()
-            train_x = train.drop(["y"], axis=1).to_numpy()
+    train, test = train_test_split(dataset, test_size=TEST_SIZE, random_state=SEED_VALUE)
 
-            test_y = test["y"].to_numpy()
-            test_x = test.drop(["y"], axis=1).to_numpy()
-        else:
-            train_y = train.iloc[: , -1].tolist()
-            train_x = train.iloc[: , :-1].to_numpy()
+    if 'y' in list(dataset.columns):
+        train_y = train["y"].to_numpy()
+        train_x = train.drop(["y"], axis=1).to_numpy()
 
-            test_y = test.iloc[: , -1].tolist()
-            test_x = test.iloc[: , :-1].to_numpy()
-
-        # Train
-        if verbose:
-            print("Training...")
-        model = train_algorithm(algorithm, train_x, train_y)
-
-        # Save of the model
-        if verbose:
-            print("Saving the trained model...")
-
-        save_name = dataset_name + '-' + algorithm + '.joblib'
-        directory = join(save_path, algorithm)
-        file_path = join(directory, save_name)
-
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        dump(model, file_path)
-
-        # Test
-        if verbose:
-            print("Testing...")
-
-        prediction = prediction_metrics(model, test_x, test_y)
-        if verbose:
-            print("Prediction performance on test set:")
-            print(prediction)
-
+        test_y = test["y"].to_numpy()
+        test_x = test.drop(["y"], axis=1).to_numpy()
     else:
-        if verbose:
-            print("The algorithm '" + algorithm + "' is not between "
-            +" ".join(LIST_OF_ML_MODELS))
+        train_y = train.iloc[: , -1].tolist()
+        train_x = train.iloc[: , :-1].to_numpy()
 
-        return [model, prediction]
+        test_y = test.iloc[: , -1].tolist()
+        test_x = test.iloc[: , :-1].to_numpy()
+
+    # Train
+    if verbose:
+        print("Training...")
+    model = train_algorithm(algorithm, train_x, train_y)
+
+    # Save of the model
+    if verbose:
+        print("Saving the trained model...")
+
+    save_name = dataset_name + '-' + algorithm + '.joblib'
+    directory = join(save_path, algorithm)
+    file_path = join(directory, save_name)
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    dump(model, file_path)
+
+    # Test
+    if verbose:
+        print("Testing...")
+
+    prediction = prediction_metrics(model, test_x, test_y)
+    if verbose:
+        print("Prediction performance on test set:")
+        print(prediction)
 
     return [model, prediction]
 

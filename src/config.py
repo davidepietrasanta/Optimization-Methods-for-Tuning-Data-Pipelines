@@ -1,5 +1,5 @@
 """
-    Module for the configuraziont of the project.
+    Module for the configuration of the project.
     It contains all the common variables needed during the piepelines.
 """
 from os.path import join

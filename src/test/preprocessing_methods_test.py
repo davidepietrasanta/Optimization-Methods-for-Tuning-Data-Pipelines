@@ -5,10 +5,13 @@ import shutil
 from os import listdir
 from os.path import join, exists, isfile
 import pandas as pd
+
+
 from ..utils.preprocessing_methods import preprocess_all_datasets # pylint: disable=relative-beyond-top-level
 from ..utils.preprocessing_methods import preprocessing # pylint: disable=relative-beyond-top-level
 from ..utils.preprocessing_methods import categorical_string_to_number # pylint: disable=relative-beyond-top-level
 from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
+from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def test_all():
     """
@@ -60,11 +63,19 @@ def test_preprocessing():
     x_data  = dataset.drop(["y"], axis=1).to_numpy()
 
     # Test function with methods not in list
-    new_data = preprocessing(method='', x_data=x_data, y_data=y_data)
-    assert new_data is None
+    flag = False
+    try:
+        new_data = preprocessing(method='', x_data=x_data, y_data=y_data)
+    except CustomValueError:
+        flag = True
+    assert flag
 
-    new_data = preprocessing(method='MinMaxScaler', x_data=x_data, y_data=y_data)
-    assert new_data is None
+    flag = False
+    try:
+        new_data = preprocessing(method='MinMaxScaler', x_data=x_data, y_data=y_data)
+    except CustomValueError:
+        flag = True
+    assert flag
 
     # Test function with methods in list
     new_data = preprocessing(method='min_max_scaler', x_data=x_data, y_data=y_data)
