@@ -2,9 +2,8 @@
     Module for the selection and download of the dataset to train the meta-learning model.
 """
 
-import os
-from os import listdir
-from os.path import isfile, join
+from os import listdir, makedirs
+from os.path import isfile, join, exists
 import pandas as pd
 import openml
 from openml.tasks import TaskType
@@ -114,8 +113,8 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
             # Save the dataframe
             path = join(save_path, size)
             # Create the dir if it doesn't exist
-            if not os.path.exists(path):
-                os.makedirs(path)
+            if not exists(path):
+                makedirs(path)
 
             path = join(path, dataset_name + '.csv')
 

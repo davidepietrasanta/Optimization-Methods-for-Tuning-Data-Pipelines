@@ -176,11 +176,20 @@ def test_train_algorithm():
     train_x = train.drop(["y"], axis=1).to_numpy()
 
     # Test function with methods not in list
-    model = train_algorithm(algorithm='', train_x=train_x, train_y=train_y)
-    assert model is None
+    flag = False
+    try:
+        _ = train_algorithm(algorithm='', train_x=train_x, train_y=train_y)
+    except CustomValueError:
+        flag = True
+    assert flag
 
-    model = train_algorithm(algorithm='LogisticRegression', train_x=train_x, train_y=train_y)
-    assert model is None
+    # Test function with methods not in list
+    flag = False
+    try:
+        _ = train_algorithm(algorithm='LogisticRegression', train_x=train_x, train_y=train_y)
+    except CustomValueError:
+        flag = True
+    assert flag
 
     # Test function with methods in list
     model = train_algorithm(algorithm='logistic_regression', train_x=train_x, train_y=train_y)

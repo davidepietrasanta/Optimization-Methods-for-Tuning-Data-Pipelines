@@ -10,7 +10,8 @@ import pandas as pd
 from ..utils.preprocessing_methods import preprocess_all_datasets # pylint: disable=relative-beyond-top-level
 from ..utils.preprocessing_methods import preprocessing # pylint: disable=relative-beyond-top-level
 from ..utils.preprocessing_methods import categorical_string_to_number # pylint: disable=relative-beyond-top-level
-from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
+from ..utils.preprocessing_methods import preprocess_dataset # pylint: disable=relative-beyond-top-level
+from ..config import TEST_FOLDER, LIST_OF_PREPROCESSING# pylint: disable=relative-beyond-top-level
 from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
 
 def test_all():
@@ -20,6 +21,7 @@ def test_all():
     assert test_preprocess_all_datasets()
     assert test_preprocessing()
     assert test_categorical_string_to_number()
+    assert test_preprocess_dataset()
     return True
 
 def test_preprocess_all_datasets():
@@ -120,5 +122,46 @@ def test_categorical_string_to_number():
     dataset_without_cat  = pd.read_csv(dataset_path)
     dataset = categorical_string_to_number(dataset_without_cat)
     assert dataset.equals( dataset_without_cat )
+
+    return True
+
+def test_preprocess_dataset():
+    """
+        Function to test the function 'preprocess_dataset'.
+    """
+
+    dataset_path = join(TEST_FOLDER, 'data', 'ada.csv')
+    save_path = join(TEST_FOLDER, 'data', 'save')
+
+    # Delete save directory and all its files
+    if exists(save_path):
+        shutil.rmtree(save_path)
+
+    assert not exists(save_path)
+
+    # Test function with methods not in list
+    flag = False
+    try:
+        _ = preprocess_dataset(dataset_path=dataset_path, method='', save_path=save_path)
+    except CustomValueError:
+        flag = True
+    assert flag
+
+    # Test function with methods not in list
+    flag = False
+    try:
+        _ = preprocess_dataset(dataset_path=dataset_path, method='something', save_path=save_path)
+    except CustomValueError:
+        flag = True
+    assert flag
+
+
+    for method in LIST_OF_PREPROCESSING:
+        data = preprocess_dataset(dataset_path=dataset_path, method=method, save_path=save_path)
+        assert data is not None
+        assert exists(save_path)
+        # delete save_path
+        shutil.rmtree(save_path)
+        assert not exists(save_path)
 
     return True

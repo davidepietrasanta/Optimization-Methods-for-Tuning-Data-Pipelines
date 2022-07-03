@@ -49,6 +49,11 @@ def data_preparation( # pylint: disable=too-many-arguments
     """
     if verbose:
         print("Data collection...")
+
+    # Create the dir if it doesn't exist
+        if not exists(save_path):
+            makedirs(save_path)
+
     merged_data = _data_collection(
         data_selection,
         dataset_size,
@@ -392,8 +397,6 @@ def choose_performance_from_metafeatures(metafeatures_path,
     metafeatures.to_csv(join(metafeatures_path, copy_name), index=False)
     return metafeatures
 
-
-
 def train_metalearner(metafeatures_path, algorithm='random_forest',
  save_path = MODEL_FOLDER, verbose=False):
     """
@@ -460,6 +463,9 @@ def train_metalearner(metafeatures_path, algorithm='random_forest',
 def _train(algorithm, train_x, train_y):
     model = None
 
+    if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
+        raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
+
     if algorithm == 'knn':
         n_classes = len( set(train_y) )
         model = knn_regression(train_x, train_y, n_classes)
@@ -525,16 +531,16 @@ def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_fores
         Check if it's better to use delta_metafeatures or metafeatures.
         True if delta_metafeatures is better than metafeatures, else False.
 
-        :param delta_path: Path to delta_metafeatures CSV file.
-        :param metafeatures_path: Path to metafeatures CSV file.
+        :param delta_path: Path to delta_metafeatures CSV file (delta.csv).
+        :param metafeatures_path: Path to metafeatures CSV file (metafeatures.csv).
         :param algorithm: A machine learning model/algorithm.
         :param verbose: If True more info are printed.
 
         :return: True if delta_metafeatures is better than metafeatures, else False.
 
     """
-    #delta_path = join(METAFEATURES_FOLDER, "delta.csv")
-    #metafeatures_path = join(METAFEATURES_FOLDER, "metafeatures.csv")
+    if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
+        raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
 
     [_, delta_performances ] = train_metalearner(
         metafeatures_path = delta_path,

@@ -25,3 +25,6 @@ if __name__ == '__main__':
     #    metafeatures_extraction = True,
     #    model_training = True,
     #    verbose=VERBOSE)
+
+# Check Return None
+# Make private all function not used outside file (for all the files)

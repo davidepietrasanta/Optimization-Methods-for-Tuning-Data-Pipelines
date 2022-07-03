@@ -48,7 +48,6 @@ def extract_machine_learning_performances(
         :return: A trained model with the performance.
     """
     list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
-    n_datasets = len(list_datasets)
 
     performances = {
         'dataset_name' : [],
@@ -62,7 +61,7 @@ def extract_machine_learning_performances(
     for i, dataset_name in enumerate(list_datasets):
         if verbose:
             print( "Dataset: '" + dataset_name +
-            "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+            "'...("+ str(i+1) + "/" + str( len(list_datasets) ) + ")")
 
         dataset_path = join(datasets_path, dataset_name)
 
@@ -116,9 +115,6 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
 
         :return: A trained model with the performance.
     """
-    model = None
-    prediction = None
-
     if algorithm not in LIST_OF_ML_MODELS:
         raise CustomValueError(list_name='ml_models', input_value=algorithm)
 
@@ -206,6 +202,8 @@ def train_algorithm(algorithm, train_x, train_y):
         model = svm(train_x, train_y)
     elif algorithm == 'perceptron':
         model = perceptron(train_x, train_y)
+    else:
+        raise CustomValueError(list_name='ml_models', input_value=algorithm)
 
     return model
 
