@@ -1,7 +1,9 @@
 """
     Module for testing metalearner.
 """
-from os.path import join
+import shutil
+from os import listdir
+from os.path import join, exists, isdir
 import pandas as pd
 import numpy as np
 from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
@@ -21,6 +23,8 @@ def test_all():
     assert test_train_metalearner()
     assert test_choose_performance_from_metafeatures()
     assert test_delta_or_metafeatures()
+
+    assert clear_all()
     return True
 
 def test_split_train_test():
@@ -50,7 +54,6 @@ def test_split_train_test():
 
     return True
 
-# TO DO
 def test_data_preparation():
     """
         Function to test the function 'data_preparation'.
@@ -64,11 +67,11 @@ def test_data_preparation():
         data_selection = False,
         data_preprocess = True,
         metafeatures_extraction = True,
-        model_training = True)
+        model_training = True,
+        verbose=True)
 
     return True
 
-# TO DO
 def test_train_metalearner():
     """
         Function to test the function 'train_metalearner'.
@@ -76,7 +79,7 @@ def test_train_metalearner():
     # Test exception CustomValueError
 
     save_path = join(TEST_FOLDER, 'data', 'save')
-    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
+    delta_path = join(save_path, "delta.csv")
 
     # Test function with algorithm not in list
     flag = False
@@ -114,20 +117,19 @@ def test_train_metalearner():
 
     return True
 
-# TO DO
 def test_choose_performance_from_metafeatures():
     """
         Function to test the function 'choose_performance_from_metafeatures'.
     """
     save_path = join(TEST_FOLDER, 'data', 'save')
-    metafeatures_path = join(METAFEATURES_FOLDER, "metafeatures.csv")
+    metafeatures_path = join(save_path, "metafeatures.csv")
 
     choose_performance_from_metafeatures(
         metafeatures_path = metafeatures_path,
         metric='f1_score',
         copy_name='new_metafeatures.csv')
 
-    new_metafeatures_path = join(METAFEATURES_FOLDER, "new_metafeatures.csv")
+    new_metafeatures_path = join(save_path, "new_metafeatures.csv")
 
     train_metalearner(
         metafeatures_path = new_metafeatures_path,
@@ -136,22 +138,65 @@ def test_choose_performance_from_metafeatures():
 
     return True
 
-# TO DO
 def test_delta_or_metafeatures():
     """
         Function to test the function 'delta_or_metafeatures'.
     """
     save_path = join(TEST_FOLDER, 'data', 'save')
 
-    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
-    metafeatures_path = join(METAFEATURES_FOLDER, "metafeatures.csv")
+    delta_path = join(save_path, "delta.csv")
+    metafeatures_path = join(save_path, "metafeatures.csv")
 
-    # TO DO:
-    # CustomValueError
+    # Test function with algorithm not in list
+    flag = False
+    try:
+        delta_or_metafeatures(
+            delta_path=delta_path,
+            metafeatures_path=metafeatures_path,
+            algorithm='')
+    except CustomValueError:
+        flag = True
+    assert flag
 
-    delta_or_metafeatures(
+    # Test function with algorithm not in list
+    flag = False
+    try:
+        delta_or_metafeatures(
+            delta_path=delta_path,
+            metafeatures_path=metafeatures_path,
+            algorithm='RF')
+    except CustomValueError:
+        flag = True
+    assert flag
+
+    choice = delta_or_metafeatures(
         delta_path=delta_path,
         metafeatures_path=metafeatures_path,
         algorithm='random_forest')
+
+    assert choice
+
+    choice = delta_or_metafeatures(
+        delta_path=delta_path,
+        metafeatures_path=metafeatures_path,
+        algorithm='knn')
+
+    assert choice
+
+    return True
+
+def clear_all():
+    """
+        Makes sure everything is clean for the test.
+        Deletes unnecessary directories, etc..
+    """
+    # delete all dir into data_path
+    data_path = join(TEST_FOLDER, 'data')
+    if exists(data_path):
+        for sub_dir in listdir(data_path):
+            sub_dir_path = join(data_path, sub_dir)
+            if isdir(sub_dir_path):
+                #print(sub_dir_path)
+                shutil.rmtree(sub_dir_path)
 
     return True

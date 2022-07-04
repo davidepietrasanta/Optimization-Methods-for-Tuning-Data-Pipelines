@@ -552,7 +552,7 @@ def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_fores
         metric='f1_score',
         copy_name='new_metafeatures.csv')
 
-    new_metafeatures_path = join(METAFEATURES_FOLDER, "new_metafeatures.csv")
+    new_metafeatures_path = join( dirname(metafeatures_path), "new_metafeatures.csv")
 
     [_, meta_performances ] = train_metalearner(
         metafeatures_path = new_metafeatures_path,

@@ -12,6 +12,7 @@ from src.config import TEST_FOLDER
 def test_all(verbose=True):
     """
         Function to test all the methods.
+        ATTENTION, during the tests the models of ml are overwritten, do a backup first.
     """
 
     clean_test()
@@ -19,17 +20,17 @@ def test_all(verbose=True):
     if verbose:
         print("Test...")
 
-    #assert test_preprocessing_methods()
+    assert test_preprocessing_methods()
     clean_test()
     if verbose:
         print("Test on 'preprocessing_methods' passed.")
 
-    #assert test_metafeatures_extraction()
+    assert test_metafeatures_extraction()
     clean_test()
     if verbose:
         print("Test on 'metafeatures_extraction' passed.")
 
-    #assert test_machine_learning()
+    assert test_machine_learning()
     clean_test()
     if verbose:
         print("Test on 'machine_learning' passed.")
@@ -59,9 +60,4 @@ def clean_test():
 
 if __name__ == '__main__':
     VERBOSE = True
-    #test_all(verbose=VERBOSE)
-    from src.test.metalearner_test import test_data_preparation
-    test_data_preparation()
-
-# TO DO:
-# Save path in test (make sure everything is saved in save_path)
+    test_all(verbose=VERBOSE)
