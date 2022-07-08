@@ -6,6 +6,14 @@ Code connected with the master's thesis "Optimization Methods for Tuning Data Pi
 
 ![Pipeline map](/images/Pipeline.jpg)
 
+## Delta
+
+We want to be able to predict the delta performance, i.e. the difference between the performances obtained with and without preprocessing.
+
+This will be the output of the meta-learner.
+
+![Delta](/images/Delta.jpg)
+
 ## Mind Map
 
 ![Mind map](/images/Mind%20Map.jpg)
