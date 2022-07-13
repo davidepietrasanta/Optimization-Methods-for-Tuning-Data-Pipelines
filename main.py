@@ -15,16 +15,25 @@ if __name__ == '__main__':
     dataset_path_2 = join(DATASET_FOLDER_MEDIUM, "analcatdata_dmft.csv")
     prova = join(DATASET_FOLDER, 'prova')
 
-    #path = join(prova,'min_max_scaler', 'artificial-characters.csv')
-    #metafeature( path, verbose=True)
+    path = join(prova,'min_max_scaler', 'artificial-characters.csv')
 
-    #data_preparation(
-    #    data_path=prova,
-    #    data_selection = False,
-    #    data_preprocess = True,
-    #    metafeatures_extraction = True,
-    #    model_training = True,
-    #    verbose=VERBOSE)
+    data_preparation(
+        data_path=prova,
+        data_selection = False,
+        data_preprocess = False,
+        metafeatures_extraction = False,
+        model_training = False,
+        quotient=False,
+        verbose=VERBOSE)
 
+    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
+
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='random_forest',
+        verbose=VERBOSE)
+
+# TO DO:
 # Check Return None
 # Make private all function not used outside file (for all the files)
+# Python Modules

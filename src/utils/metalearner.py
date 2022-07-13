@@ -33,6 +33,7 @@ def data_preparation( # pylint: disable=too-many-arguments
     metafeatures_extraction = True,
     model_training = True,
     save_path= METAFEATURES_FOLDER,
+    quotient = False,
     verbose=False):
     """
         Given a preprocessing method and data,
@@ -66,7 +67,7 @@ def data_preparation( # pylint: disable=too-many-arguments
 
     if verbose:
         print("Delta metafeatures...")
-    delta = _delta_metafeatures(merged_data, save_path, verbose)
+    delta = _delta_metafeatures(merged_data, save_path, quotient, verbose)
 
     return delta
 
@@ -296,7 +297,8 @@ def _save(data, verbose, save_path):
     if verbose:
         print("Data Saved [6/6]")
 
-def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER, verbose=False):
+def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER,
+ quotient=False, verbose=False):
     """
         Given the metafeatures, it returns the delta
          performance and meta-features of the dataset.
@@ -304,6 +306,8 @@ def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER, verbose=Fa
         :param metafeatures: The CSV file with all the metafeatures and
          performances collected.
          It should be the output of the 'data_collection' function.
+        :param quotient: If true calculate the delta as quotient
+         else as a subtraction.
 
         :return: The delta data for the meta-learning.
     """
@@ -356,7 +360,8 @@ def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER, verbose=Fa
                             "' with '"+ ml_model +
                             "' and '"+ preprocessing +"'.")
 
-                        delta = np.diff([preprocessed, non_preprocessed], axis=0)
+                        delta = _delta(preprocessed, non_preprocessed, quotient)
+
                         # Add dataset_name, algorithm and preprocessing
                         info = np.array([dataset, ml_model, preprocessing])
                         delta = pd.DataFrame(np.concatenate(( info.flatten(), delta.flatten()) ).T)
@@ -524,8 +529,6 @@ def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SE
 
     return [train, test]
 
-# To DO:
-# Is MSE enough?
 def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_forest', verbose=False):
     """
         Check if it's better to use delta_metafeatures or metafeatures.
@@ -571,6 +574,32 @@ def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_fores
         print('The performances of ' + winner + ' are better.')
 
     return d_or_m
+
+def _delta(preprocessed, non_preprocessed, quotient):
+    """
+        Function to calculate the delta.
+        Avoid to have error with quotient.
+
+        :param preprocessed, preprocessed np.array
+        :param non_preprocessed, non preprocessed np.array
+        :param quotient, If true do quotient, else subtraction
+    """
+    if quotient:
+        # To avoid denominator at zero
+        # Avoid sys.float_info.min or too small numbers
+        # because it would lead to inf results
+        epsilon = 1e+100
+
+        for (index, value) in enumerate(non_preprocessed):
+            if value == 0:
+                non_preprocessed[index] = epsilon
+
+        delta = np.divide(preprocessed, non_preprocessed)
+
+    else:
+        delta = np.diff([preprocessed, non_preprocessed], axis=0)
+
+    return delta
 
 # To DO:
 # Choose a model/algorithm

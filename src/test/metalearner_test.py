@@ -61,14 +61,31 @@ def test_data_preparation():
     dataset_path = join(TEST_FOLDER, 'data')
     save_path = join(TEST_FOLDER, 'data', 'save')
 
-    data_preparation(
+    # Test with quotient false
+    data = data_preparation(
         data_path=dataset_path,
         save_path= save_path,
         data_selection = False,
         data_preprocess = True,
         metafeatures_extraction = True,
         model_training = True,
+        quotient=False,
         verbose=True)
+
+    assert data is not None
+
+    # Test with quotient true
+    data = data_preparation(
+        data_path=dataset_path,
+        save_path= save_path,
+        data_selection = False,
+        data_preprocess = True,
+        metafeatures_extraction = True,
+        model_training = True,
+        quotient=True,
+        verbose=True)
+
+    assert data is not None
 
     return True
 
