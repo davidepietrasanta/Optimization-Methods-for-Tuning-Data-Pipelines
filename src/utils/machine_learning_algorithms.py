@@ -25,10 +25,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 
-from ..config import LIST_OF_ML_MODELS, MODEL_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
+from src.config import LIST_OF_ML_MODELS, MODEL_FOLDER
+from src.config import METAFEATURES_FOLDER
+from src.config import SEED_VALUE, TEST_SIZE
+from src.exceptions import CustomValueError
 
 def extract_machine_learning_performances(
     datasets_path,
@@ -208,77 +208,77 @@ def train_algorithm(algorithm, train_x, train_y):
     return model
 
 
-def logistic_regression(X, y): # pylint: disable=invalid-name
+def logistic_regression(x_train, y_train):
     """
         Given X and y return a trained Logistic Regression model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
 
         :return: A trained model.
     """
-    model = LogisticRegression(random_state=SEED_VALUE, max_iter=10000).fit(X, y)
+    model = LogisticRegression(random_state=SEED_VALUE, max_iter=10000).fit(x_train, y_train)
     return model
 
-def naive_bayes(X, y): # pylint: disable=invalid-name
+def naive_bayes(x_train, y_train):
     """
         Given X and y return a trained Naive Bayes model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
 
         :return: A trained model.
     """
-    model = GaussianNB().fit(X, y)
+    model = GaussianNB().fit(x_train, y_train)
     return model
 
-def knn(X, y, n_neighbors): # pylint: disable=invalid-name
+def knn(x_train, y_train, n_neighbors):
     """
         Given X and y return a trained K-Neighbors model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
         :param n_neighbors: Number of neighbors to consider
 
         :return: A trained model.
     """
-    model = KNeighborsClassifier(n_neighbors).fit(X, y)
+    model = KNeighborsClassifier(n_neighbors).fit(x_train, y_train)
     return model
 
-def random_forest(X, y): # pylint: disable=invalid-name
+def random_forest(x_train, y_train):
     """
         Given X and y return a trained Random Forest model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
 
         :return: A trained model.
     """
-    model = RandomForestClassifier(random_state=SEED_VALUE).fit(X, y)
+    model = RandomForestClassifier(random_state=SEED_VALUE).fit(x_train, y_train)
     return model
 
-def svm(X, y): # pylint: disable=invalid-name
+def svm(x_train, y_train):
     """
         Given X and y return a trained Support Vector Machine model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
 
         :return: A trained model.
     """
-    model = make_pipeline(StandardScaler(), SVC(gamma='auto')).fit(X, y)
+    model = make_pipeline(StandardScaler(), SVC(gamma='auto')).fit(x_train, y_train)
     return model
 
-def perceptron(X, y): # pylint: disable=invalid-name
+def perceptron(x_train, y_train):
     """
         Given X and y return a trained Perceptron model.
 
-        :param X: Input variables
-        :param y: Label or Target value
+        :param x_train: Input variables
+        :param y_train: Label or Target value
 
         :return: A trained model.
     """
-    model = Perceptron(tol=1e-3, random_state=SEED_VALUE).fit(X, y)
+    model = Perceptron(tol=1e-3, random_state=SEED_VALUE).fit(x_train, y_train)
     return model
 
 def prediction_metrics(model, test_x, test_y, metrics = None, regression = False):

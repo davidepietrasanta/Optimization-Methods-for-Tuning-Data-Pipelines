@@ -2,7 +2,8 @@
     Module for the configuration of the project.
     It contains all the common variables needed during the piepelines.
 """
-from os.path import join
+import shutil
+from os.path import join, exists
 from pathlib import Path
 from pandas import read_csv
 
@@ -92,3 +93,13 @@ def list_of_metafeatures(metafeatures_path=None):
     metafeatures_csv = read_csv(metafeatures_path)
     list_of_columns = list(metafeatures_csv.columns)
     return list_of_columns
+
+def delete_dir(dir_path):
+    """
+        Delete the 'dir_path' directory and all its files
+    """
+    if exists(dir_path):
+        shutil.rmtree(dir_path)
+
+    assert not exists(dir_path)
+    return True

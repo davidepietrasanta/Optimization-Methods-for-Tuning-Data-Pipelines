@@ -1,8 +1,8 @@
 """
     Module dedicated to the custom exceptions.
 """
-from .config import LIST_OF_ML_MODELS, LIST_OF_ML_MODELS_FOR_METALEARNING # pylint: disable=relative-beyond-top-level
-from .config import LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
+from .config import LIST_OF_ML_MODELS, LIST_OF_ML_MODELS_FOR_METALEARNING
+from .config import LIST_OF_PREPROCESSING
 
 class CustomValueError(ValueError):
     """
@@ -28,3 +28,15 @@ class CustomValueError(ValueError):
 
     def __str__(self):
         return self.message
+
+def custom_value_error_test(function, *args, **kwargs):
+    """
+        Test if 'CustomValueError' exception is raised.
+    """
+    flag = False
+    try:
+        function(*args, **kwargs)
+    except CustomValueError:
+        flag = True
+    assert flag
+    return True

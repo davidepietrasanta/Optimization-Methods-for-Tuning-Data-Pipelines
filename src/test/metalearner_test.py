@@ -6,13 +6,13 @@ from os import listdir
 from os.path import join, exists, isdir
 import pandas as pd
 import numpy as np
-from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
-from ..utils.metalearner import split_train_test # pylint: disable=relative-beyond-top-level
-from ..utils.metalearner import data_preparation # pylint: disable=relative-beyond-top-level
-from ..utils.metalearner import train_metalearner # pylint: disable=relative-beyond-top-level
-from ..utils.metalearner import delta_or_metafeatures # pylint: disable=relative-beyond-top-level
-from ..utils.metalearner import choose_performance_from_metafeatures # pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
+from src.config import TEST_FOLDER
+from src.utils.metalearner import split_train_test
+from src.utils.metalearner import data_preparation
+from src.utils.metalearner import train_metalearner
+from src.utils.metalearner import delta_or_metafeatures
+from src.utils.metalearner import choose_performance_from_metafeatures
+from src.exceptions import custom_value_error_test
 
 def test_all():
     """
@@ -99,26 +99,18 @@ def test_train_metalearner():
     delta_path = join(save_path, "delta.csv")
 
     # Test function with algorithm not in list
-    flag = False
-    try:
-        _ = train_metalearner(
+    assert custom_value_error_test(
+        train_metalearner,
         metafeatures_path = delta_path,
         algorithm='',
         save_path = save_path)
-    except CustomValueError:
-        flag = True
-    assert flag
 
     # Test function with algorithm not in list
-    flag = False
-    try:
-        _ = train_metalearner(
+    assert custom_value_error_test(
+        train_metalearner,
         metafeatures_path = delta_path,
         algorithm='RF',
         save_path = save_path)
-    except CustomValueError:
-        flag = True
-    assert flag
 
     model = train_metalearner(
         metafeatures_path = delta_path,
@@ -165,26 +157,18 @@ def test_delta_or_metafeatures():
     metafeatures_path = join(save_path, "metafeatures.csv")
 
     # Test function with algorithm not in list
-    flag = False
-    try:
-        delta_or_metafeatures(
-            delta_path=delta_path,
-            metafeatures_path=metafeatures_path,
-            algorithm='')
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        delta_or_metafeatures,
+        delta_path=delta_path,
+        metafeatures_path=metafeatures_path,
+        algorithm='')
 
     # Test function with algorithm not in list
-    flag = False
-    try:
-        delta_or_metafeatures(
-            delta_path=delta_path,
-            metafeatures_path=metafeatures_path,
-            algorithm='RF')
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        delta_or_metafeatures,
+        delta_path=delta_path,
+        metafeatures_path=metafeatures_path,
+        algorithm='RF')
 
     choice = delta_or_metafeatures(
         delta_path=delta_path,

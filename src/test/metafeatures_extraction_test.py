@@ -1,11 +1,11 @@
 """
     Module for testing metafeatures extraction.
 """
-import shutil
 from os.path import join, exists
-from ..utils.metafeatures_extraction import metafeatures_extraction_data # pylint: disable=relative-beyond-top-level
-from ..utils.metafeatures_extraction import metafeature # pylint: disable=relative-beyond-top-level
-from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
+from src.utils.metafeatures_extraction import metafeatures_extraction_data
+from src.utils.metafeatures_extraction import metafeature
+from src.config import TEST_FOLDER
+from src.config import delete_dir
 
 def test_all():
     """
@@ -24,10 +24,7 @@ def test_metafeatures_extraction_data():
     save_path = join(TEST_FOLDER, 'data', 'save')
 
     # Delete save directory and all its files
-    if exists(save_path):
-        shutil.rmtree(save_path)
-
-    assert not exists(save_path)
+    assert delete_dir(save_path)
 
     metafeatures = metafeatures_extraction_data(
         datasets_path=dataset_path,

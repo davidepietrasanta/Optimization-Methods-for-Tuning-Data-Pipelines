@@ -13,17 +13,17 @@ import numpy as np
 from sklearn.model_selection import GroupShuffleSplit
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsRegressor
-from .machine_learning_algorithms import prediction_metrics # pylint: disable=relative-beyond-top-level
-from .dataset_selection import select_datasets # pylint: disable=relative-beyond-top-level
-from .metafeatures_extraction import metafeatures_extraction_data # pylint: disable=relative-beyond-top-level
-from .machine_learning_algorithms import extract_machine_learning_performances # pylint: disable=relative-beyond-top-level
-from .preprocessing_methods import preprocess_all_datasets, categorical_string_to_number # pylint: disable=relative-beyond-top-level
-from ..config import DATASET_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import METAFEATURES_FOLDER, MODEL_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import LIST_OF_PREPROCESSING, LIST_OF_ML_MODELS # pylint: disable=relative-beyond-top-level
-from ..config import LIST_OF_ML_MODELS_FOR_METALEARNING # pylint: disable=relative-beyond-top-level
-from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
+from src.config import DATASET_FOLDER
+from src.config import METAFEATURES_FOLDER, MODEL_FOLDER
+from src.config import LIST_OF_PREPROCESSING, LIST_OF_ML_MODELS
+from src.config import LIST_OF_ML_MODELS_FOR_METALEARNING
+from src.config import SEED_VALUE, TEST_SIZE
+from src.exceptions import CustomValueError
+from .machine_learning_algorithms import prediction_metrics
+from .dataset_selection import select_datasets
+from .metafeatures_extraction import metafeatures_extraction_data
+from .machine_learning_algorithms import extract_machine_learning_performances
+from .preprocessing_methods import preprocess_all_datasets, categorical_string_to_number
 
 def data_preparation( # pylint: disable=too-many-arguments
     data_selection = False,
@@ -351,23 +351,23 @@ def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER,
                     'algorithm',
                     'preprocessing'], inplace=True)
 
-                if len(preprocessed.index) > 0:
+                if len(preprocessed.index) > 0 and len(non_preprocessed) > 0:
                     preprocessed = preprocessed.iloc[0].to_numpy()
                     preprocessed[0] = ast.literal_eval(preprocessed[0])['f1_score']
-                    if len(non_preprocessed) > 0:
-                        if verbose:
-                            print("Delta of '"+ dataset +
-                            "' with '"+ ml_model +
-                            "' and '"+ preprocessing +"'.")
 
-                        delta = _delta(preprocessed, non_preprocessed, quotient)
+                    if verbose:
+                        print("Delta of '"+ dataset +
+                        "' with '"+ ml_model +
+                        "' and '"+ preprocessing +"'.")
 
-                        # Add dataset_name, algorithm and preprocessing
-                        info = np.array([dataset, ml_model, preprocessing])
-                        delta = pd.DataFrame(np.concatenate(( info.flatten(), delta.flatten()) ).T)
+                    delta = _delta(preprocessed, non_preprocessed, quotient)
 
-                        # Add the delta to the dataframe
-                        delta_df = pd.concat([delta_df, delta], axis=1)
+                    # Add dataset_name, algorithm and preprocessing
+                    info = np.array([dataset, ml_model, preprocessing])
+                    delta = pd.DataFrame(np.concatenate(( info.flatten(), delta.flatten()) ).T)
+
+                    # Add the delta to the dataframe
+                    delta_df = pd.concat([delta_df, delta], axis=1)
 
     delta_df = delta_df.transpose()
     delta_df.set_axis(metafeatures.columns.values.tolist(), axis=1, inplace=True)
@@ -479,7 +479,7 @@ def _train(algorithm, train_x, train_y):
 
     return model
 
-def knn_regression(X, y, n_neighbors): # pylint: disable=invalid-name
+def knn_regression(x_train, y_train, n_neighbors):
     """
         Given X and y return a trained K-Neighbors model.
 
@@ -489,10 +489,10 @@ def knn_regression(X, y, n_neighbors): # pylint: disable=invalid-name
 
         :return: A trained model.
     """
-    model = KNeighborsRegressor(n_neighbors).fit(X, y)
+    model = KNeighborsRegressor(n_neighbors).fit(x_train, y_train)
     return model
 
-def random_forest_regression(X, y): # pylint: disable=invalid-name
+def random_forest_regression(x_train, y_train):
     """
         Given X and y return a trained Random Forest model.
 
@@ -501,7 +501,7 @@ def random_forest_regression(X, y): # pylint: disable=invalid-name
 
         :return: A trained model.
     """
-    model = RandomForestRegressor(random_state=SEED_VALUE).fit(X, y)
+    model = RandomForestRegressor(random_state=SEED_VALUE).fit(x_train, y_train)
     return model
 
 def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SEED_VALUE):

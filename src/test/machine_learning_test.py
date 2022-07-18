@@ -5,13 +5,13 @@ import shutil
 from os.path import join, exists
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from ..utils.machine_learning_algorithms import machine_learning_algorithm # pylint: disable=relative-beyond-top-level
-from ..utils.machine_learning_algorithms import train_algorithm # pylint: disable=relative-beyond-top-level
-from ..utils.machine_learning_algorithms import extract_machine_learning_performances # pylint: disable=relative-beyond-top-level
-from ..config import TEST_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import SEED_VALUE, TEST_SIZE # pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
-
+from src.utils.machine_learning_algorithms import machine_learning_algorithm
+from src.utils.machine_learning_algorithms import train_algorithm
+from src.utils.machine_learning_algorithms import extract_machine_learning_performances
+from src.config import TEST_FOLDER
+from src.config import SEED_VALUE, TEST_SIZE
+from src.config import delete_dir
+from src.exceptions import custom_value_error_test
 def test_all():
     """
         Function to test all the preprocessing methods.
@@ -29,10 +29,7 @@ def test_extract_machine_learning_performances():
     save_path = join(TEST_FOLDER, 'data', 'save')
 
     # Delete save directory and all its files
-    if exists(save_path):
-        shutil.rmtree(save_path)
-
-    assert not exists(save_path)
+    assert delete_dir(save_path)
 
     performances = extract_machine_learning_performances(
         datasets_path=datasets_path,
@@ -55,35 +52,26 @@ def test_machine_learning_algorithm():
     save_path = join(TEST_FOLDER, 'data', 'save')
 
     # Delete save directory and all its files
-    if exists(save_path):
-        shutil.rmtree(save_path)
+    assert delete_dir(save_path)
+
+    # Test function with algorithm not in list
+    assert custom_value_error_test(
+        machine_learning_algorithm,
+        dataset_path=dataset_path,
+        algorithm='',
+        save_path = save_path,
+        verbose = False)
 
     assert not exists(save_path)
 
     # Test function with algorithm not in list
-    flag = False
-    try:
-        [_, _] = machine_learning_algorithm(
-            dataset_path=dataset_path,
-            algorithm='',
-            save_path = save_path,
-            verbose = False)
-    except CustomValueError:
-        flag = True
-    assert flag
-    assert not exists(save_path)
+    assert custom_value_error_test(
+        machine_learning_algorithm,
+        dataset_path=dataset_path,
+        algorithm='LogisticRegression',
+        save_path = save_path,
+        verbose = False)
 
-    # Test function with algorithm not in list
-    flag = False
-    try:
-        [_, _] = machine_learning_algorithm(
-            dataset_path=dataset_path,
-            algorithm='LogisticRegression',
-            save_path = save_path,
-            verbose = False)
-    except CustomValueError:
-        flag = True
-    assert flag
     assert not exists(save_path)
 
     # Test function with algorithm in list
@@ -176,20 +164,18 @@ def test_train_algorithm():
     train_x = train.drop(["y"], axis=1).to_numpy()
 
     # Test function with methods not in list
-    flag = False
-    try:
-        _ = train_algorithm(algorithm='', train_x=train_x, train_y=train_y)
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        train_algorithm,
+        algorithm='',
+        train_x=train_x,
+        train_y=train_y)
 
     # Test function with methods not in list
-    flag = False
-    try:
-        _ = train_algorithm(algorithm='LogisticRegression', train_x=train_x, train_y=train_y)
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        train_algorithm,
+        algorithm='LogisticRegression',
+        train_x=train_x,
+        train_y=train_y)
 
     # Test function with methods in list
     model = train_algorithm(algorithm='logistic_regression', train_x=train_x, train_y=train_y)

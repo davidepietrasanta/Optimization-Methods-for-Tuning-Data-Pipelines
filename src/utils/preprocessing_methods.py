@@ -24,9 +24,9 @@ from sklearn.decomposition import FastICA
 from sklearn import cluster
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
-from ..config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER # pylint: disable=relative-beyond-top-level
-from ..config import LIST_OF_PREPROCESSING # pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
+from src.config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER
+from src.config import LIST_OF_PREPROCESSING
+from src.exceptions import CustomValueError
 
 def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
     """

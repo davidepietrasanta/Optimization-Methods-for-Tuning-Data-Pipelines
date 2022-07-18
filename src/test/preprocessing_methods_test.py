@@ -1,18 +1,16 @@
 """
     Module for testing preprocessing methods.
 """
-import shutil
 from os import listdir
 from os.path import join, exists, isfile
 import pandas as pd
-
-
-from ..utils.preprocessing_methods import preprocess_all_datasets # pylint: disable=relative-beyond-top-level
-from ..utils.preprocessing_methods import preprocessing # pylint: disable=relative-beyond-top-level
-from ..utils.preprocessing_methods import categorical_string_to_number # pylint: disable=relative-beyond-top-level
-from ..utils.preprocessing_methods import preprocess_dataset # pylint: disable=relative-beyond-top-level
-from ..config import TEST_FOLDER, LIST_OF_PREPROCESSING# pylint: disable=relative-beyond-top-level
-from ..exceptions import CustomValueError # pylint: disable=relative-beyond-top-level
+from src.utils.preprocessing_methods import preprocess_all_datasets
+from src.utils.preprocessing_methods import preprocessing
+from src.utils.preprocessing_methods import categorical_string_to_number
+from src.utils.preprocessing_methods import preprocess_dataset
+from src.config import TEST_FOLDER, LIST_OF_PREPROCESSING
+from src.config import delete_dir
+from src.exceptions import custom_value_error_test
 
 def test_all():
     """
@@ -33,10 +31,7 @@ def test_preprocess_all_datasets():
     save_path = join(TEST_FOLDER, 'data', 'save')
 
     # Delete save directory and all its files
-    if exists(save_path):
-        shutil.rmtree(save_path)
-
-    assert not exists(save_path)
+    assert delete_dir(save_path)
 
     list_datasets_processed = preprocess_all_datasets(
         datasets_path=dataset_path,
@@ -65,19 +60,18 @@ def test_preprocessing():
     x_data  = dataset.drop(["y"], axis=1).to_numpy()
 
     # Test function with methods not in list
-    flag = False
-    try:
-        new_data = preprocessing(method='', x_data=x_data, y_data=y_data)
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        preprocessing,
+        method='',
+        x_data=x_data,
+        y_data=y_data)
 
-    flag = False
-    try:
-        new_data = preprocessing(method='MinMaxScaler', x_data=x_data, y_data=y_data)
-    except CustomValueError:
-        flag = True
-    assert flag
+    # Test function with methods not in list
+    assert custom_value_error_test(
+        preprocessing,
+        method='MinMaxScaler',
+        x_data=x_data,
+        y_data=y_data)
 
     # Test function with methods in list
     new_data = preprocessing(method='min_max_scaler', x_data=x_data, y_data=y_data)
@@ -134,34 +128,27 @@ def test_preprocess_dataset():
     save_path = join(TEST_FOLDER, 'data', 'save')
 
     # Delete save directory and all its files
-    if exists(save_path):
-        shutil.rmtree(save_path)
-
-    assert not exists(save_path)
+    assert delete_dir(save_path)
 
     # Test function with methods not in list
-    flag = False
-    try:
-        _ = preprocess_dataset(dataset_path=dataset_path, method='', save_path=save_path)
-    except CustomValueError:
-        flag = True
-    assert flag
+    assert custom_value_error_test(
+        preprocess_dataset,
+        dataset_path=dataset_path,
+        method='',
+        save_path=save_path)
 
     # Test function with methods not in list
-    flag = False
-    try:
-        _ = preprocess_dataset(dataset_path=dataset_path, method='something', save_path=save_path)
-    except CustomValueError:
-        flag = True
-    assert flag
-
+    assert custom_value_error_test(
+        preprocess_dataset,
+        dataset_path=dataset_path,
+        method='something',
+        save_path=save_path)
 
     for method in LIST_OF_PREPROCESSING:
         data = preprocess_dataset(dataset_path=dataset_path, method=method, save_path=save_path)
         assert data is not None
         assert exists(save_path)
-        # delete save_path
-        shutil.rmtree(save_path)
-        assert not exists(save_path)
+        # Delete save directory and all its files
+        assert delete_dir(save_path)
 
     return True

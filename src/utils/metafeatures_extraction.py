@@ -9,8 +9,8 @@ import pandas as pd
 import numpy as np
 import skdim
 from pymfe.mfe import MFE
-from ..config import METAFEATURES_FOLDER # pylint: disable=relative-beyond-top-level
-from .dataset_selection import check_missing_values # pylint: disable=relative-beyond-top-level
+from src.config import METAFEATURES_FOLDER
+from .dataset_selection import check_missing_values
 
 
 def metafeatures_extraction_data(datasets_path, save_path = METAFEATURES_FOLDER,
@@ -79,18 +79,18 @@ def metafeature(dataset_path, verbose=False):
 
         # Separate X from y
         if 'y' in list(dataset.columns):
-            y = dataset["y"].to_list() # pylint: disable=invalid-name
-            X = dataset.drop(["y"], axis=1).to_numpy() # pylint: disable=invalid-name
+            y_label = dataset["y"].to_list()
+            x_label = dataset.drop(["y"], axis=1).to_numpy()
         else:
             # This is because we may want to work with pre-processed data
             # Preprocess can change che nature of the features so it's not
             # possible to keep the original features name.
-            y = dataset.iloc[: , -1].tolist() # pylint: disable=invalid-name
-            X = dataset.iloc[: , :-1].to_numpy() # pylint: disable=invalid-name
+            y_label = dataset.iloc[: , -1].tolist()
+            x_label = dataset.iloc[: , :-1].to_numpy()
 
         # Extract general, statistical and information-theoretic measures
         mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)
-        mfe.fit(X, y)
+        mfe.fit(x_label, y_label)
         features = mfe.extract(suppress_warnings= not verbose )
         keys = features[0]
         values = features[1]
@@ -101,7 +101,7 @@ def metafeature(dataset_path, verbose=False):
             if not math.isnan(values[i]):
                 dict_ft[key_i] = values[i]
 
-        intrinsic_dim = intrinsic_dimensionality(X)
+        intrinsic_dim = intrinsic_dimensionality(x_label)
         dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
         dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
 

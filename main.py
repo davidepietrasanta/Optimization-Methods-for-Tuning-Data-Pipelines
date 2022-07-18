@@ -36,4 +36,8 @@ if __name__ == '__main__':
 # TO DO:
 # Check Return None
 # Make private all function not used outside file (for all the files)
-# Python Modules
+
+# # pylint: disable=too-many-arguments
+# Consider a dict or an object to store the data and than pass it.
+# *args (https://docs.python.org/3/tutorial/controlflow.html#arbitrary-argument-lists)
+# (https://www.geeksforgeeks.org/args-kwargs-python/)

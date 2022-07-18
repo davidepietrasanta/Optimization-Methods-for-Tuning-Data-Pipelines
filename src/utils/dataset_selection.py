@@ -8,9 +8,9 @@ import pandas as pd
 import openml
 from openml.tasks import TaskType
 
-from ..config import DATASET_FOLDER  # pylint: disable=relative-beyond-top-level
-from ..config import DATASET_CONSTRAIN # pylint: disable=relative-beyond-top-level
-from ..config import SEED_VALUE # pylint: disable=relative-beyond-top-level
+from src.config import DATASET_FOLDER
+from src.config import DATASET_CONSTRAIN
+from src.config import SEED_VALUE
 
 def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
     """
@@ -103,12 +103,12 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
         try:
             task_openml = openml.tasks.get_task(dataset['tid'])
             dataset_openml = task_openml.get_dataset()
-            X, y, _, _ = dataset_openml.get_data( # pylint: disable=invalid-name
+            x_label, y_label, _, _ = dataset_openml.get_data(
             target=dataset_openml.default_target_attribute, dataset_format="dataframe"
             )
 
             # Add y (target) label to the dataframe
-            X['y'] = y
+            x_label['y'] = y_label
 
             # Save the dataframe
             path = join(save_path, size)
@@ -118,7 +118,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
 
             path = join(path, dataset_name + '.csv')
 
-            X.to_csv(path, index=False)
+            x_label.to_csv(path, index=False)
 
             actual_dataset_num = actual_dataset_num + 1
             list_dataset_name.append( dataset_name )
