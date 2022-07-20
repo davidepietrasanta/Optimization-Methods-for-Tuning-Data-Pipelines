@@ -34,9 +34,11 @@ if __name__ == '__main__':
         verbose=VERBOSE)
 
 # TO DO:
-# Check Return None
 # Make private all function not used outside file (for all the files)
+# Optimization part / Robust Optimization
+# MLflow
 
+# PYLINT WARNINGS
 # # pylint: disable=too-many-arguments
 # Consider a dict or an object to store the data and than pass it.
 # *args (https://docs.python.org/3/tutorial/controlflow.html#arbitrary-argument-lists)

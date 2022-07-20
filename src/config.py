@@ -78,7 +78,7 @@ LIST_OF_PREPROCESSING = [
     "radial_basis_function_sampler"
 ]
 
-def list_of_metafeatures(metafeatures_path=None):
+def list_of_metafeatures(metafeatures_path:None or str=None) -> list:
     """
        Used to know the list of the metafeatures used during the pipeline.
 
@@ -94,7 +94,7 @@ def list_of_metafeatures(metafeatures_path=None):
     list_of_columns = list(metafeatures_csv.columns)
     return list_of_columns
 
-def delete_dir(dir_path):
+def delete_dir(dir_path:str) -> bool:
     """
         Delete the 'dir_path' directory and all its files
     """

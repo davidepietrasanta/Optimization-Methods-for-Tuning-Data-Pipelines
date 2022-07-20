@@ -7,7 +7,7 @@ from src.utils.metafeatures_extraction import metafeature
 from src.config import TEST_FOLDER
 from src.config import delete_dir
 
-def test_all():
+def test_all() -> bool:
     """
         Function to test all the preprocessing methods.
     """
@@ -15,7 +15,7 @@ def test_all():
     assert test_metafeature()
     return True
 
-def test_metafeatures_extraction_data():
+def test_metafeatures_extraction_data() -> bool:
     """
         Function to test the function 'metafeatures_extraction'.
     """
@@ -38,7 +38,7 @@ def test_metafeatures_extraction_data():
 
     return True
 
-def test_metafeature():
+def test_metafeature() -> bool:
     """
         Function to test the function 'metafeature'.
     """

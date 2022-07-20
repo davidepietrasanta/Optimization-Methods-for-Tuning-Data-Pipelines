@@ -13,8 +13,11 @@ from src.config import METAFEATURES_FOLDER
 from .dataset_selection import check_missing_values
 
 
-def metafeatures_extraction_data(datasets_path, save_path = METAFEATURES_FOLDER,
- name_saved_csv = None, verbose = False):
+def metafeatures_extraction_data(
+    datasets_path:str,
+    save_path:str = METAFEATURES_FOLDER,
+    name_saved_csv:None or str = None,
+    verbose:bool = False) -> pd.DataFrame:
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
 
@@ -63,7 +66,7 @@ def metafeatures_extraction_data(datasets_path, save_path = METAFEATURES_FOLDER,
     return dataset
 
 
-def metafeature(dataset_path, verbose=False):
+def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
     """
         Given a path to a single dataset it return the metafeatures of the dataset.
 
@@ -118,7 +121,7 @@ def metafeature(dataset_path, verbose=False):
         return None
 
 
-def intrinsic_dimensionality(data):
+def intrinsic_dimensionality(data : np.ndarray) -> list:
     """
         Calculate the gloabal intrinsic dimensionality and the mean of
          the local intrinsic dimensionality.\n

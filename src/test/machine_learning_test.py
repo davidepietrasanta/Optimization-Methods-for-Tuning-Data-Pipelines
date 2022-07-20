@@ -12,7 +12,7 @@ from src.config import TEST_FOLDER
 from src.config import SEED_VALUE, TEST_SIZE
 from src.config import delete_dir
 from src.exceptions import custom_value_error_test
-def test_all():
+def test_all() -> bool:
     """
         Function to test all the preprocessing methods.
     """
@@ -21,7 +21,7 @@ def test_all():
     assert test_train_algorithm()
     return True
 
-def test_extract_machine_learning_performances():
+def test_extract_machine_learning_performances() -> bool:
     """
         Function to test the function 'extract_machine_learning_performances'.
     """
@@ -44,7 +44,7 @@ def test_extract_machine_learning_performances():
 
     return True
 
-def test_machine_learning_algorithm():
+def test_machine_learning_algorithm() -> bool:
     """
         Function to test the function 'machine_learning_algorithm'.
     """
@@ -137,7 +137,7 @@ def test_machine_learning_algorithm():
 
     return True
 
-def _valid_machine_learning_algorithm_test(algorithm, dataset_path, save_path):
+def _valid_machine_learning_algorithm_test(algorithm:str, dataset_path:str, save_path:str) -> bool:
     """
         Test function with algorithm in list
     """
@@ -151,7 +151,7 @@ def _valid_machine_learning_algorithm_test(algorithm, dataset_path, save_path):
     assert exists(save_path)
     return True
 
-def test_train_algorithm():
+def test_train_algorithm() -> bool:
     """
         Function to test the function 'train_algorithm'.
     """

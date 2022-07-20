@@ -26,15 +26,15 @@ from .machine_learning_algorithms import extract_machine_learning_performances
 from .preprocessing_methods import preprocess_all_datasets, categorical_string_to_number
 
 def data_preparation( # pylint: disable=too-many-arguments
-    data_selection = False,
-    dataset_size = 'medium',
-    data_path = DATASET_FOLDER,
-    data_preprocess = True,
-    metafeatures_extraction = True,
-    model_training = True,
-    save_path= METAFEATURES_FOLDER,
-    quotient = False,
-    verbose=False):
+    data_selection:bool = False,
+    dataset_size:str = 'medium',
+    data_path:str = DATASET_FOLDER,
+    data_preprocess:bool = True,
+    metafeatures_extraction:bool = True,
+    model_training:bool = True,
+    save_path:str = METAFEATURES_FOLDER,
+    quotient:bool = False,
+    verbose:bool =False) -> pd.DataFrame:
     """
         Given a preprocessing method and data,
          it returns the data for the meta-learning training.
@@ -72,14 +72,14 @@ def data_preparation( # pylint: disable=too-many-arguments
     return delta
 
 def _data_collection( # pylint: disable=too-many-arguments
-    data_selection = False,
-    dataset_size = 'medium',
-    data_path = DATASET_FOLDER,
-    data_preprocess = True,
-    metafeatures_extraction = True,
-    model_training = True,
-    save_path= METAFEATURES_FOLDER,
-    verbose=False):
+    data_selection:bool = False,
+    dataset_size:str = 'medium',
+    data_path:str = DATASET_FOLDER,
+    data_preprocess:bool = True,
+    metafeatures_extraction:bool = True,
+    model_training:bool = True,
+    save_path:str = METAFEATURES_FOLDER,
+    verbose:bool = False) -> pd.DataFrame:
     """
         Given a preprocessing method and data, it returns all the data collected.
 
@@ -120,7 +120,7 @@ def _data_collection( # pylint: disable=too-many-arguments
 
     return merged_data
 
-def _merge_data(performance_path, metafeatures_path):
+def _merge_data(performance_path:str, metafeatures_path:str) -> pd.DataFrame:
     """
         Used to merge data after the extraction of the performances and the metafeatures.
 
@@ -150,7 +150,7 @@ def _merge_data(performance_path, metafeatures_path):
     performances = pd.concat([performances, expanded_metafeatures], axis=1)
     return performances
 
-def _merge_data_all(performance_dir, metafeatures_dir, verbose):
+def _merge_data_all(performance_dir:str, metafeatures_dir:str, verbose:bool) -> pd.DataFrame:
     """
         Used to merge data after the extraction of the performances and the metafeatures.
 
@@ -188,7 +188,7 @@ def _merge_data_all(performance_dir, metafeatures_dir, verbose):
 
     return merged_data
 
-def _data_selection(data_selection, verbose, dataset_size, data_path):
+def _data_selection(data_selection:bool, verbose:bool, dataset_size:str, data_path:str) -> str:
     """
         Function to performe the dataset selection
     """
@@ -206,7 +206,7 @@ def _data_selection(data_selection, verbose, dataset_size, data_path):
 
     return dataset_path
 
-def _data_preprocess(data_preprocess, verbose, dataset_path):
+def _data_preprocess(data_preprocess:bool, verbose:bool, dataset_path:str) -> None:
     """
         Function to performe the data preprocessing
     """
@@ -222,7 +222,11 @@ def _data_preprocess(data_preprocess, verbose, dataset_path):
     if verbose:
         print("Data Preprocessed [2/6]")
 
-def _metafeatures_extraction(metafeatures_extraction, verbose, dataset_path, metafeatures_path):
+def _metafeatures_extraction(
+    metafeatures_extraction:bool,
+    verbose:bool,
+    dataset_path:str,
+    metafeatures_path:str) -> None:
     """
         Function to performe the meta-features extraction
     """
@@ -251,7 +255,11 @@ def _metafeatures_extraction(metafeatures_extraction, verbose, dataset_path, met
     if verbose:
         print("Meta-features Extracted [3/6]")
 
-def _model_training(model_training, verbose, dataset_path, performance_path):
+def _model_training(
+    model_training:bool,
+    verbose:bool,
+    dataset_path:str,
+    performance_path:str) -> None:
     """
         Function to performe the model training
     """
@@ -284,7 +292,7 @@ def _model_training(model_training, verbose, dataset_path, performance_path):
     if verbose:
         print("Models Trained [4/6]")
 
-def _save(data, verbose, save_path):
+def _save(data:pd.DataFrame, verbose:bool, save_path:str) -> None:
     """
         Function to save the data
     """
@@ -297,8 +305,11 @@ def _save(data, verbose, save_path):
     if verbose:
         print("Data Saved [6/6]")
 
-def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER,
- quotient=False, verbose=False):
+def _delta_metafeatures(
+    metafeatures:pd.DataFrame,
+    save_path:str = METAFEATURES_FOLDER,
+    quotient:bool = False,
+    verbose:bool = False) -> pd.DataFrame:
     """
         Given the metafeatures, it returns the delta
          performance and meta-features of the dataset.
@@ -377,8 +388,10 @@ def _delta_metafeatures(metafeatures, save_path= METAFEATURES_FOLDER,
     delta_df.to_csv(join(save_path, 'delta.csv'), index=False)
     return delta_df
 
-def choose_performance_from_metafeatures(metafeatures_path,
- metric='f1_score', copy_name='new_metafeatures.csv'):
+def choose_performance_from_metafeatures(
+    metafeatures_path:str,
+    metric:str='f1_score',
+    copy_name:str='new_metafeatures.csv') -> pd.DataFrame:
     """
         Create a copy of the metafeatures file but with just one performance.
 
@@ -402,8 +415,11 @@ def choose_performance_from_metafeatures(metafeatures_path,
     metafeatures.to_csv(join(metafeatures_path, copy_name), index=False)
     return metafeatures
 
-def train_metalearner(metafeatures_path, algorithm='random_forest',
- save_path = MODEL_FOLDER, verbose=False):
+def train_metalearner(
+    metafeatures_path:str,
+    algorithm:str ='random_forest',
+    save_path:str = MODEL_FOLDER,
+    verbose:bool = False):
     """
         Given a dataset and a model it train
          the meta-learner.
@@ -465,8 +481,7 @@ def train_metalearner(metafeatures_path, algorithm='random_forest',
 
     return [ml_model, performances]
 
-def _train(algorithm, train_x, train_y):
-    model = None
+def _train(algorithm:str, train_x, train_y):
 
     if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
         raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
@@ -479,7 +494,7 @@ def _train(algorithm, train_x, train_y):
 
     return model
 
-def knn_regression(x_train, y_train, n_neighbors):
+def knn_regression(x_train, y_train, n_neighbors:int):
     """
         Given X and y return a trained K-Neighbors model.
 
@@ -504,7 +519,11 @@ def random_forest_regression(x_train, y_train):
     model = RandomForestRegressor(random_state=SEED_VALUE).fit(x_train, y_train)
     return model
 
-def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SEED_VALUE):
+def split_train_test(
+    dataframe:pd.DataFrame,
+    group_name:str,
+    test_size:float = TEST_SIZE,
+    random_state:int = SEED_VALUE):
     """
         Split a dataframe into train and test keeping
          in the same split items with the same group_name.
@@ -529,7 +548,11 @@ def split_train_test(dataframe, group_name, test_size=TEST_SIZE, random_state=SE
 
     return [train, test]
 
-def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_forest', verbose=False):
+def delta_or_metafeatures(
+    delta_path:str,
+    metafeatures_path:str,
+    algorithm:str = 'random_forest',
+    verbose:bool = False) -> bool:
     """
         Check if it's better to use delta_metafeatures or metafeatures.
         True if delta_metafeatures is better than metafeatures, else False.
@@ -575,7 +598,10 @@ def delta_or_metafeatures(delta_path, metafeatures_path, algorithm='random_fores
 
     return d_or_m
 
-def _delta(preprocessed, non_preprocessed, quotient):
+def _delta(
+    preprocessed:np.array,
+    non_preprocessed:np.array,
+    quotient:bool) -> np.array:
     """
         Function to calculate the delta.
         Avoid to have error with quotient.
@@ -583,6 +609,8 @@ def _delta(preprocessed, non_preprocessed, quotient):
         :param preprocessed, preprocessed np.array
         :param non_preprocessed, non preprocessed np.array
         :param quotient, If true do quotient, else subtraction
+
+        :return: The delta between preproccessed and non_preprocessed.
     """
     if quotient:
         # To avoid denominator at zero

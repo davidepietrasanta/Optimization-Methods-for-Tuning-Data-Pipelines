@@ -9,7 +9,7 @@ from src.test.machine_learning_test import test_all as test_machine_learning
 from src.test.metalearner_test import test_all as test_metalearner
 from src.config import TEST_FOLDER
 
-def test_all(verbose=True):
+def test_all(verbose:bool = True) -> bool:
     """
         Function to test all the methods.
         ATTENTION, during the tests the models of ml are overwritten, do a backup first.
@@ -45,7 +45,7 @@ def test_all(verbose=True):
 
     return True
 
-def clean_test():
+def clean_test() -> bool:
     """
         Makes sure everything is clean for the test.
         Deletes unnecessary directories, etc..

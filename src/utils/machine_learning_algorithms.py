@@ -30,13 +30,13 @@ from src.config import METAFEATURES_FOLDER
 from src.config import SEED_VALUE, TEST_SIZE
 from src.exceptions import CustomValueError
 
-def extract_machine_learning_performances(
-    datasets_path,
-    save_model_path = MODEL_FOLDER,
-    save_performance_path = METAFEATURES_FOLDER,
-    performance_file_name = 'performances.csv',
-    preprocessing = None,
-    verbose = False):
+def extract_machine_learning_performances( # pylint: disable=too-many-arguments
+    datasets_path:str,
+    save_model_path:str = MODEL_FOLDER,
+    save_performance_path:str = METAFEATURES_FOLDER,
+    performance_file_name:str = 'performances.csv',
+    preprocessing:None or str = None,
+    verbose:bool = False):
     """
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
@@ -96,7 +96,11 @@ def extract_machine_learning_performances(
 
     return performances
 
-def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER, verbose = False):
+def machine_learning_algorithm(  # pylint: disable=too-many-locals
+    dataset_path:str,
+    algorithm:str,
+    save_path:str = MODEL_FOLDER,
+    verbose:bool = False):
     """
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
@@ -170,7 +174,7 @@ def machine_learning_algorithm(dataset_path, algorithm, save_path = MODEL_FOLDER
 
     return [model, prediction]
 
-def train_algorithm(algorithm, train_x, train_y):
+def train_algorithm(algorithm:str, train_x, train_y):
     """
         Given a ML algorithm and training data, it returns a trained model.
 
@@ -188,7 +192,6 @@ def train_algorithm(algorithm, train_x, train_y):
         :return: A trained model.
     """
 
-    model = None
     if algorithm == 'logistic_regression':
         model = logistic_regression(train_x, train_y)
     elif algorithm == 'naive_bayes':
@@ -232,7 +235,7 @@ def naive_bayes(x_train, y_train):
     model = GaussianNB().fit(x_train, y_train)
     return model
 
-def knn(x_train, y_train, n_neighbors):
+def knn(x_train, y_train, n_neighbors:int):
     """
         Given X and y return a trained K-Neighbors model.
 
@@ -281,7 +284,12 @@ def perceptron(x_train, y_train):
     model = Perceptron(tol=1e-3, random_state=SEED_VALUE).fit(x_train, y_train)
     return model
 
-def prediction_metrics(model, test_x, test_y, metrics = None, regression = False):
+def prediction_metrics(
+    model,
+    test_x,
+    test_y,
+    metrics:None or list = None,
+    regression:bool = False) -> dict:
     """
         Return accuracy, precision, recall and f1_score of the model.
 

@@ -26,10 +26,10 @@ class CustomValueError(ValueError):
         self.message += "The entered value should be one of the following: "
         self.message += ", ".join(self.list)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message
 
-def custom_value_error_test(function, *args, **kwargs):
+def custom_value_error_test(function, *args, **kwargs) -> bool:
     """
         Test if 'CustomValueError' exception is raised.
     """

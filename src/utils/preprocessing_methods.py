@@ -28,7 +28,10 @@ from src.config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER
 from src.config import LIST_OF_PREPROCESSING
 from src.exceptions import CustomValueError
 
-def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
+def preprocess_all_datasets(
+    datasets_path:str,
+    save_path:str = DATASET_PREPROCESSING_FOLDER,
+    verbose:bool = False) -> list:
     """
         Given a path to different datasets, it return, and save, the transformed datasets.
 
@@ -71,7 +74,11 @@ def preprocess_all_datasets(datasets_path, save_path=DATASET_PREPROCESSING_FOLDE
 
     return preprocessed_datasets
 
-def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOLDER, verbose=False):
+def preprocess_dataset(
+    dataset_path:str,
+    method:str,
+    save_path:str = DATASET_PREPROCESSING_FOLDER,
+    verbose:bool = False):
     """
         Given a path to a dataset, it return, and save, the transformed dataset.
 
@@ -91,7 +98,6 @@ def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOL
 
         :return: The transformed data.
     """
-    transformed_data = None
 
     if method not in LIST_OF_PREPROCESSING:
         raise CustomValueError(list_name='preprocessing', input_value=method)
@@ -129,7 +135,7 @@ def preprocess_dataset(dataset_path, method, save_path=DATASET_PREPROCESSING_FOL
 
     return transformed_data
 
-def preprocessing(method, x_data, y_data):
+def preprocessing(method:str, x_data, y_data):
     """
         Given a preprocessing method and data, it returns transformed data.
 
@@ -147,8 +153,6 @@ def preprocessing(method, x_data, y_data):
 
         :return: The transformed data.
     """
-
-    transformed_data = None
     if method not in LIST_OF_PREPROCESSING:
         raise CustomValueError(list_name='preprocessing', input_value=method)
 
@@ -173,7 +177,7 @@ def preprocessing(method, x_data, y_data):
 
     return transformed_data
 
-def categorical_string_to_number(dataset):
+def categorical_string_to_number(dataset:pd.DataFrame) -> pd.DataFrame:
     """
         Given data it return the transformed data
          after replacing categorical string into numbers.
@@ -214,7 +218,7 @@ def standard_scaler(x_data):
     scaler = StandardScaler().fit(x_data)
     return scaler.transform(x_data)
 
-def select_percentile(x_data, y_data, perc=10):
+def select_percentile(x_data, y_data, perc:int=10):
     """
         Given x_data it return the transformed data
          after selecting a percentile.
@@ -228,7 +232,7 @@ def select_percentile(x_data, y_data, perc=10):
     new_x_data = SelectPercentile(chi2, percentile=perc).fit_transform(positive_x_data, y_data)
     return new_x_data
 
-def pca(x_data, n_components=0.85):
+def pca(x_data, n_components:float=0.85):
     """
         Given x_data it return the transformed data
          after the PCA.
@@ -240,7 +244,7 @@ def pca(x_data, n_components=0.85):
     transformer = PCA(n_components=n_components, svd_solver='full').fit(x_data)
     return transformer.transform(x_data)
 
-def fast_ica(x_data, n_components):
+def fast_ica(x_data, n_components:None or int):
     """
         Given x_data it return the transformed data
          after the Fast ICA.
@@ -258,7 +262,7 @@ def fast_ica(x_data, n_components):
         ).fit(x_data)
     return transformer.transform(x_data)
 
-def feature_agglomeration(x_data, n_clusters):
+def feature_agglomeration(x_data, n_clusters:int):
     """
         Given x_data it return the transformed data
          after the Feature Agglomeration.
@@ -271,7 +275,7 @@ def feature_agglomeration(x_data, n_clusters):
     agglo = cluster.FeatureAgglomeration(n_clusters=n_clusters).fit(x_data)
     return agglo.transform(x_data)
 
-def polynomial_features(x_data, degree=2, interaction_only=True):
+def polynomial_features(x_data, degree:int=2 , interaction_only:bool = True):
     """
         Given x_data it return the transformed data
          after the Polynomial Features transformation.
@@ -286,7 +290,7 @@ def polynomial_features(x_data, degree=2, interaction_only=True):
         ).fit(x_data)
     return poly.transform(x_data)
 
-def radial_basis_function_sampler(x_data, gamma=1):
+def radial_basis_function_sampler(x_data, gamma:int=1):
     """
         Given x_data it return the transformed data
          after the Radial Basis Function Sampler.

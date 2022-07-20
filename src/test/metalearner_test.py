@@ -14,7 +14,7 @@ from src.utils.metalearner import delta_or_metafeatures
 from src.utils.metalearner import choose_performance_from_metafeatures
 from src.exceptions import custom_value_error_test
 
-def test_all():
+def test_all() -> bool:
     """
         Function to test all the metalearner methods.
     """
@@ -27,7 +27,7 @@ def test_all():
     assert clear_all()
     return True
 
-def test_split_train_test():
+def test_split_train_test() -> bool:
     """
         Function to test the function 'split_train_test'.
     """
@@ -54,7 +54,7 @@ def test_split_train_test():
 
     return True
 
-def test_data_preparation():
+def test_data_preparation() -> bool:
     """
         Function to test the function 'data_preparation'.
     """
@@ -89,7 +89,7 @@ def test_data_preparation():
 
     return True
 
-def test_train_metalearner():
+def test_train_metalearner() -> bool:
     """
         Function to test the function 'train_metalearner'.
     """
@@ -126,7 +126,7 @@ def test_train_metalearner():
 
     return True
 
-def test_choose_performance_from_metafeatures():
+def test_choose_performance_from_metafeatures() -> bool:
     """
         Function to test the function 'choose_performance_from_metafeatures'.
     """
@@ -147,7 +147,7 @@ def test_choose_performance_from_metafeatures():
 
     return True
 
-def test_delta_or_metafeatures():
+def test_delta_or_metafeatures() -> bool:
     """
         Function to test the function 'delta_or_metafeatures'.
     """
@@ -186,7 +186,7 @@ def test_delta_or_metafeatures():
 
     return True
 
-def clear_all():
+def clear_all() -> bool:
     """
         Makes sure everything is clean for the test.
         Deletes unnecessary directories, etc..

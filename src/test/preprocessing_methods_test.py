@@ -12,7 +12,7 @@ from src.config import TEST_FOLDER, LIST_OF_PREPROCESSING
 from src.config import delete_dir
 from src.exceptions import custom_value_error_test
 
-def test_all():
+def test_all() -> bool:
     """
         Function to test all the preprocessing methods.
     """
@@ -22,7 +22,7 @@ def test_all():
     assert test_preprocess_dataset()
     return True
 
-def test_preprocess_all_datasets():
+def test_preprocess_all_datasets() -> bool:
     """
         Function to test the function 'preprocess_all_datasets'.
     """
@@ -48,7 +48,7 @@ def test_preprocess_all_datasets():
 
     return True
 
-def test_preprocessing():
+def test_preprocessing() -> bool:
     """
         Function to test the function 'preprocessing'.
     """
@@ -100,7 +100,7 @@ def test_preprocessing():
 
     return True
 
-def test_categorical_string_to_number():
+def test_categorical_string_to_number() -> bool:
     """
         Function to test the function 'categorical_string_to_number'.
     """
@@ -119,7 +119,7 @@ def test_categorical_string_to_number():
 
     return True
 
-def test_preprocess_dataset():
+def test_preprocess_dataset() -> bool:
     """
         Function to test the function 'preprocess_dataset'.
     """

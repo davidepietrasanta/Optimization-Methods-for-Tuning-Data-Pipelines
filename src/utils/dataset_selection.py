@@ -12,7 +12,10 @@ from src.config import DATASET_FOLDER
 from src.config import DATASET_CONSTRAIN
 from src.config import SEED_VALUE
 
-def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
+def select_datasets(  # pylint: disable=too-many-locals too-many-statements
+    size:str ='medium',
+    save_path:str = DATASET_FOLDER,
+    verbose:bool=False) -> list:
     """
         Select a series of databases from OpenML based on the 'size'
          and save them in the folder 'save_path'.
@@ -140,7 +143,7 @@ def select_datasets(size='medium', save_path = DATASET_FOLDER, verbose=False):
     return list_dataset_name
 
 
-def check_missing_values(datasets_path, verbose=False):
+def check_missing_values(datasets_path:str, verbose:bool=False) -> list:
     """
         Check if datasets in a folder has missing values.
         If true return all the name of the datasets with missing values.
