@@ -18,20 +18,20 @@ if __name__ == '__main__':
     path = join(prova,'min_max_scaler', 'artificial-characters.csv')
 
     data_preparation(
-        data_path=prova,
+        data_path=DATASET_FOLDER_MEDIUM,
         data_selection = False,
-        data_preprocess = False,
-        metafeatures_extraction = False,
-        model_training = False,
-        quotient=False,
+        data_preprocess = True,
+        metafeatures_extraction = True,
+        model_training = True,
+        quotient=True,
         verbose=VERBOSE)
 
-    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
+    #delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
-    train_metalearner(
-        metafeatures_path = delta_path,
-        algorithm='random_forest',
-        verbose=VERBOSE)
+    #train_metalearner(
+    #    metafeatures_path = delta_path,
+    #    algorithm='random_forest',
+    #    verbose=VERBOSE)
 
 # TO DO:
 # Make private all function not used outside file (for all the files)
