@@ -29,8 +29,7 @@ def test_metafeatures_extraction_data() -> bool:
     metafeatures = metafeatures_extraction_data(
         datasets_path=dataset_path,
         save_path= save_path,
-        name_saved_csv = None,
-        verbose=False)
+        name_saved_csv = None)
 
     assert exists(save_path)
     assert exists(join(save_path, "metafeatures_data.csv"))

@@ -5,19 +5,20 @@ import math
 import os
 from os import listdir
 from os.path import isfile, join
+import logging
 import pandas as pd
 import numpy as np
 import skdim
 from pymfe.mfe import MFE
 from src.config import METAFEATURES_FOLDER
+from src.exceptions import exception_logging
 from .dataset_selection import check_missing_values
 
 
 def metafeatures_extraction_data(
     datasets_path:str,
     save_path:str = METAFEATURES_FOLDER,
-    name_saved_csv:None or str = None,
-    verbose:bool = False) -> pd.DataFrame:
+    name_saved_csv:None or str = None) -> pd.DataFrame:
     """
         Given a path to datasets, it return, and save, the matefeatures for each dataset.
 
@@ -25,7 +26,6 @@ def metafeatures_extraction_data(
         :param save_path: Path where the metafeatures are saved.
         :param name_saved_csv: The name of the csv file with all the metafeatures.
          If None the name is 'metafeatures.csv'.
-        :param verbose: If True more info are printed.
 
         :return: Metafeatures, as pandas Dataframe.
     """
@@ -36,9 +36,10 @@ def metafeatures_extraction_data(
     missing_values_datasets = check_missing_values(datasets_path)
 
     for i, dataset_name in enumerate(list_datasets):
-        if verbose:
-            print( "Extracting metafeatures from '" + dataset_name +
-            "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+        logging.info(
+            "Extracting metafeatures from: %s'...(%s/%s)",
+            dataset_name, str(i+1), str(n_datasets)
+            )
 
         dataset_path = join(datasets_path, dataset_name)
         if dataset_path not in missing_values_datasets:
@@ -47,8 +48,7 @@ def metafeatures_extraction_data(
                 metafeatures_data['dataset_name'] = dataset_name
                 datasets_metafeatures.append( metafeatures_data )
         else:
-            if verbose:
-                print( "'" + dataset_name + "' skipped because of missing values.")
+            logging.info("'%s' skipped because of missing values.", dataset_name)
 
 
     dataset = pd.DataFrame(datasets_metafeatures)
@@ -72,7 +72,7 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
 
         :param dataset_path: Path where the dataset is.
          It should be in a CSV format.
-        :param verbose: If True more info are printed.
+        :param verbose: If True more info are showed.
 
         :return: Metafeatures, as Dict, or None.
     """
@@ -108,16 +108,15 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
         dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
         dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
 
-        if verbose:
-            print( str(len(dict_ft))
-            + " meta-features were extracted from the dataset: "
-            + str(dataset_path))
+        logging.debug("%s meta-features were extracted from the dataset: %s",
+            str(len(dict_ft)), str(dataset_path))
 
         return dict_ft
 
     except Exception: # pylint: disable=broad-except
-        if verbose:
-            print( "Error while extracting metafeature of '" + str(dataset_path) + "', skipped.")
+        msg = "Error while extracting metafeature of '" + str(dataset_path) + "', skipped."
+        exception_logging(msg)
+
         return None
 
 
@@ -146,61 +145,4 @@ def intrinsic_dimensionality(data : np.ndarray) -> list:
 
     intrinsic_dim = [global_intrinsic_dimensionality, mean_local_intrinsic_dimensionality]
     return intrinsic_dim
-
-# TO DO:
-# See how to integrate Akaike and Kl-divergence
-#from sklearn.preprocessing import normalize
-#def kl_divergence(distr_p, distr_q):
-#    """
-#        Simple implementation of the Kullback-Leibler divergence.
-#
-#        :param p: Distribution p.
-#        :param q: Distribution q.
-#
-#        :example of use:
-#            import numpy as np \n
-#            from scipy.stats import norm \n
-#            from matplotlib import pyplot as plt \n
-#            import tensorflow as tf \n
-#            import seaborn as sns \n
-#            sns.set() \n
-#            \n
-#            x = np.arange(-10, 10, 0.001) \n
-#            p = norm.pdf(x, 0, 2) \n
-#            q = norm.pdf(x, 2, 2)plt.title('KL(P||Q) = %1.3f' % kl_divergence(p, q)) \n
-#            plt.plot(x, p) \n
-#            plt.plot(x, q, c='red') \n
-#
-#        :return: A scalar, the Killback-Leibler divergence between p and q.
-#    """
-#    # We first need to normalize the vectors to Probability density function
-#    # The sum should be 1
-#    p_norm = normalize(
-#        distr_p[:,np.newaxis],
-#        axis=0,
-#        norm='l1').ravel()
-#    q_norm = normalize(
-#        distr_q[:,np.newaxis],
-#        axis=0,
-#        norm='l1').ravel()
-#
-#   return np.sum(np.where(p_norm != 0, p_norm * np.log(p_norm / q_norm), 0))
-
-# TO DO:
-# Should we use the Train or the whole dataset?
-#def akaike(model, train_x, train_y):
-#    """
-#        Compute the The Akaike Information Criterion (AIC).\n
-#        AIC = 2K - 2ln(L) \n
-#        K is the Number of independent variables + 2 \n
-#        L is the likelihood \n
-#
-#       :param model: A sklearn trained model
-#        :param train_x: Training input variables
-#       :param train_y: Training label or target value
-#
-#        :return: The Akaike Information Criterion
-#    """
-#    ## should be for the specific model we are doing!
-#    return 0
  

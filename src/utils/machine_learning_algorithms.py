@@ -11,6 +11,7 @@
 import os
 from os import listdir
 from os.path import isfile, join
+import logging
 import pandas as pd
 from joblib import dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -28,22 +29,20 @@ from sklearn.linear_model import Perceptron
 from src.config import LIST_OF_ML_MODELS, MODEL_FOLDER
 from src.config import METAFEATURES_FOLDER
 from src.config import SEED_VALUE, TEST_SIZE
-from src.exceptions import CustomValueError
+from src.exceptions import CustomValueError, exception_logging
 
-def extract_machine_learning_performances( # pylint: disable=too-many-arguments
+def extract_machine_learning_performances(
     datasets_path:str,
     save_model_path:str = MODEL_FOLDER,
     save_performance_path:str = METAFEATURES_FOLDER,
     performance_file_name:str = 'performances.csv',
-    preprocessing:None or str = None,
-    verbose:bool = False):
+    preprocessing:None or str = None):
     """
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
 
         :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
         :param save_path: The path were to save the trained model.
-        :param verbose: If True more info are printed.
 
         :return: A trained model with the performance.
     """
@@ -59,23 +58,21 @@ def extract_machine_learning_performances( # pylint: disable=too-many-arguments
         performances['preprocessing'] = []
 
     for i, dataset_name in enumerate(list_datasets):
-        if verbose:
-            print( "Dataset: '" + dataset_name +
-            "'...("+ str(i+1) + "/" + str( len(list_datasets) ) + ")")
+        logging.debug("Dataset: '%s'...(%s/%s)",
+            dataset_name, str(i+1), str( len(list_datasets) ) )
 
         dataset_path = join(datasets_path, dataset_name)
 
-        for algorithm in LIST_OF_ML_MODELS:
-
-            if verbose:
-                print("Extracting performance from '" + dataset_name +
-                "' with '" + algorithm + "'.")
+        for i, algorithm in enumerate(LIST_OF_ML_MODELS):
+            logging.info(
+                "Extracting performance from: '%s' with '%s'...(%s/%s)",
+                dataset_name, algorithm, str(i+1), str(len(LIST_OF_ML_MODELS))
+                )
             try:
                 [_, performance] = machine_learning_algorithm(
                     dataset_path,
                     algorithm,
-                    save_path = save_model_path,
-                    verbose = False)
+                    save_path = save_model_path)
 
                 performances['dataset_name'].append(dataset_name)
                 performances['algorithm'].append(algorithm)
@@ -83,9 +80,9 @@ def extract_machine_learning_performances( # pylint: disable=too-many-arguments
                 if preprocessing is not None:
                     performances['preprocessing'].append(preprocessing)
             except Exception: # pylint: disable=broad-except
-                if verbose:
-                    print( "Error while extracting performance from '"
-                    + dataset_name + "' with '" + algorithm + "', skipped.")
+                msg = "Error while extracting performance from '"
+                msg += dataset_name + "' with '" + algorithm + "', skipped."
+                exception_logging(msg)
 
     save_path = save_performance_path
     if not os.path.exists(save_path):
@@ -96,11 +93,10 @@ def extract_machine_learning_performances( # pylint: disable=too-many-arguments
 
     return performances
 
-def machine_learning_algorithm(  # pylint: disable=too-many-locals
+def machine_learning_algorithm(
     dataset_path:str,
     algorithm:str,
-    save_path:str = MODEL_FOLDER,
-    verbose:bool = False):
+    save_path:str = MODEL_FOLDER):
     """
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
@@ -115,7 +111,6 @@ def machine_learning_algorithm(  # pylint: disable=too-many-locals
          "svm",
          "perceptron"].
         :param save_path: The path were to save the trained model.
-        :param verbose: If True more info are printed.
 
         :return: A trained model with the performance.
     """
@@ -124,9 +119,8 @@ def machine_learning_algorithm(  # pylint: disable=too-many-locals
 
     dataset_name = os.path.basename(dataset_path)
 
-    if verbose:
-        print("The '" + algorithm +
-        "' algorithm has been selected for the '" + dataset_name + "' dataset.")
+    logging.debug("The '%s' algorithm has been selected for the '%s' dataset.",
+        algorithm, dataset_name )
 
     dataset = pd.read_csv(dataset_path)
 
@@ -146,13 +140,11 @@ def machine_learning_algorithm(  # pylint: disable=too-many-locals
         test_x = test.iloc[: , :-1].to_numpy()
 
     # Train
-    if verbose:
-        print("Training...")
+    logging.debug("Training...")
     model = train_algorithm(algorithm, train_x, train_y)
 
     # Save of the model
-    if verbose:
-        print("Saving the trained model...")
+    logging.debug("Saving the trained model...")
 
     save_name = dataset_name + '-' + algorithm + '.joblib'
     directory = join(save_path, algorithm)
@@ -164,13 +156,10 @@ def machine_learning_algorithm(  # pylint: disable=too-many-locals
     dump(model, file_path)
 
     # Test
-    if verbose:
-        print("Testing...")
+    logging.debug("Testing...")
 
     prediction = prediction_metrics(model, test_x, test_y)
-    if verbose:
-        print("Prediction performance on test set:")
-        print(prediction)
+    logging.debug("Prediction performance on test set: %s", prediction)
 
     return [model, prediction]
 

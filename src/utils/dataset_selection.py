@@ -4,6 +4,7 @@
 
 from os import listdir, makedirs
 from os.path import isfile, join, exists
+import logging
 import pandas as pd
 import openml
 from openml.tasks import TaskType
@@ -11,11 +12,11 @@ from openml.tasks import TaskType
 from src.config import DATASET_FOLDER
 from src.config import DATASET_CONSTRAIN
 from src.config import SEED_VALUE
+from src.exceptions import exception_logging
 
-def select_datasets(  # pylint: disable=too-many-locals too-many-statements
+def select_datasets(
     size:str ='medium',
-    save_path:str = DATASET_FOLDER,
-    verbose:bool=False) -> list:
+    save_path:str = DATASET_FOLDER) -> list:
     """
         Select a series of databases from OpenML based on the 'size'
          and save them in the folder 'save_path'.
@@ -24,7 +25,6 @@ def select_datasets(  # pylint: disable=too-many-locals too-many-statements
         :param size: Should be 'small', 'medium' or 'large'.
         It decide the size of the datasets selected.
         :param save_path: Path where the datasets are saved.
-        :param verbose: If True more info are printed.
 
         :return: List of names of selected datasets.
     """
@@ -76,10 +76,9 @@ def select_datasets(  # pylint: disable=too-many-locals too-many-statements
 
         selected_dataset = pd.concat( [tasks, selected_dataset] )
 
-        if verbose:
-            print("Since the size selected is 'medium' "+
-            "we also select from OpenML benchmark datasets.")
-            print("We have found " + str(len(tasks)) + " datasets from the benchmark.")
+        msg = "Since the size selected is 'medium' we also select from OpenML benchmark datasets."
+        logging.info(msg)
+        logging.info("We have found %s datasets from the benchmark.",str(len(tasks)))
 
 
     # Drop duplicated name and tid
@@ -90,10 +89,8 @@ def select_datasets(  # pylint: disable=too-many-locals too-many-statements
     if len(selected_dataset) < n_dataset:
         n_dataset = len(selected_dataset)
 
-    if verbose:
-        print( str(len(selected_dataset)) +
-        " datasets were found, " + str(n_dataset) +
-        " were selected.")
+    logging.info( "%s datasets were found, %s were selected.",
+        str(len(selected_dataset)), str(n_dataset))
 
     list_dataset_name = []
     actual_dataset_num = 0
@@ -126,31 +123,29 @@ def select_datasets(  # pylint: disable=too-many-locals too-many-statements
             actual_dataset_num = actual_dataset_num + 1
             list_dataset_name.append( dataset_name )
 
-            if verbose:
-                print( str(actual_dataset_num) + "/" + str(n_dataset) + " " + dataset_name)
+            logging.info( "%s/%s %s", str(actual_dataset_num), str(n_dataset), dataset_name)
 
         except Exception: # pylint: disable=broad-except
-            if verbose:
-                print( "Error while dowloading, dataset skipped" )
+            msg = "Error while dowloading, dataset skipped"
+            exception_logging(msg)
 
 
         if actual_dataset_num >= n_dataset:
             break
 
-    if verbose:
-        print(str(len(list_dataset_name)) + " datasets were actually downloaded.")
+    logging.info("%s datasets were actually downloaded.",
+    str(len(list_dataset_name)))
 
     return list_dataset_name
 
 
-def check_missing_values(datasets_path:str, verbose:bool=False) -> list:
+def check_missing_values(datasets_path:str) -> list:
     """
         Check if datasets in a folder has missing values.
         If true return all the name of the datasets with missing values.
         Datasets should be csv format files.
 
         :param datasets_path: Folder where the datasets are checked.
-        :param verbose: If True more info are printed.
 
         :return: List of names of datasets with missing values.
     """
@@ -160,8 +155,7 @@ def check_missing_values(datasets_path:str, verbose:bool=False) -> list:
     list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
 
     for dataset_name in list_datasets:
-        if verbose:
-            print( "Checking '" + dataset_name + "'..." )
+        logging.debug("Checking ' %s ...", dataset_name)
 
         dataset_path = join(datasets_path, dataset_name)
 
@@ -170,8 +164,7 @@ def check_missing_values(datasets_path:str, verbose:bool=False) -> list:
         if count_missing_values > 0 :
             missing_values_datasets.append(dataset_path)
 
-            if verbose:
-                print( "'" + dataset_name + "' with missing values." )
+            logging.debug("'%s' with missing values.", dataset_name)
 
     return missing_values_datasets
     

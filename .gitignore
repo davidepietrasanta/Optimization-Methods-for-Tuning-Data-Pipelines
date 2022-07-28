@@ -43,3 +43,7 @@ src/test/data/
 
 #Code quality file
 code-quality.txt
+
+#Debug
+app.log
+debug.log

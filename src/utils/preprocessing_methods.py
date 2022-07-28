@@ -13,6 +13,7 @@
 import os
 from os import listdir
 from os.path import isfile, join
+import logging
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
 import numpy as np
@@ -26,12 +27,11 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
 from src.config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER
 from src.config import LIST_OF_PREPROCESSING
-from src.exceptions import CustomValueError
+from src.exceptions import CustomValueError, exception_logging
 
 def preprocess_all_datasets(
     datasets_path:str,
-    save_path:str = DATASET_PREPROCESSING_FOLDER,
-    verbose:bool = False) -> list:
+    save_path:str = DATASET_PREPROCESSING_FOLDER) -> list:
     """
         Given a path to different datasets, it return, and save, the transformed datasets.
 
@@ -46,7 +46,6 @@ def preprocess_all_datasets(
          "feature_agglomeration",
          "polynomial_features",
          "radial_basis_function_sampler"].
-        :param verbose: If True more info are printed.
 
         :return: List of sucessfully preprocessed datasets.
     """
@@ -55,9 +54,8 @@ def preprocess_all_datasets(
     preprocessed_datasets = []
 
     for i, dataset_name in enumerate(list_datasets):
-        if verbose:
-            print( "Transforming dataset: '" + dataset_name +
-            "'...("+ str(i+1) + "/" + str(n_datasets) + ")")
+        logging.info("Transforming dataset: '%s'...(%s/%s)",
+        dataset_name, str(i+1), str(n_datasets))
 
         dataset_path = join(datasets_path, dataset_name)
         n_methods = 0
@@ -66,8 +64,8 @@ def preprocess_all_datasets(
                 preprocess_dataset(dataset_path, method, save_path)
                 n_methods = n_methods + 1
             except Exception:  # pylint: disable=broad-except
-                if verbose:
-                    print( "Error, '" + method + "' skipped in '" + dataset_name + "'.")
+                msg = "Error, '" + method + "' skipped in '" + dataset_name + "'."
+                exception_logging(msg)
 
         if n_methods == len(LIST_OF_PREPROCESSING):
             preprocessed_datasets.append(dataset_name)
@@ -77,8 +75,7 @@ def preprocess_all_datasets(
 def preprocess_dataset(
     dataset_path:str,
     method:str,
-    save_path:str = DATASET_PREPROCESSING_FOLDER,
-    verbose:bool = False):
+    save_path:str = DATASET_PREPROCESSING_FOLDER):
     """
         Given a path to a dataset, it return, and save, the transformed dataset.
 
@@ -94,7 +91,6 @@ def preprocess_dataset(
          "polynomial_features",
          "radial_basis_function_sampler"].
         :param save_path: The path were to save the new dataset.
-        :param verbose: If True more info are printed.
 
         :return: The transformed data.
     """
@@ -104,9 +100,8 @@ def preprocess_dataset(
 
     dataset_name = os.path.basename(dataset_path)
 
-    if verbose:
-        print("The '" + method +
-        "' preprocessing has been selected for the '" + dataset_name + "' dataset.")
+    logging.debug("The '%s' preprocessing has been selected for the '%s' dataset.",
+    method, dataset_name)
 
     dataset = pd.read_csv(dataset_path)
     dataset = categorical_string_to_number(dataset)
@@ -115,14 +110,9 @@ def preprocess_dataset(
     x_data  = dataset.drop(["y"], axis=1).to_numpy()
 
     # Preprocessing
-    if verbose:
-        print("Preprocessing...")
     transformed_data = preprocessing(method, x_data, y_data)
 
     # Save of the transformed data
-    if verbose:
-        print("Saving the transformed data...")
-
     save_name = dataset_name #+ '.csv'
     directory = join(save_path, method)
     file_path = join(directory, save_name)

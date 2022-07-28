@@ -1,6 +1,7 @@
 """
     Module dedicated to the custom exceptions.
 """
+import logging
 from .config import LIST_OF_ML_MODELS, LIST_OF_ML_MODELS_FOR_METALEARNING
 from .config import LIST_OF_PREPROCESSING
 
@@ -40,3 +41,11 @@ def custom_value_error_test(function, *args, **kwargs) -> bool:
         flag = True
     assert flag
     return True
+
+def exception_logging(msg:str) -> None:
+    """
+        In case of exception it show the msg
+         both in the logging file and to the user.
+    """
+    logging.debug("Exception occurred", exc_info=True)
+    logging.info(msg)

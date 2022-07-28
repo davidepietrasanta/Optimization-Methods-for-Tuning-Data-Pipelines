@@ -35,8 +35,7 @@ def test_extract_machine_learning_performances() -> bool:
         datasets_path=datasets_path,
         save_model_path= save_path,
         save_performance_path = save_path,
-        preprocessing = None,
-        verbose=False)
+        preprocessing = None)
 
     assert exists(save_path)
     assert exists(join(save_path, "performances.csv"))
@@ -59,8 +58,7 @@ def test_machine_learning_algorithm() -> bool:
         machine_learning_algorithm,
         dataset_path=dataset_path,
         algorithm='',
-        save_path = save_path,
-        verbose = False)
+        save_path = save_path)
 
     assert not exists(save_path)
 
@@ -69,8 +67,7 @@ def test_machine_learning_algorithm() -> bool:
         machine_learning_algorithm,
         dataset_path=dataset_path,
         algorithm='LogisticRegression',
-        save_path = save_path,
-        verbose = False)
+        save_path = save_path)
 
     assert not exists(save_path)
 
@@ -144,8 +141,7 @@ def _valid_machine_learning_algorithm_test(algorithm:str, dataset_path:str, save
     [model, prediction] = machine_learning_algorithm(
     dataset_path=dataset_path,
     algorithm=algorithm,
-    save_path = save_path,
-    verbose = False)
+    save_path = save_path)
     assert model is not None
     assert prediction is not None
     assert exists(save_path)

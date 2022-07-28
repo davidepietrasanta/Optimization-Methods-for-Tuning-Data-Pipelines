@@ -69,8 +69,7 @@ def test_data_preparation() -> bool:
         data_preprocess = True,
         metafeatures_extraction = True,
         model_training = True,
-        quotient=False,
-        verbose=True)
+        quotient=False)
 
     assert data is not None
 
@@ -82,8 +81,7 @@ def test_data_preparation() -> bool:
         data_preprocess = True,
         metafeatures_extraction = True,
         model_training = True,
-        quotient=True,
-        verbose=True)
+        quotient=True)
 
     assert data is not None
 
@@ -197,7 +195,6 @@ def clear_all() -> bool:
         for sub_dir in listdir(data_path):
             sub_dir_path = join(data_path, sub_dir)
             if isdir(sub_dir_path):
-                #print(sub_dir_path)
                 shutil.rmtree(sub_dir_path)
 
     return True

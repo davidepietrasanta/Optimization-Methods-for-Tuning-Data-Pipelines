@@ -6,6 +6,7 @@
 """
 from os.path import join, dirname, exists
 from os import makedirs
+import logging
 import ast
 from joblib import dump
 import pandas as pd
@@ -25,7 +26,7 @@ from .metafeatures_extraction import metafeatures_extraction_data
 from .machine_learning_algorithms import extract_machine_learning_performances
 from .preprocessing_methods import preprocess_all_datasets, categorical_string_to_number
 
-def data_preparation( # pylint: disable=too-many-arguments
+def data_preparation(
     data_selection:bool = False,
     dataset_size:str = 'medium',
     data_path:str = DATASET_FOLDER,
@@ -33,8 +34,7 @@ def data_preparation( # pylint: disable=too-many-arguments
     metafeatures_extraction:bool = True,
     model_training:bool = True,
     save_path:str = METAFEATURES_FOLDER,
-    quotient:bool = False,
-    verbose:bool =False) -> pd.DataFrame:
+    quotient:bool = False) -> pd.DataFrame:
     """
         Given a preprocessing method and data,
          it returns the data for the meta-learning training.
@@ -44,16 +44,14 @@ def data_preparation( # pylint: disable=too-many-arguments
          ignored if 'data_selection' is False.
         :param data_path: Where to find the dataset if 'data_selection' is True.
         :param save_path: Where to save the data
-        :param verbose: If True more info are printed.
 
         :return: The data for the meta-learning.
     """
-    if verbose:
-        print("Data collection...")
+    logging.info("Data collection...")
 
     # Create the dir if it doesn't exist
-        if not exists(save_path):
-            makedirs(save_path)
+    if not exists(save_path):
+        makedirs(save_path)
 
     merged_data = _data_collection(
         data_selection,
@@ -62,24 +60,21 @@ def data_preparation( # pylint: disable=too-many-arguments
         data_preprocess,
         metafeatures_extraction,
         model_training,
-        save_path,
-        verbose)
+        save_path)
 
-    if verbose:
-        print("Delta metafeatures...")
-    delta = _delta_metafeatures(merged_data, save_path, quotient, verbose)
+    logging.info("Delta metafeatures...")
+    delta = _delta_metafeatures(merged_data, save_path, quotient)
 
     return delta
 
-def _data_collection( # pylint: disable=too-many-arguments
+def _data_collection(
     data_selection:bool = False,
     dataset_size:str = 'medium',
     data_path:str = DATASET_FOLDER,
     data_preprocess:bool = True,
     metafeatures_extraction:bool = True,
     model_training:bool = True,
-    save_path:str = METAFEATURES_FOLDER,
-    verbose:bool = False) -> pd.DataFrame:
+    save_path:str = METAFEATURES_FOLDER) -> pd.DataFrame:
     """
         Given a preprocessing method and data, it returns all the data collected.
 
@@ -88,7 +83,6 @@ def _data_collection( # pylint: disable=too-many-arguments
          ignored if 'data_selection' is False.
         :param data_path: Where to find the dataset if 'data_selection' is True.
         :param save_path: Where to save the data
-        :param verbose: If True more info are printed.
 
         :return: The data for the meta-learning.
     """
@@ -98,25 +92,25 @@ def _data_collection( # pylint: disable=too-many-arguments
 
     # Dataset selection
     # Takes a long time (need internet connection)
-    dataset_path = _data_selection(data_selection, verbose, dataset_size, data_path)
+    dataset_path = _data_selection(data_selection, dataset_size, data_path)
 
     # Preprocess all the datasets with all the methods.
     # Save the preprocessed data in the same folder.
-    _data_preprocess(data_preprocess, verbose, dataset_path)
+    _data_preprocess(data_preprocess, dataset_path)
 
     # Extract the meta-features.
     # Save the meta-features in the same folder.
-    _metafeatures_extraction(metafeatures_extraction, verbose, dataset_path, metafeatures_path)
+    _metafeatures_extraction(metafeatures_extraction, dataset_path, metafeatures_path)
 
     # Run the ml models for all the dataset with all preprocessing.
     # Save the meta-features in the same folder.
-    _model_training(model_training, verbose, dataset_path, performance_path)
+    _model_training(model_training, dataset_path, performance_path)
 
     # Merge the data
-    merged_data = _merge_data_all(performance_path, metafeatures_path, verbose)
+    merged_data = _merge_data_all(performance_path, metafeatures_path)
 
     # Save the data
-    _save(merged_data, verbose, save_path)
+    _save(merged_data, save_path)
 
     return merged_data
 
@@ -150,7 +144,7 @@ def _merge_data(performance_path:str, metafeatures_path:str) -> pd.DataFrame:
     performances = pd.concat([performances, expanded_metafeatures], axis=1)
     return performances
 
-def _merge_data_all(performance_dir:str, metafeatures_dir:str, verbose:bool) -> pd.DataFrame:
+def _merge_data_all(performance_dir:str, metafeatures_dir:str) -> pd.DataFrame:
     """
         Used to merge data after the extraction of the performances and the metafeatures.
 
@@ -159,18 +153,15 @@ def _merge_data_all(performance_dir:str, metafeatures_dir:str, verbose:bool) -> 
 
         :return: The merged data.
     """
-    if verbose:
-        print("Merging the data... [5/6]")
+    logging.info("Merging the data... [5/6]")
 
-    if verbose:
-        print("Merging from the non-preprocessed data")
+    logging.info("Merging from the non-preprocessed data")
     no_preprocessed_metafeatures = join(metafeatures_dir, 'metafeatures_data.csv')
     no_preprocessed_performances = join(performance_dir, 'performance.csv')
     merged_data = _merge_data(no_preprocessed_performances, no_preprocessed_metafeatures)
 
     for preprocessing in LIST_OF_PREPROCESSING:
-        if verbose:
-            print("Merging " + preprocessing)
+        logging.info("Merging %s", preprocessing)
 
         preprocessed_metafeatures = join(metafeatures_dir, 'metafeatures_'+ preprocessing +'.csv')
         preprocessed_performances = join(performance_dir, 'performance_'+ preprocessing +'.csv')
@@ -183,103 +174,87 @@ def _merge_data_all(performance_dir:str, metafeatures_dir:str, verbose:bool) -> 
         merged_data.dropna(subset=['attr_conc.mean'], inplace=True)
         merged_data.dropna(axis=1, how='any', thresh=None, subset=None, inplace=True)
 
-    if verbose:
-        print("Data Merged [5/6]")
+    logging.info("Data Merged [5/6]")
 
     return merged_data
 
-def _data_selection(data_selection:bool, verbose:bool, dataset_size:str, data_path:str) -> str:
+def _data_selection(data_selection:bool, dataset_size:str, data_path:str) -> str:
     """
         Function to performe the dataset selection
     """
     dataset_path = data_path
 
     if data_selection:
-        if verbose:
-            print("Downloading the data... [1/6]")
+        logging.info("Downloading the data... [1/6]")
 
         # Download the datasets
-        select_datasets(size=dataset_size, verbose=verbose, save_path=data_path)
+        select_datasets(size=dataset_size, save_path=data_path)
         dataset_path = join(data_path, dataset_size)
-    if verbose:
-        print("Data Downloaded [1/6]")
+    logging.info("Data Downloaded [1/6]")
 
     return dataset_path
 
-def _data_preprocess(data_preprocess:bool, verbose:bool, dataset_path:str) -> None:
+def _data_preprocess(data_preprocess:bool, dataset_path:str) -> None:
     """
         Function to performe the data preprocessing
     """
     if data_preprocess:
-        if verbose:
-            print("Preprocessing the data... [2/6]")
+        logging.info("Preprocessing the data... [2/6]")
 
         preprocess_all_datasets(
             datasets_path = dataset_path,
-            save_path = dataset_path,
-            verbose = verbose)
+            save_path = dataset_path)
 
-    if verbose:
-        print("Data Preprocessed [2/6]")
+    logging.info("Data Preprocessed [2/6]")
 
 def _metafeatures_extraction(
     metafeatures_extraction:bool,
-    verbose:bool,
     dataset_path:str,
     metafeatures_path:str) -> None:
     """
         Function to performe the meta-features extraction
     """
     if metafeatures_extraction:
-        if verbose:
-            print("Extracting the meta-features... [3/6]")
+        logging.info("Extracting the meta-features... [3/6]")
 
-        if verbose:
-            print("Extracting from the non-preprocessed dataset")
+        logging.info("Extracting from the non-preprocessed dataset - 0/%s",
+        str(len(LIST_OF_PREPROCESSING)))
         metafeatures_extraction_data(
             datasets_path = dataset_path,
             save_path = metafeatures_path,
-            name_saved_csv = None,
-            verbose = verbose)
+            name_saved_csv = None)
 
-        for preprocessing in LIST_OF_PREPROCESSING:
-            if verbose:
-                print("Extracting " + preprocessing)
+        for i, preprocessing in enumerate(LIST_OF_PREPROCESSING):
+            logging.info("Extracting %s - %s/%s",
+            preprocessing, str(i+1), str(len(LIST_OF_PREPROCESSING)))
 
             data_preprocessing_path = join(dataset_path, preprocessing)
             metafeatures_extraction_data(
                 datasets_path = data_preprocessing_path,
                 save_path = metafeatures_path,
-                name_saved_csv = 'metafeatures_'+ preprocessing +'.csv',
-                verbose = verbose)
-    if verbose:
-        print("Meta-features Extracted [3/6]")
+                name_saved_csv = 'metafeatures_'+ preprocessing +'.csv')
+    logging.info("Meta-features Extracted [3/6]")
 
 def _model_training(
     model_training:bool,
-    verbose:bool,
     dataset_path:str,
     performance_path:str) -> None:
     """
         Function to performe the model training
     """
     if model_training:
-        if verbose:
-            print("Training the models... [4/6]")
+        logging.info("Training the models... [4/6]")
 
-        if verbose:
-            print("Training with the non-preprocessed dataset")
+        logging.info("Training with the non-preprocessed dataset")
         extract_machine_learning_performances(
             datasets_path = dataset_path,
             save_model_path = MODEL_FOLDER,
             save_performance_path = performance_path,
             performance_file_name= 'performance.csv',
-            preprocessing = 'None',
-            verbose = verbose)
+            preprocessing = 'None')
 
         for preprocessing in LIST_OF_PREPROCESSING:
-            if verbose:
-                print("Training with " + preprocessing)
+            logging.info("Training with %s", preprocessing)
 
             data_preprocessing_path = join(dataset_path, preprocessing)
             extract_machine_learning_performances(
@@ -287,29 +262,24 @@ def _model_training(
                 save_model_path = MODEL_FOLDER,
                 save_performance_path = performance_path,
                 performance_file_name= 'performance_'+ preprocessing +'.csv',
-                preprocessing = preprocessing,
-                verbose = verbose)
-    if verbose:
-        print("Models Trained [4/6]")
+                preprocessing = preprocessing)
+    logging.info("Models Trained [4/6]")
 
-def _save(data:pd.DataFrame, verbose:bool, save_path:str) -> None:
+def _save(data:pd.DataFrame, save_path:str) -> None:
     """
         Function to save the data
     """
-    if verbose:
-        print("Saving the data... [6/6]")
+    logging.info("Saving the data... [6/6]")
 
     save_dir = join(save_path, 'metafeatures.csv')
     data.to_csv(save_dir)
 
-    if verbose:
-        print("Data Saved [6/6]")
+    logging.info("Data Saved [6/6]")
 
 def _delta_metafeatures(
     metafeatures:pd.DataFrame,
     save_path:str = METAFEATURES_FOLDER,
-    quotient:bool = False,
-    verbose:bool = False) -> pd.DataFrame:
+    quotient:bool = False) -> pd.DataFrame:
     """
         Given the metafeatures, it returns the delta
          performance and meta-features of the dataset.
@@ -366,10 +336,8 @@ def _delta_metafeatures(
                     preprocessed = preprocessed.iloc[0].to_numpy()
                     preprocessed[0] = ast.literal_eval(preprocessed[0])['f1_score']
 
-                    if verbose:
-                        print("Delta of '"+ dataset +
-                        "' with '"+ ml_model +
-                        "' and '"+ preprocessing +"'.")
+                    logging.info("Delta of '%s' with '%s' and '%s'.",
+                        dataset, ml_model, preprocessing)
 
                     delta = _delta(preprocessed, non_preprocessed, quotient)
 
@@ -418,8 +386,7 @@ def choose_performance_from_metafeatures(
 def train_metalearner(
     metafeatures_path:str,
     algorithm:str ='random_forest',
-    save_path:str = MODEL_FOLDER,
-    verbose:bool = False):
+    save_path:str = MODEL_FOLDER):
     """
         Given a dataset and a model it train
          the meta-learner.
@@ -428,12 +395,10 @@ def train_metalearner(
         :param metafeatures_path: Path to the dataset, should be a CSV file
         generated by 'data_preparation'.
         :param save_path: Where to save the trained model.
-        :param verbose: If True more info are printed.
 
         :return: A trained meta-learning and its performances.
     """
-    if verbose:
-        print("Training meta-learner...")
+    logging.info("Training meta-learner...")
 
     if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
         raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
@@ -442,8 +407,7 @@ def train_metalearner(
     metafeatures = categorical_string_to_number(metafeatures)
 
     # Split train and test
-    if verbose:
-        print("Splitting train and test...")
+    logging.info("Splitting train and test...")
     [train, test] = split_train_test(metafeatures, group_name='dataset_name')
 
     # Drop dataset_name
@@ -457,15 +421,11 @@ def train_metalearner(
     test_x = test.drop(["performance"], axis=1).to_numpy()
 
     # Train
-    if verbose:
-        print("Training...")
-
+    logging.info("Training...")
     ml_model = _train(algorithm, train_x, train_y)
 
     # Save
-    if verbose:
-        print("Saving the model...")
-
+    logging.info("Saving the model...")
     save_dir = join(save_path, 'metalearner')
     file_path = join(save_dir, 'metalearner_' + algorithm + '.joblib')
 
@@ -476,9 +436,7 @@ def train_metalearner(
 
     # Performance
     performances = prediction_metrics(ml_model, test_x, test_y, metrics = None, regression=True)
-    if verbose:
-        print("Performances: " + str(performances) )
-
+    logging.info("Performances: %s", performances)
     return [ml_model, performances]
 
 def _train(algorithm:str, train_x, train_y):
@@ -551,8 +509,7 @@ def split_train_test(
 def delta_or_metafeatures(
     delta_path:str,
     metafeatures_path:str,
-    algorithm:str = 'random_forest',
-    verbose:bool = False) -> bool:
+    algorithm:str = 'random_forest') -> bool:
     """
         Check if it's better to use delta_metafeatures or metafeatures.
         True if delta_metafeatures is better than metafeatures, else False.
@@ -560,7 +517,6 @@ def delta_or_metafeatures(
         :param delta_path: Path to delta_metafeatures CSV file (delta.csv).
         :param metafeatures_path: Path to metafeatures CSV file (metafeatures.csv).
         :param algorithm: A machine learning model/algorithm.
-        :param verbose: If True more info are printed.
 
         :return: True if delta_metafeatures is better than metafeatures, else False.
 
@@ -570,8 +526,7 @@ def delta_or_metafeatures(
 
     [_, delta_performances ] = train_metalearner(
         metafeatures_path = delta_path,
-        algorithm=algorithm,
-        verbose=verbose)
+        algorithm=algorithm)
 
     choose_performance_from_metafeatures(
         metafeatures_path = metafeatures_path,
@@ -582,19 +537,18 @@ def delta_or_metafeatures(
 
     [_, meta_performances ] = train_metalearner(
         metafeatures_path = new_metafeatures_path,
-        algorithm=algorithm,
-        verbose=verbose)
+        algorithm=algorithm)
 
     d_or_m = delta_performances['mse'] < meta_performances['mse']
-    if verbose:
-        print("The delta mse is: " + str(delta_performances['mse']) )
-        print("The metafeatures mse is: " + str(meta_performances['mse']) )
 
-        winner = "'metafeatures'"
-        if d_or_m:
-            winner = "'delta'"
+    logging.info("The delta mse is: %s", str(delta_performances['mse']) )
+    logging.info("The metafeatures mse is: %s", str(meta_performances['mse']) )
 
-        print('The performances of ' + winner + ' are better.')
+    winner = "'metafeatures'"
+    if d_or_m:
+        winner = "'delta'"
+
+    logging.info('The performances of %s are better.', winner)
 
     return d_or_m
 

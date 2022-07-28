@@ -1,37 +1,57 @@
 """
     Main module
 """
-from os.path import join # pylint: disable=unused-import
-import pandas as pd # pylint: disable=unused-import
+from os.path import join
+import logging
 from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=unused-import
-from src.config import METAFEATURES_FOLDER, list_of_metafeatures # pylint: disable=unused-import
+from src.config import METAFEATURES_FOLDER # pylint: disable=unused-import
 from src.utils.metalearner import data_preparation, train_metalearner # pylint: disable=unused-import
-from src.utils.metalearner import choose_performance_from_metafeatures, split_train_test # pylint: disable=unused-import
 from src.utils.metalearner import delta_or_metafeatures # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
-    dataset_path = join(DATASET_FOLDER_MEDIUM, "artificial-characters.csv")
-    dataset_path_2 = join(DATASET_FOLDER_MEDIUM, "analcatdata_dmft.csv")
+    if VERBOSE:
+        VERBOSITY_LEVEL = logging.INFO
+    else:
+        VERBOSITY_LEVEL = logging.CRITICALs
+
+    formatter = logging.Formatter(
+        '%(levelname)s - %(message)s'
+    )
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(VERBOSITY_LEVEL)
+    stream_handler.setFormatter(formatter)
+
+    logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(pathname)s \n'+
+         '%(funcName)s (line:%(lineno)d) - '+
+         '%(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("debug.log", mode='w'),
+        stream_handler,
+    ]
+    )
+    logging.info("************START************")
+
     prova = join(DATASET_FOLDER, 'prova')
 
-    path = join(prova,'min_max_scaler', 'artificial-characters.csv')
-
     data_preparation(
-        data_path=DATASET_FOLDER_MEDIUM,
+        data_path=prova, #DATASET_FOLDER_MEDIUM
         data_selection = False,
         data_preprocess = True,
         metafeatures_extraction = True,
         model_training = True,
-        quotient=True,
-        verbose=VERBOSE)
+        quotient=True)
 
     #delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
     #train_metalearner(
     #    metafeatures_path = delta_path,
-    #    algorithm='random_forest',
-    #    verbose=VERBOSE)
+    #    algorithm='random_forest')
+
+    logging.info("************END************")
 
 # TO DO:
 # Make private all function not used outside file (for all the files)
