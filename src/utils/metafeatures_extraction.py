@@ -13,6 +13,7 @@ from pymfe.mfe import MFE
 from src.config import METAFEATURES_FOLDER
 from src.exceptions import exception_logging
 from .dataset_selection import check_missing_values
+from .preprocessing_methods import categorical_string_to_number
 
 
 def metafeatures_extraction_data(
@@ -79,6 +80,7 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
     try:
         # Read the CSV
         dataset = pd.read_csv(dataset_path)
+        dataset = categorical_string_to_number(dataset)
 
         # Separate X from y
         if 'y' in list(dataset.columns):

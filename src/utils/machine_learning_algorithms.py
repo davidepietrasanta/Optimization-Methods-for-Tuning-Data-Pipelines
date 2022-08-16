@@ -30,6 +30,7 @@ from src.config import LIST_OF_ML_MODELS, MODEL_FOLDER
 from src.config import METAFEATURES_FOLDER
 from src.config import SEED_VALUE, TEST_SIZE
 from src.exceptions import CustomValueError, exception_logging
+from .preprocessing_methods import categorical_string_to_number
 
 def extract_machine_learning_performances(
     datasets_path:str,
@@ -123,6 +124,7 @@ def machine_learning_algorithm(
         algorithm, dataset_name )
 
     dataset = pd.read_csv(dataset_path)
+    dataset = categorical_string_to_number(dataset)
 
     train, test = train_test_split(dataset, test_size=TEST_SIZE, random_state=SEED_VALUE)
 

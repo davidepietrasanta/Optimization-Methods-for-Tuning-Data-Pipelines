@@ -219,8 +219,21 @@ def select_percentile(x_data, y_data, perc:int=10):
     """
     # Shift all values to avoid negative number, since we are using chi2
     positive_x_data = x_data - np.amin(x_data)
-    new_x_data = SelectPercentile(chi2, percentile=perc).fit_transform(positive_x_data, y_data)
-    return new_x_data
+    new_data = SelectPercentile(chi2, percentile=perc).fit_transform(positive_x_data, y_data)
+    # Force n_features to be at least 2
+    if new_data.shape[1] < 2:
+        # It's not sure it solves the problem
+        # but there is a good probability to do so
+        n_original_features = positive_x_data.shape[1]
+        new_percentile = 1 / (n_original_features / 2)
+        new_percentile = (new_percentile * 100) +1
+        new_percentile = max(new_percentile, 25)
+
+        new_data = SelectPercentile(
+            chi2,
+            percentile=new_percentile
+            ).fit_transform(positive_x_data, y_data)
+    return new_data
 
 def pca(x_data, n_components:float=0.85):
     """
@@ -231,8 +244,19 @@ def pca(x_data, n_components:float=0.85):
 
         :return: The transformed data.
     """
-    transformer = PCA(n_components=n_components, svd_solver='full').fit(x_data)
-    return transformer.transform(x_data)
+    transformer = PCA(
+        n_components=n_components,
+        svd_solver='full').fit(x_data)
+    new_data = transformer.transform(x_data)
+
+    # Force n_features to be at least 2
+    if new_data.shape[1] < 2:
+        transformer = PCA(
+            n_components=2,
+            svd_solver='full').fit(x_data)
+        new_data = transformer.transform(x_data)
+
+    return new_data
 
 def fast_ica(x_data, n_components:None or int):
     """
