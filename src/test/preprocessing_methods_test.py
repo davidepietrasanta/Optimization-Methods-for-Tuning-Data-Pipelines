@@ -36,7 +36,7 @@ def test_preprocess_all_datasets() -> bool:
     list_datasets_processed = preprocess_all_datasets(
         datasets_path=dataset_path,
         save_path= save_path)
-    list_datasets = [f for f in listdir(dataset_path) if isfile(join(dataset_path, f))]
+    list_datasets = sorted([f for f in listdir(dataset_path) if isfile(join(dataset_path, f))])
 
     # Sorting both the lists, just to be sure
     list_datasets.sort()

@@ -49,7 +49,7 @@ def preprocess_all_datasets(
 
         :return: List of sucessfully preprocessed datasets.
     """
-    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
     n_datasets = len(list_datasets)
     preprocessed_datasets = []
 

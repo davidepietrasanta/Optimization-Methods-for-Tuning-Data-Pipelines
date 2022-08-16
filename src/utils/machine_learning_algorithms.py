@@ -46,7 +46,7 @@ def extract_machine_learning_performances(
 
         :return: A trained model with the performance.
     """
-    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
 
     performances = {
         'dataset_name' : [],

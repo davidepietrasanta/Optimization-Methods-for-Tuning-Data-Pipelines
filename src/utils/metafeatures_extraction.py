@@ -29,7 +29,7 @@ def metafeatures_extraction_data(
 
         :return: Metafeatures, as pandas Dataframe.
     """
-    list_datasets = [f for f in listdir(datasets_path) if isfile(join(datasets_path, f))]
+    list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
     n_datasets = len(list_datasets)
     datasets_metafeatures = []
 
