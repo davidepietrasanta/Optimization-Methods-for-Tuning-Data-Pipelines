@@ -13,6 +13,7 @@ lib
 │   ├─ metafeatures             # Store metafeatures
 │   └─ model                    # Store trained ML models
 ├── images                      # Images for presentations, README, etc.
+├── other                       # Script or Notebook related to the thesis or to the plots
 ├── src                         # Actual code
 │   ├─ test                     # Test code
 │   ├─ utils                    # General utility code

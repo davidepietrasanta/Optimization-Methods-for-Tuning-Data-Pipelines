@@ -49,7 +49,7 @@ DATASET_CONSTRAIN = {
         'MaxNumberOfInstances': 1000000000 ,
         'MinNumberOfClasses': 0 ,
         'MaxNumberOfClasses': 50 ,
-        'MinNumberOfFeatures': 0,
+        'MinNumberOfFeatures': 10,
         'MaxNumberOfFeatures': 5000,
     }
 
