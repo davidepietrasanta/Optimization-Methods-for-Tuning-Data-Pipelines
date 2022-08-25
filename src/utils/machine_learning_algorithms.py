@@ -240,11 +240,11 @@ def knn(x_train, y_train, n_neighbors:int):
         :return: A trained model.
     """
     # This is to avoid the following error:
-    # "BLAS : Program is Terminated. 
+    # "BLAS : Program is Terminated.
     # Because you tried to allocate too many memory regions."
     # That arise when running KNN on a pc with high number of jobs.
-    n_jobs = 4 
-    
+    n_jobs = 4
+
     model = KNeighborsClassifier(n_neighbors, n_jobs=n_jobs).fit(x_train, y_train)
     return model
 

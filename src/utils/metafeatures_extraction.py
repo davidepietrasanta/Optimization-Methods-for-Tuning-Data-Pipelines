@@ -135,7 +135,7 @@ def intrinsic_dimensionality(data : np.ndarray) -> int:
         :return: The intrinsic dimensionality.
 
     """
-    # Estimate intrinsic dimension 
+    # Estimate intrinsic dimension
     intrinsic_dim = skdim.id.KNN().fit(data)
     # Get estimated intrinsic dimension
     intrinsic_dim = intrinsic_dim.dimension_
