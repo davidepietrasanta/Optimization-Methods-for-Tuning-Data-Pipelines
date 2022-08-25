@@ -52,7 +52,6 @@ def test_metafeature() -> bool:
     metafeatures_extracted = metafeature(dataset_path)
     assert metafeatures_extracted is not None
 
-    assert metafeatures_extracted['intrinsic_dim.global']
-    assert metafeatures_extracted['intrinsic_dim.local.mean']
+    assert metafeatures_extracted['intrinsic_dim']
 
     return True

@@ -58,16 +58,17 @@ def extract_machine_learning_performances(
     if preprocessing is not None:
         performances['preprocessing'] = []
 
-    for i, dataset_name in enumerate(list_datasets):
+    for j, dataset_name in enumerate(list_datasets):
         logging.debug("Dataset: '%s'...(%s/%s)",
-            dataset_name, str(i+1), str( len(list_datasets) ) )
+            dataset_name, str(j+1), str( len(list_datasets) ) )
 
         dataset_path = join(datasets_path, dataset_name)
 
         for i, algorithm in enumerate(LIST_OF_ML_MODELS):
             logging.info(
-                "Extracting performance from: '%s' with '%s'...(%s/%s)",
-                dataset_name, algorithm, str(i+1), str(len(LIST_OF_ML_MODELS))
+                "Extracting performance from: '%s' [%s/%s] with '%s'...(%s/%s)",
+                dataset_name, str(j+1), str(len(list_datasets)),
+                algorithm, str(i+1), str(len(LIST_OF_ML_MODELS))
                 )
             try:
                 [_, performance] = machine_learning_algorithm(
@@ -80,6 +81,8 @@ def extract_machine_learning_performances(
                 performances['performance'].append(performance)
                 if preprocessing is not None:
                     performances['preprocessing'].append(preprocessing)
+
+                logging.info("Extracted performance from: '%s'",dataset_name)
             except Exception: # pylint: disable=broad-except
                 msg = "Error while extracting performance from '"
                 msg += dataset_name + "' with '" + algorithm + "', skipped."
@@ -304,7 +307,9 @@ def prediction_metrics(
 
         :return: Accuracy, precision, recall and f1_score as a dictionary.
     """
+    model.n_jobs = 2
     prediction_test_y = model.predict(test_x)
+    # TO DO: Fix Precidiction
     metrics_values = {}
     if not regression:
         if (metrics is None) or ('accuracy' in metrics):

@@ -245,7 +245,9 @@ def _model_training(
     if model_training:
         logging.info("Training the models... [4/6]")
 
-        logging.info("Training with the non-preprocessed dataset")
+        logging.info(
+            "Training with the non-preprocessed dataset (0/%s)",
+            str(len(LIST_OF_PREPROCESSING)))
         extract_machine_learning_performances(
             datasets_path = dataset_path,
             save_model_path = MODEL_FOLDER,
@@ -253,8 +255,10 @@ def _model_training(
             performance_file_name= 'performance.csv',
             preprocessing = 'None')
 
-        for preprocessing in LIST_OF_PREPROCESSING:
-            logging.info("Training with %s", preprocessing)
+        for n_preprocessing, preprocessing in enumerate(LIST_OF_PREPROCESSING):
+            logging.info(
+                "Training with %s (%s/%s)",
+                preprocessing, str(n_preprocessing+1), str(len(LIST_OF_PREPROCESSING)))
 
             data_preprocessing_path = join(dataset_path, preprocessing)
             extract_machine_learning_performances(

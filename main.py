@@ -40,8 +40,8 @@ if __name__ == '__main__':
     data_preparation(
         data_path=prova, #DATASET_FOLDER_MEDIUM
         data_selection = False,
-        data_preprocess = True,
-        metafeatures_extraction = True,
+        data_preprocess = False, #True
+        metafeatures_extraction = False, #True
         model_training = True,
         quotient=True)
 
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 # MLflow
 
 # PYLINT WARNINGS
-# # pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments
 # Consider a dict or an object to store the data and than pass it.
 # *args (https://docs.python.org/3/tutorial/controlflow.html#arbitrary-argument-lists)
 # (https://www.geeksforgeeks.org/args-kwargs-python/)

@@ -4,7 +4,7 @@
 import math
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, basename
 import logging
 import pandas as pd
 import numpy as np
@@ -38,8 +38,8 @@ def metafeatures_extraction_data(
 
     for i, dataset_name in enumerate(list_datasets):
         logging.info(
-            "Extracting metafeatures from: %s'...(%s/%s)",
-            dataset_name, str(i+1), str(n_datasets)
+            "Extracting metafeatures from: %s'...(%s/%s) [%s]",
+            dataset_name,str(i+1), str(n_datasets), str(basename(datasets_path))
             )
 
         dataset_path = join(datasets_path, dataset_name)
@@ -97,6 +97,9 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
         mfe = MFE(groups=["general", "statistical", "info-theory"], suppress_warnings= not verbose)
         mfe.fit(x_label, y_label)
         features = mfe.extract(suppress_warnings= not verbose )
+
+        logging.debug("Extracted metafeatures with MFE: %s",str(basename(dataset_path)))
+
         keys = features[0]
         values = features[1]
 
@@ -106,9 +109,9 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
             if not math.isnan(values[i]):
                 dict_ft[key_i] = values[i]
 
-        intrinsic_dim = intrinsic_dimensionality(x_label)
-        dict_ft['intrinsic_dim.global'] = intrinsic_dim[0]
-        dict_ft['intrinsic_dim.local.mean'] = intrinsic_dim[1]
+        dict_ft['intrinsic_dim'] = intrinsic_dimensionality(x_label)
+
+        logging.debug("Extracted intrinsic dimensionality: %s",str(basename(dataset_path)))
 
         logging.debug("%s meta-features were extracted from the dataset: %s",
             str(len(dict_ft)), str(dataset_path))
@@ -122,29 +125,20 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
         return None
 
 
-def intrinsic_dimensionality(data : np.ndarray) -> list:
+def intrinsic_dimensionality(data : np.ndarray) -> int:
     """
-        Calculate the gloabal intrinsic dimensionality and the mean of
-         the local intrinsic dimensionality.\n
+        Calculate intrinsic dimensionality.\n
         To know more visit: https://scikit-dimension.readthedocs.io/en/latest/api.html
 
         :param data: The data in a numpy format.
 
-        :return: A list with the gloabal intrinsic dimensionality
-         and the mean of the local intrinsic dimensionality.
+        :return: The intrinsic dimensionality.
 
     """
-    #estimate global intrinsic dimension
-    corr_int = skdim.id.CorrInt().fit(data)
-    #estimate local intrinsic dimension (dimension in k-nearest-neighborhoods around each point):
-    lpca = skdim.id.lPCA().fit_pw(data,
-                                n_neighbors = 100,
-                                n_jobs = 1)
+    # Estimate intrinsic dimension 
+    intrinsic_dim = skdim.id.KNN().fit(data)
+    # Get estimated intrinsic dimension
+    intrinsic_dim = intrinsic_dim.dimension_
 
-    #get estimated intrinsic dimension
-    global_intrinsic_dimensionality = corr_int.dimension_
-    mean_local_intrinsic_dimensionality = np.mean(lpca.dimension_pw_)
-
-    intrinsic_dim = [global_intrinsic_dimensionality, mean_local_intrinsic_dimensionality]
     return intrinsic_dim
  
