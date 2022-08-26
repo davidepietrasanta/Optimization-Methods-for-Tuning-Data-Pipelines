@@ -12,9 +12,10 @@
 """
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import logging
 import pandas as pd
+from pandas import read_csv
 from pandas.api.types import is_numeric_dtype
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -75,22 +76,25 @@ def preprocess_all_datasets(
 def preprocess_dataset(
     dataset_path:str,
     method:str,
-    save_path:str = DATASET_PREPROCESSING_FOLDER):
+    save_path:str = DATASET_PREPROCESSING_FOLDER,
+    force_overwrite:bool = False):
     """
         Given a path to a dataset, it return, and save, the transformed dataset.
 
         :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
-       :param method: Preprocessing method selected.
-         It should be in
-         ["min_max_scaler",
-         "standard_scaler",
-         "select_percentile",
-         "pca",
-         "fast_ica",
-         "feature_agglomeration",
-         "polynomial_features",
-         "radial_basis_function_sampler"].
+        :param method: Preprocessing method selected.
+            It should be in
+            ["min_max_scaler",
+            "standard_scaler",
+            "select_percentile",
+            "pca",
+            "fast_ica",
+            "feature_agglomeration",
+            "polynomial_features",
+            "radial_basis_function_sampler"].
         :param save_path: The path were to save the new dataset.
+        :param force_overwrite: If True force the overwrite of the file,
+            otherwhise just don't do anything.
 
         :return: The transformed data.
     """
@@ -103,6 +107,20 @@ def preprocess_dataset(
     logging.debug("The '%s' preprocessing has been selected for the '%s' dataset.",
     method, dataset_name)
 
+    save_name = dataset_name #+ '.csv'
+    directory = join(save_path, method)
+    file_path = join(directory, save_name)
+
+    # If file already created and force_overwrite is False
+    # doesn't recompute the preprocessing but just read it from the file.
+    if not force_overwrite and exists(file_path):
+        new_data = read_csv(file_path)
+        logging.debug("[skip] The '%s' preprocessing has already been created for the '%s' dataset."
+            ,method, dataset_name)
+        #remove last column
+        transformed_data = new_data.iloc[:,:-1]
+        return transformed_data.to_numpy()
+
     dataset = pd.read_csv(dataset_path)
     dataset = categorical_string_to_number(dataset)
 
@@ -112,14 +130,10 @@ def preprocess_dataset(
     # Preprocessing
     transformed_data = preprocessing(method, x_data, y_data)
 
-    # Save of the transformed data
-    save_name = dataset_name #+ '.csv'
-    directory = join(save_path, method)
-    file_path = join(directory, save_name)
-
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    # Save of the transformed data
     new_data = np.concatenate((transformed_data, np.asarray([y_data]).T), axis=1)
     np.savetxt(file_path, new_data, delimiter=",")
 

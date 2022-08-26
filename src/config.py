@@ -74,7 +74,7 @@ LIST_OF_PREPROCESSING = [
     "pca",
     "fast_ica",
     "feature_agglomeration",
-    "polynomial_features",
+    #"polynomial_features",
     "radial_basis_function_sampler"
 ]
 

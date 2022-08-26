@@ -38,10 +38,10 @@ if __name__ == '__main__':
     prova = join(DATASET_FOLDER, 'prova')
 
     data_preparation(
-        data_path=prova, #DATASET_FOLDER_MEDIUM
+        data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
-        data_preprocess = False, #True
-        metafeatures_extraction = False, #True
+        data_preprocess = True, #True
+        metafeatures_extraction = True, #True
         model_training = True,
         quotient=True)
 
