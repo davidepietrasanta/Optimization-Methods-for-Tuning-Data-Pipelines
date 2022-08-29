@@ -154,8 +154,9 @@ def check_missing_values(datasets_path:str) -> list:
 
     list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
 
-    for dataset_name in list_datasets:
-        logging.debug("Checking ' %s ...", dataset_name)
+    for i, dataset_name in enumerate(list_datasets):
+        logging.debug("Checking for missing values in ' %s ... (%s/%s)",
+            dataset_name, str(i+1), str(len(list_datasets)))
 
         dataset_path = join(datasets_path, dataset_name)
 

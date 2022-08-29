@@ -40,7 +40,7 @@ if __name__ == '__main__':
     data_preparation(
         data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
-        data_preprocess = True, #True
+        data_preprocess = False, #True
         metafeatures_extraction = True, #True
         model_training = True,
         quotient=True)
