@@ -60,26 +60,16 @@ def metafeatures_extraction_data(
                 if metafeatures_data is not None:
                     metafeatures_data['dataset_name'] = dataset_name
 
-                    #metafeatures_df = pd.DataFrame.from_dict([metafeatures_data])
+                    metafeatures_df = pd.DataFrame.from_dict([metafeatures_data])
 
-                    # If the file already exist it append the information,
-                    # else it create it
+                    # If the file already exist it append the information
                     if exists(metafeatures_csv_path):
                         dataset_df = pd.read_csv(metafeatures_csv_path)
-                        dataset_dict = dataset_df.to_dict()
-                        # Merge the dataset with the new metafeatures
-                        dataset_dict = merge_dict(dataset_dict, metafeatures_data)
+                        metafeatures_df = dataset_df.merge(metafeatures_df, how='outer')
 
-                        dataset_df = pd.DataFrame.from_dict(dataset_dict)
-                        dataset_dict.to_csv(
-                            metafeatures_csv_path,
-                            index=True)
-
-                    else:
-                        metafeatures_df = pd.DataFrame.from_dict([metafeatures_data])
-                        metafeatures_df.to_csv(
-                            metafeatures_csv_path,
-                            index=True)
+                    metafeatures_df.to_csv(
+                        metafeatures_csv_path,
+                        index=False)
 
                     logging.info("'%s' metafeatures saved in csv.", dataset_name)
             else:
@@ -196,39 +186,3 @@ def _dataset_in_csv(csv_path:str, name:str) -> bool:
     datasets_list = csv_data['dataset_name'].values
     # Check if dataset_name is in the column
     return name in datasets_list
-
-def merge_dict(dict1:dict, dict2:dict) -> dict:
-    """"
-        Merge two dictionaries with different keys.
-        The first dict has to be populated.
-        The second dict has to be of max one item per key.\n
-        For example:\n\n
-
-        dict1 = {'aa': [1, 2, 3], 'bb':[4,5, 7]}\n
-        dict2 = {'aa':[88], 'cc':[99]}\n
-        m = merge_dict(dict1, dict2)\n\n
-        {'aa': [1, 2, 3, 88], 'cc': [nan, nan, nan, 99], 'bb': [4, 5, 7, nan]}
-
-        :param dict1: The first dict has to be populated.
-        :param dict2: The second dict has to be of max one item per key.
-
-        :return : A merged dict.
-    """
-    len_d1 = len(dict1[next(iter(dict1))])
-
-    keys = set().union(dict1, dict2)
-    final = {}
-    for k in keys:
-        # pd.NA or np.nan
-        d1_get = dict1.get(k, [np.nan])
-        d2_get = dict2.get(k, np.nan)
-        print(f"key: {k}\ntype(dict1) = {type(dict1)}\ntype(dict2) = {type(dict2)}\nd1_get {d1_get}\nd2_get {d2_get}\n")
-        if d1_get[0] is np.nan:
-            d1_get = d1_get * len_d1
-            #print(f"d1_nan {d1_get}")
-
-        merged_dict_get = d1_get.append(d2_get)
-        print(f"merg {merged_dict_get}")
-        final[k] = merged_dict_get
-
-    return final
