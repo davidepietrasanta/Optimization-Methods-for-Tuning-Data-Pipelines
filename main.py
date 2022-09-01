@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
-    #train_metalearner(
-    #    metafeatures_path = delta_path,
-    #    algorithm='random_forest')
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='gaussian_process') # random_forest
 
     logging.info("************END************")
 

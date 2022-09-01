@@ -65,7 +65,8 @@ LIST_OF_ML_MODELS = [
 
 LIST_OF_ML_MODELS_FOR_METALEARNING = [
     "knn",
-    "random_forest"]
+    "random_forest",
+    "gaussian_process"]
 
 LIST_OF_PREPROCESSING = [
     "min_max_scaler",
