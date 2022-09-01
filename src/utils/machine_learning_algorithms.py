@@ -10,8 +10,9 @@
 """
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import logging
+import ast
 import pandas as pd
 from joblib import dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -45,18 +46,21 @@ def extract_machine_learning_performances(
         :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
         :param save_path: The path were to save the trained model.
 
-        :return: A trained model with the performance.
+        :return: The performances.
     """
     list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
 
-    performances = {
-        'dataset_name' : [],
-        'algorithm': [],
-        'performance' : []
-    }
-
+    performances = {}
     if preprocessing is not None:
-        performances['preprocessing'] = []
+        performances['preprocessing']  = preprocessing
+    else:
+        performances['preprocessing']  = 'None'
+
+    save_path = save_performance_path
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    perf_path = join(save_path, performance_file_name)
 
     for j, dataset_name in enumerate(list_datasets):
         logging.debug("Dataset: '%s'...(%s/%s)",
@@ -66,36 +70,56 @@ def extract_machine_learning_performances(
 
         for i, algorithm in enumerate(LIST_OF_ML_MODELS):
             logging.info(
-                "Extracting performance from: '%s' [%s/%s] with '%s'...(%s/%s)",
+                "Extracting performance from: '%s' [%s/%s] with '%s' and '%s'...(%s/%s)",
                 dataset_name, str(j+1), str(len(list_datasets)),
-                algorithm, str(i+1), str(len(LIST_OF_ML_MODELS))
+                algorithm, preprocessing,
+                str(i+1), str(len(LIST_OF_ML_MODELS))
                 )
-            try:
-                [_, performance] = machine_learning_algorithm(
-                    dataset_path,
-                    algorithm,
-                    save_path = save_model_path)
 
-                performances['dataset_name'].append(dataset_name)
-                performances['algorithm'].append(algorithm)
-                performances['performance'].append(performance)
-                if preprocessing is not None:
-                    performances['preprocessing'].append(preprocessing)
+            # If the metafeatures are already been extracted we don't do it again
+            if not _check_csv_ml_algorithm(perf_path, dataset_name, preprocessing, algorithm):
+                # Extract performances
+                try:
+                    [_, performance] = machine_learning_algorithm(
+                        dataset_path,
+                        algorithm,
+                        save_path = save_model_path)
 
-                logging.info("Extracted performance from: '%s'",dataset_name)
-            except Exception: # pylint: disable=broad-except
-                msg = "Error while extracting performance from '"
-                msg += dataset_name + "' with '" + algorithm + "', skipped."
-                exception_logging(msg)
+                    performances['dataset_name'] = dataset_name
+                    performances['algorithm'] = algorithm
+                    performances['performance'] = performance
 
-    save_path = save_performance_path
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+                    performances_df = pd.DataFrame.from_dict([performances])
+                    # transorm dict to str
+                    performances_df['performance'] = performances_df['performance'].astype(str)
 
-    perf_path = join(save_path, performance_file_name)
-    pd.DataFrame.from_dict(performances).to_csv(perf_path)
+                    # If the file already exist it append the information
+                    if exists(perf_path):
+                        dataset_df = pd.read_csv(perf_path)
+                        performances_df = dataset_df.merge(performances_df, how='outer')
 
-    return performances
+                    performances_df.to_csv(
+                        perf_path,
+                        index=False)
+
+                    logging.info("'%s' metafeatures saved in csv.", dataset_name)
+
+                except Exception: # pylint: disable=broad-except
+                    msg = "Error while extracting performance from '"
+                    msg += dataset_name + "' with '" + algorithm + "' and '"
+                    msg += preprocessing + "', skipped."
+                    exception_logging(msg)
+
+            else:
+                logging.info("'%s' with '%s' and '%s' skipped because of already in csv.",
+                             dataset_name, preprocessing, algorithm)
+
+    if exists(perf_path):
+        dataset_df = pd.read_csv(perf_path)
+    else:
+        dataset_df = None
+
+    return dataset_df
 
 def machine_learning_algorithm(
     dataset_path:str,
@@ -332,3 +356,27 @@ def prediction_metrics(
             metrics_values["mae"] = mean_absolute_error(test_y, prediction_test_y)
 
     return metrics_values
+
+def _check_csv_ml_algorithm(csv_path, dataset_name, preprocessing, algorithm):
+    """
+        Check if in the csv file there is line with same
+        'dataset_name', 'preprocessing' and 'algorithm'.
+
+        :param csv_path: Path of the csv file.
+        :param dataset_name: Name of the dataset you are looking for.
+        :param preprocessing: Name of the preprocessing you are looking for.
+        :param algorithm: Name of the algorithm you are looking for.
+
+        :return: True if 'dataset_name', 'preprocessing' and 'algorithm' already in the csv.
+    """
+    # Open the csv
+    if not exists(csv_path):
+        return False
+    csv_data = pd.read_csv(csv_path)
+
+    rows = csv_data.loc[
+        (csv_data['dataset_name'] == dataset_name) &
+        (csv_data['preprocessing'] == preprocessing) &
+        (csv_data['algorithm'] == algorithm)]
+
+    return len(rows.index) > 0

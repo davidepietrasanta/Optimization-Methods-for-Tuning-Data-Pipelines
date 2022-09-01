@@ -136,8 +136,16 @@ def _merge_data(performance_path:str, metafeatures_path:str) -> pd.DataFrame:
         for _ in range(occurrences[key]):
             expanded_metafeatures = pd.concat([expanded_metafeatures, meta], axis=0)
 
-    expanded_metafeatures.drop(columns=['dataset_name', 'Unnamed: 0'], inplace=True)
-    performances.drop(columns=['index', 'Unnamed: 0'], inplace=True)
+    expanded_metafeatures.drop(
+        columns=['dataset_name', 'Unnamed: 0'],
+        inplace=True,
+        errors='ignore')
+
+    performances.drop(
+        columns=['index', 'Unnamed: 0'],
+        inplace=True,
+        errors='ignore')
+
     expanded_metafeatures.reset_index(inplace=True, drop=True)
     performances.reset_index(inplace=True, drop=True)
 
@@ -377,8 +385,8 @@ def choose_performance_from_metafeatures(
     metafeatures = pd.read_csv(metafeatures_path)
     all_performances = metafeatures['performance'].to_numpy()
     perf_metric = []
-    for performanca in all_performances:
-        perf_metric.append( ast.literal_eval(performanca) [metric] )
+    for performance in all_performances:
+        perf_metric.append( ast.literal_eval(performance) [metric] )
 
     metafeatures = metafeatures.drop(["Unnamed: 0"], axis=1)
     metafeatures["performance"] = perf_metric
@@ -574,14 +582,17 @@ def _delta(
         # To avoid denominator at zero
         # Avoid sys.float_info.min or too small numbers
         # because it would lead to inf results
-        epsilon = 1e+100
+        epsilon = 1e-4
 
         for (index, value) in enumerate(non_preprocessed):
             if value == 0:
+                logging.debug(
+                    "denominator equal to zero, final vulue is = %f / %f = '%f'.",
+                    preprocessed[index], epsilon, preprocessed[index]/epsilon)
+
                 non_preprocessed[index] = epsilon
 
         delta = np.divide(preprocessed, non_preprocessed)
-
     else:
         delta = np.diff([preprocessed, non_preprocessed], axis=0)
 
