@@ -12,7 +12,6 @@ import os
 from os import listdir
 from os.path import isfile, join, exists
 import logging
-import ast
 import pandas as pd
 from joblib import dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score

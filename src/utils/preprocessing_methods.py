@@ -24,7 +24,6 @@ from sklearn.feature_selection import SelectPercentile, chi2
 from sklearn.decomposition import PCA
 from sklearn.decomposition import FastICA
 from sklearn import cluster
-from sklearn.preprocessing import PolynomialFeatures
 from sklearn.kernel_approximation import RBFSampler
 from src.config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER
 from src.config import LIST_OF_PREPROCESSING
@@ -45,7 +44,6 @@ def preprocess_all_datasets(
          "pca",
          "fast_ica",
          "feature_agglomeration",
-         "polynomial_features",
          "radial_basis_function_sampler"].
 
         :return: List of sucessfully preprocessed datasets.
@@ -90,7 +88,6 @@ def preprocess_dataset(
             "pca",
             "fast_ica",
             "feature_agglomeration",
-            "polynomial_features",
             "radial_basis_function_sampler"].
         :param save_path: The path were to save the new dataset.
         :param force_overwrite: If True force the overwrite of the file,
@@ -151,7 +148,6 @@ def preprocessing(method:str, x_data, y_data):
          "pca",
          "fast_ica",
          "feature_agglomeration",
-         "polynomial_features",
          "radial_basis_function_sampler"].
         :param x_data: Input variables
 
@@ -174,8 +170,6 @@ def preprocessing(method:str, x_data, y_data):
     elif method == 'feature_agglomeration':
         n_clusters = min(100, int( x_data.shape[1] / 2 ))
         transformed_data = feature_agglomeration(x_data, n_clusters)
-    elif method == 'polynomial_features':
-        transformed_data = polynomial_features(x_data)
     elif method == 'radial_basis_function_sampler':
         transformed_data = radial_basis_function_sampler(x_data)
 
@@ -302,21 +296,6 @@ def feature_agglomeration(x_data, n_clusters:int):
 
     agglo = cluster.FeatureAgglomeration(n_clusters=n_clusters).fit(x_data)
     return agglo.transform(x_data)
-
-def polynomial_features(x_data, degree:int=2 , interaction_only:bool = True):
-    """
-        Given x_data it return the transformed data
-         after the Polynomial Features transformation.
-
-        :param x_data: Input variables
-
-        :return: The transformed data.
-    """
-    poly = PolynomialFeatures(
-        degree= degree,
-        interaction_only=interaction_only
-        ).fit(x_data)
-    return poly.transform(x_data)
 
 def radial_basis_function_sampler(x_data, gamma:int=1):
     """

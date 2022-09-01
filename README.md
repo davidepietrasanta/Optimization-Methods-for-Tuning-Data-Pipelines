@@ -38,20 +38,22 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-If running on a pc with high number of possible jobs 
-it's suggested to run the following command to avoid 
+If running on a pc with high number of possible jobs
+it's suggested to run the following command to avoid
 `BLAS : Program is Terminated. Because you tried to allocate too many memory regions` error.
 
 ```console
 export OMP_NUM_THREADS=1
 ```
 
-[comment]: <> (
+<!---
     export OPENBLAS_NUM_THREADS=1
     export GOTO_NUM_THREADS=1
-    export OMP_NUM_THREADS=1 
+    export OMP_NUM_THREADS=1
+    
     The most important is "export OMP_NUM_THREADS=1"
-    the other are just precautions)
+    the other are just precautions
+--->
 
 ## Execution
 

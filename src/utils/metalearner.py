@@ -474,7 +474,10 @@ def knn_regression(x_train, y_train, n_neighbors:int):
 
         :return: A trained model.
     """
-    model = KNeighborsRegressor(n_neighbors).fit(x_train, y_train)
+    model = KNeighborsRegressor(
+        n_neighbors = n_neighbors,
+        weights = "distance"
+        ).fit(x_train, y_train)
     return model
 
 def random_forest_regression(x_train, y_train):
@@ -486,7 +489,9 @@ def random_forest_regression(x_train, y_train):
 
         :return: A trained model.
     """
-    model = RandomForestRegressor(random_state=SEED_VALUE).fit(x_train, y_train)
+    model = RandomForestRegressor(
+        random_state=SEED_VALUE
+        ).fit(x_train, y_train)
     return model
 
 def split_train_test(

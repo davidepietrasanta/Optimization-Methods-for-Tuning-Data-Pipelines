@@ -65,10 +65,6 @@ def test_data_preparation() -> bool:
     data = data_preparation(
         data_path=dataset_path,
         save_path= save_path,
-        data_selection = False,
-        data_preprocess = True,
-        metafeatures_extraction = True,
-        model_training = True,
         quotient=False)
 
     assert data is not None
@@ -77,10 +73,6 @@ def test_data_preparation() -> bool:
     data = data_preparation(
         data_path=dataset_path,
         save_path= save_path,
-        data_selection = False,
-        data_preprocess = True,
-        metafeatures_extraction = True,
-        model_training = True,
         quotient=True)
 
     assert data is not None

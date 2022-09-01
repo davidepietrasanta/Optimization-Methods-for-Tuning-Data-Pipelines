@@ -38,18 +38,18 @@ if __name__ == '__main__':
     prova = join(DATASET_FOLDER, 'prova')
 
     data_preparation(
-        data_path=prova, #DATASET_FOLDER_MEDIUM #prova
+        data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
-        data_preprocess = True, #True
-        metafeatures_extraction = True, #True
+        data_preprocess = False, #True
+        metafeatures_extraction = False, #True
         model_training = True,
         quotient=True)
 
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
-    train_metalearner(
-        metafeatures_path = delta_path,
-        algorithm='random_forest')
+    #train_metalearner(
+    #    metafeatures_path = delta_path,
+    #    algorithm='random_forest')
 
     logging.info("************END************")
 

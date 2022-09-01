@@ -91,9 +91,6 @@ def test_preprocessing() -> bool:
     new_data = preprocessing(method='feature_agglomeration', x_data=x_data, y_data=y_data)
     assert new_data is not None
 
-    new_data = preprocessing(method='polynomial_features', x_data=x_data, y_data=y_data)
-    assert new_data is not None
-
     new_data = preprocessing(method='radial_basis_function_sampler', x_data=x_data, y_data=y_data)
     assert new_data is not None
 
