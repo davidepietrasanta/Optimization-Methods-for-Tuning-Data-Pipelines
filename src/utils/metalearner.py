@@ -436,7 +436,7 @@ def train_metalearner(
 
     # Drop dataset_name
     train = train.drop(["dataset_name", "preprocessing"], axis=1)
-    test = test.drop(["dataset_name", "preprocessing"], axis=1)    
+    test = test.drop(["dataset_name", "preprocessing"], axis=1)
 
     train_y = train["performance"].to_numpy()
     train_x = train.drop(["performance"], axis=1).to_numpy()
@@ -626,27 +626,28 @@ def delta_funct(
         epsilon = 1e-4
         delta = []
 
+        # pylint: disable=consider-using-enumerate
         for index in range(len(non_preprocessed)):
 
             # To avoid denominator at zero
             if non_preprocessed[index] == 0:
                 logging.debug("Denominator equal to zero (index '%d').",index)
                 non_preprocessed[index] = epsilon
-            
+
             # 0/0 should be 1, since there is no change
             if preprocessed[index] == 0:
                 logging.debug("Nominator equal to zero (index '%d').",index)
                 preprocessed[index] = epsilon
 
-            # positive/negative should be >1, since 4/-2 is increasing.
-            # so 4/-2 should be (4 + 2)/2 = 6/2 = 3, since is increasing of 3 time.
-            if preprocessed[index] > 0 and non_preprocessed[index] < 0:
+            # positive/negative should be >1, since 4/-2 is increasing
+            # so 4/-2 should be (4 + 2)/2 = 6/2 = 3, since is increasing of 3 time
+            if preprocessed[index] > 0 > non_preprocessed[index]:
                 preprocessed[index] = abs(preprocessed[index] - non_preprocessed[index])
                 non_preprocessed[index] = abs(non_preprocessed[index])
 
-            # negative/negative should be 
-            # * <1, if nominator > denominator since -4/-2 is decreasing.
-            # * >1, if nominator < denominator since -2/-6 is increasing 
+            # negative/negative should be
+            # * <1, if nominator > denominator since -4/-2 is decreasing
+            # * >1, if nominator < denominator since -2/-6 is increasing
             # so -4/-2 should be 2/4=1/2=0.5, since is decreasing
             # and -2/-6 should be 6/3=2, since is increasing
             if preprocessed[index] < 0 and non_preprocessed[index] < 0:
@@ -656,7 +657,7 @@ def delta_funct(
 
             # negative/positive should be <1, since is decreasing
             # -4/2 = 2/(4+2) = 2/6 = 1/3 = 0.33
-            if preprocessed[index] < 0 and non_preprocessed[index] > 0:
+            if preprocessed[index] < 0 < non_preprocessed[index]:
                 preprocessed[index] = abs(preprocessed[index] - non_preprocessed[index])
                 abs_preprocessed = preprocessed[index]
                 preprocessed[index] = abs(non_preprocessed[index])

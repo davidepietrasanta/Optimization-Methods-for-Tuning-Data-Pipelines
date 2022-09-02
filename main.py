@@ -7,7 +7,7 @@ from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=u
 from src.config import METAFEATURES_FOLDER, METAFEATURES_MODEL_FOLDER # pylint: disable=unused-import
 from src.utils.metalearner import data_preparation, train_metalearner # pylint: disable=unused-import
 from src.utils.metalearner import delta_or_metafeatures # pylint: disable=unused-import
-from src.utils.preprocessing_improvement import predicted_improvement
+from src.utils.preprocessing_improvement import predicted_improvement # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -38,7 +38,6 @@ if __name__ == '__main__':
 
     prova = join(DATASET_FOLDER, 'prova')
 
-    
     data_preparation(
         data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
@@ -47,6 +46,7 @@ if __name__ == '__main__':
         model_training = True,
         quotient=True)
 
+    # pylint: disable=pointless-string-statement
     """
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
@@ -64,14 +64,14 @@ if __name__ == '__main__':
             join('Test', 'emnist-balanced-test.csv')) #mnist_784.csv #wine-quality-white.csv
 
     predicted_improvement(
-        dataset_path= new_dataset, 
+        dataset_path= new_dataset,
         preprocessing = 'pca',
         algorithm = 'svm',
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_random_forest.joblib')
     )
 
     predicted_improvement(
-        dataset_path= new_dataset, 
+        dataset_path= new_dataset,
         preprocessing = 'pca',
         algorithm = 'svm',
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_knn.joblib')

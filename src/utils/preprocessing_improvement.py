@@ -62,7 +62,7 @@ def predicted_improvement(
     if preprocessing is None and preprocessing_path is None:
         msg = "One between 'preprocessing' and 'preprocessing_path' must not be None."
         raise ValueError(msg)
-    
+
     if algorithm not in LIST_OF_ML_MODELS:
         raise CustomValueError(list_name='ml_models', input_value=algorithm)
 
@@ -116,10 +116,11 @@ def predicted_improvement(
     for metafeatures in metafeatures_list:
         logging.debug("key: '%s', data='%f', preprocessed='%f'",
         metafeatures, data_metafeatures[metafeatures], preprocessed_data_metafeatures[metafeatures])
-        
+
         non_preprocessed.append(data_metafeatures[metafeatures])
         preprocessed.append(preprocessed_data_metafeatures[metafeatures])
 
+    # To do: np.insert
     delta = delta_funct(preprocessed, non_preprocessed)
     delta = list(delta)
     delta.insert(0, ml_model_to_categorical(algorithm))
@@ -134,11 +135,14 @@ def predicted_improvement(
     prediction = loaded_model.predict(delta)
     if preprocessing is None:
         preprocessing = "Unknown"
-    logging.info("The delta improvement estimation for the dataset '%s'"+
-        " with the preprocessing '%s' and the algorithm '%s' is '%f' [metalearner: '%s'])",
-        basename(dataset_path), preprocessing, algorithm,
-        prediction, basename(metalearner_path))
 
+    msg = "The delta improvement estimation for the dataset '" + basename(dataset_path)
+    msg += "' with the preprocessing '" + preprocessing
+    msg += "' and the algorithm '" + algorithm
+    msg += "' is '" + str(prediction)
+    msg +=  "' [metalearner: '" + basename(metalearner_path) + "'])"
+
+    logging.info("%s", msg)
     return prediction
 
 
