@@ -17,6 +17,7 @@ def setup_dir():
     dataset = join(data, "dataset")
     metafeatures = join(data, "metafeatures")
     model = join(data, "model")
+    metalearner_model = join(model, "metalearner")
 
     if not exists(data):
         makedirs(data)
@@ -29,6 +30,9 @@ def setup_dir():
 
     if not exists(model):
         makedirs(model)
+        
+    if not exists(metalearner_model):
+        makedirs(metalearner_model)
 
 setup_dir()
 setup(name='Optimization-Methods-for-Tuning-Data-Pipelines', version='1.0')

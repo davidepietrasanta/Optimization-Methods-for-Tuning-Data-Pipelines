@@ -17,7 +17,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel
 from sklearn.gaussian_process.kernels import RBF
-from src.config import DATASET_FOLDER
+from src.config import DATASET_FOLDER, METAFEATURES_MODEL_FOLDER
 from src.config import METAFEATURES_FOLDER, MODEL_FOLDER
 from src.config import LIST_OF_PREPROCESSING, LIST_OF_ML_MODELS
 from src.config import LIST_OF_ML_MODELS_FOR_METALEARNING
@@ -27,7 +27,8 @@ from .machine_learning_algorithms import prediction_metrics
 from .dataset_selection import select_datasets
 from .metafeatures_extraction import metafeatures_extraction_data
 from .machine_learning_algorithms import extract_machine_learning_performances
-from .preprocessing_methods import preprocess_all_datasets, categorical_string_to_number
+from .preprocessing_methods import preprocess_all_datasets
+from .preprocessing_methods import categorical_string_to_number,categorical_algorithm_to_number
 
 def data_preparation(
     data_selection:bool = False,
@@ -37,7 +38,7 @@ def data_preparation(
     metafeatures_extraction:bool = True,
     model_training:bool = True,
     save_path:str = METAFEATURES_FOLDER,
-    quotient:bool = False) -> pd.DataFrame:
+    quotient:bool = True) -> pd.DataFrame:
     """
         Given a preprocessing method and data,
          it returns the data for the meta-learning training.
@@ -294,7 +295,7 @@ def _save(data:pd.DataFrame, save_path:str) -> None:
 def _delta_metafeatures(
     metafeatures:pd.DataFrame,
     save_path:str = METAFEATURES_FOLDER,
-    quotient:bool = False) -> pd.DataFrame:
+    quotient:bool = True) -> pd.DataFrame:
     """
         Given the metafeatures, it returns the delta
          performance and meta-features of the dataset.
@@ -354,7 +355,7 @@ def _delta_metafeatures(
                     logging.info("Delta of '%s' with '%s' and '%s'.",
                         dataset, ml_model, preprocessing)
 
-                    delta = _delta(preprocessed, non_preprocessed, quotient)
+                    delta = delta_funct(preprocessed, non_preprocessed, quotient)
 
                     # Add dataset_name, algorithm and preprocessing
                     info = np.array([dataset, ml_model, preprocessing])
@@ -366,7 +367,10 @@ def _delta_metafeatures(
     delta_df = delta_df.transpose()
     delta_df.set_axis(metafeatures.columns.values.tolist(), axis=1, inplace=True)
     delta_df.rename(
-        columns={'preprocessing': 'performance', 'performance': 'preprocessing'},
+        columns={
+            'preprocessing': 'dataset_name',
+            'algorithm': 'preprocessing',
+            'dataset_name': 'algorithm'},
         inplace=True)
     delta_df.to_csv(join(save_path, 'delta.csv'), index=False)
     return delta_df
@@ -401,7 +405,7 @@ def choose_performance_from_metafeatures(
 def train_metalearner(
     metafeatures_path:str,
     algorithm:str ='random_forest',
-    save_path:str = MODEL_FOLDER):
+    save_path:str = METAFEATURES_MODEL_FOLDER):
     """
         Given a dataset and a model it train
          the meta-learner.
@@ -423,6 +427,7 @@ def train_metalearner(
         raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
 
     metafeatures = pd.read_csv(metafeatures_path)
+    metafeatures = categorical_algorithm_to_number(metafeatures)
     metafeatures = categorical_string_to_number(metafeatures)
 
     # Split train and test
@@ -430,8 +435,8 @@ def train_metalearner(
     [train, test] = split_train_test(metafeatures, group_name='dataset_name')
 
     # Drop dataset_name
-    train = train.drop(["dataset_name"], axis=1)
-    test = test.drop(["dataset_name"], axis=1)
+    train = train.drop(["dataset_name", "preprocessing"], axis=1)
+    test = test.drop(["dataset_name", "preprocessing"], axis=1)    
 
     train_y = train["performance"].to_numpy()
     train_x = train.drop(["performance"], axis=1).to_numpy()
@@ -444,12 +449,11 @@ def train_metalearner(
     ml_model = _train(algorithm, train_x, train_y)
 
     # Save
-    logging.info("Saving the model...")
-    save_dir = join(save_path, 'metalearner')
-    file_path = join(save_dir, 'metalearner_' + algorithm + '.joblib')
+    logging.info("Saving the model...('%s')", algorithm)
+    file_path = join(save_path, 'metalearner_' + algorithm + '.joblib')
 
-    if not exists(save_dir):
-        makedirs(save_dir)
+    if not exists(save_path):
+        makedirs(save_path)
 
     dump(ml_model, file_path)
 
@@ -602,10 +606,10 @@ def delta_or_metafeatures(
 
     return d_or_m
 
-def _delta(
+def delta_funct(
     preprocessed:np.array,
     non_preprocessed:np.array,
-    quotient:bool) -> np.array:
+    quotient:bool=True) -> np.array:
     """
         Function to calculate the delta.
         Avoid to have error with quotient.
@@ -617,23 +621,53 @@ def _delta(
         :return: The delta between preproccessed and non_preprocessed.
     """
     if quotient:
-        # To avoid denominator at zero
         # Avoid sys.float_info.min or too small numbers
         # because it would lead to inf results
         epsilon = 1e-4
+        delta = []
 
-        for (index, value) in enumerate(non_preprocessed):
-            if value == 0:
-                logging.debug(
-                    "denominator equal to zero, final vulue is = %f / %f = '%f'.",
-                    preprocessed[index], epsilon, preprocessed[index]/epsilon)
+        for index in range(len(non_preprocessed)):
 
+            # To avoid denominator at zero
+            if non_preprocessed[index] == 0:
+                logging.debug("Denominator equal to zero (index '%d').",index)
                 non_preprocessed[index] = epsilon
+            
+            # 0/0 should be 1, since there is no change
+            if preprocessed[index] == 0:
+                logging.debug("Nominator equal to zero (index '%d').",index)
+                preprocessed[index] = epsilon
 
-        delta = np.divide(preprocessed, non_preprocessed)
+            # positive/negative should be >1, since 4/-2 is increasing.
+            # so 4/-2 should be (4 + 2)/2 = 6/2 = 3, since is increasing of 3 time.
+            if preprocessed[index] > 0 and non_preprocessed[index] < 0:
+                preprocessed[index] = abs(preprocessed[index] - non_preprocessed[index])
+                non_preprocessed[index] = abs(non_preprocessed[index])
+
+            # negative/negative should be 
+            # * <1, if nominator > denominator since -4/-2 is decreasing.
+            # * >1, if nominator < denominator since -2/-6 is increasing 
+            # so -4/-2 should be 2/4=1/2=0.5, since is decreasing
+            # and -2/-6 should be 6/3=2, since is increasing
+            if preprocessed[index] < 0 and non_preprocessed[index] < 0:
+                abs_preprocessed = abs(preprocessed[index])
+                preprocessed[index] = abs(non_preprocessed[index])
+                non_preprocessed[index] = abs_preprocessed
+
+            # negative/positive should be <1, since is decreasing
+            # -4/2 = 2/(4+2) = 2/6 = 1/3 = 0.33
+            if preprocessed[index] < 0 and non_preprocessed[index] > 0:
+                preprocessed[index] = abs(preprocessed[index] - non_preprocessed[index])
+                abs_preprocessed = preprocessed[index]
+                preprocessed[index] = abs(non_preprocessed[index])
+                non_preprocessed[index] = abs_preprocessed
+
+            delta.append(preprocessed[index]/non_preprocessed[index])
+
     else:
         delta = np.diff([preprocessed, non_preprocessed], axis=0)
 
+    delta = np.asarray(delta)
     return delta
 
 # To DO:

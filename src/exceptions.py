@@ -2,8 +2,8 @@
     Module dedicated to the custom exceptions.
 """
 import logging
-from .config import LIST_OF_ML_MODELS, LIST_OF_ML_MODELS_FOR_METALEARNING
-from .config import LIST_OF_PREPROCESSING
+from src.config import LIST_OF_ML_MODELS, LIST_OF_ML_MODELS_FOR_METALEARNING
+from src.config import LIST_OF_PREPROCESSING
 
 class CustomValueError(ValueError):
     """

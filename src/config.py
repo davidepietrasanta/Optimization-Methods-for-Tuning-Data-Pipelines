@@ -11,6 +11,7 @@ ROOT_FOLDER = Path(__file__).parent.parent
 DATA_FOLDER = join(ROOT_FOLDER, "data")
 
 MODEL_FOLDER = join(DATA_FOLDER, "model")
+METAFEATURES_MODEL_FOLDER = join(MODEL_FOLDER, "metalearner")
 METAFEATURES_FOLDER = join(DATA_FOLDER, "metafeatures")
 
 UTILS_FOLDER = join(ROOT_FOLDER, "src", "utils")
@@ -63,6 +64,15 @@ LIST_OF_ML_MODELS = [
     "svm",
     "perceptron"]
 
+CATEGORICAL_LIST_OF_ML_MODELS = [
+    1, #logistic_regression
+    2, #naive_bayes
+    3, #knn
+    4, #random_forest
+    5, #svm
+    6 #perceptron
+    ]
+
 LIST_OF_ML_MODELS_FOR_METALEARNING = [
     "knn",
     "random_forest",
@@ -88,11 +98,14 @@ def list_of_metafeatures(metafeatures_path:None or str=None) -> list:
         :return: A list of metafeatures.
     """
     if metafeatures_path is None:
-        metafeatures_path = join(METAFEATURES_FOLDER, 'metafeatures.csv')
+        metafeatures_path = join(METAFEATURES_FOLDER, 'delta.csv')
 
     metafeatures_csv = read_csv(metafeatures_path)
     list_of_columns = list(metafeatures_csv.columns)
-    return list_of_columns
+    drop_list = ["dataset_name", "algorithm", "preprocessing", "performance"]
+    cleaned_list = [ x for x in list_of_columns if x not in drop_list ]
+
+    return cleaned_list
 
 def delete_dir(dir_path:str) -> bool:
     """

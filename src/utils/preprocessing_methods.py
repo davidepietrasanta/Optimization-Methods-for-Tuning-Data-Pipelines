@@ -27,6 +27,7 @@ from sklearn import cluster
 from sklearn.kernel_approximation import RBFSampler
 from src.config import SEED_VALUE, DATASET_PREPROCESSING_FOLDER
 from src.config import LIST_OF_PREPROCESSING
+from src.config import CATEGORICAL_LIST_OF_ML_MODELS, LIST_OF_ML_MODELS
 from src.exceptions import CustomValueError, exception_logging
 
 def preprocess_all_datasets(
@@ -191,6 +192,18 @@ def categorical_string_to_number(dataset:pd.DataFrame) -> pd.DataFrame:
             dataset_copy[column] = dataset_copy[column].astype('category').cat.codes
     return dataset_copy
 
+def categorical_algorithm_to_number(dataset:pd.DataFrame) -> pd.DataFrame:
+    """
+        Given data it return the transformed data
+         after replacing categorical string into numbers.
+
+        :param dataset: A dataset, should be a dataframe.
+
+        :return: The transformed data.
+    """
+    dataset_copy = dataset.copy(deep=True)
+    dataset_copy.replace(LIST_OF_ML_MODELS, CATEGORICAL_LIST_OF_ML_MODELS)
+    return dataset_copy
 
 def min_max_scaler(x_data):
     """

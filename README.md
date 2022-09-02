@@ -32,7 +32,7 @@ Go in the `/PATH_TO_PROJECT/Optimization-Methods-for-Tuning-Data-Pipelines/` and
 
 ```console
 virtualenv venv
-source venv/bin/activate
+source venv/local/bin/activate # or source venv/bin/activate
 
 pip install -r requirements.txt
 pip install -e .
