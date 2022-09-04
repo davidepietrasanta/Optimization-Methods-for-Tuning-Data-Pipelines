@@ -5,8 +5,8 @@ from os.path import join
 import logging
 from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=unused-import
 from src.config import METAFEATURES_FOLDER, METAFEATURES_MODEL_FOLDER # pylint: disable=unused-import
-from src.utils.metalearner import data_preparation, train_metalearner # pylint: disable=unused-import
-from src.utils.metalearner import delta_or_metafeatures # pylint: disable=unused-import
+from src.utils.metalearner import train_metalearner # pylint: disable=unused-import
+from src.utils.data_preparation import data_preparation, delta_or_metafeatures # pylint: disable=unused-import
 from src.utils.preprocessing_improvement import predicted_improvement # pylint: disable=unused-import
 
 if __name__ == '__main__':
@@ -38,6 +38,8 @@ if __name__ == '__main__':
 
     prova = join(DATASET_FOLDER, 'prova')
 
+    # pylint: disable=pointless-string-statement
+    #"""
     data_preparation(
         data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
@@ -45,10 +47,15 @@ if __name__ == '__main__':
         metafeatures_extraction = True, #True
         model_training = True,
         quotient=True)
+    #"""
+
+    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
     # pylint: disable=pointless-string-statement
     """
-    delta_path = join(METAFEATURES_FOLDER, "delta.csv")
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='gaussian_process')
 
     train_metalearner(
         metafeatures_path = delta_path,
@@ -58,10 +65,18 @@ if __name__ == '__main__':
         metafeatures_path = delta_path,
         algorithm='knn')
 
-
+    #emnist-balanced-test.csv #wine-quality-white.csv
     new_dataset = join(
             DATASET_FOLDER,
-            join('Test', 'emnist-balanced-test.csv')) #mnist_784.csv #wine-quality-white.csv
+            join('Test', 'emnist-balanced-test.csv')
+            )
+
+    predicted_improvement(
+        dataset_path= new_dataset,
+        preprocessing = 'pca',
+        algorithm = 'svm',
+        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_gaussian_process.joblib')
+    )
 
     predicted_improvement(
         dataset_path= new_dataset,
@@ -82,6 +97,7 @@ if __name__ == '__main__':
 # TO DO:
 # Make private all function not used outside file (for all the files)
 # Optimization part
+# Fix Test
 
 # PYLINT WARNINGS
 # pylint: disable=too-many-arguments

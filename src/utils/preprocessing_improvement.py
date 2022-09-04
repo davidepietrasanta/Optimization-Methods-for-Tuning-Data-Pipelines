@@ -13,7 +13,7 @@ from src.config import METAFEATURES_MODEL_FOLDER, CATEGORICAL_LIST_OF_ML_MODELS
 from src.exceptions import CustomValueError, exception_logging
 from src.utils.preprocessing_methods import preprocess_dataset
 from src.utils.metafeatures_extraction import metafeature
-from src.utils.metalearner import delta_funct
+from src.utils.data_preparation import delta_funct
 
 
 def predicted_improvement(

@@ -168,7 +168,7 @@ def machine_learning_algorithm(
         test_x = test.iloc[: , :-1].to_numpy()
 
     # Train
-    logging.debug("Training...")
+    logging.debug("Training '%s'...", algorithm)
     model = train_algorithm(algorithm, train_x, train_y)
 
     # Save of the model
