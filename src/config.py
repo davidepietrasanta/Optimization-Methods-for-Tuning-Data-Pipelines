@@ -12,6 +12,7 @@ DATA_FOLDER = join(ROOT_FOLDER, "data")
 
 MODEL_FOLDER = join(DATA_FOLDER, "model")
 METAFEATURES_MODEL_FOLDER = join(MODEL_FOLDER, "metalearner")
+TEMP_MODEL_FOLDER = join(MODEL_FOLDER, "temp")
 METAFEATURES_FOLDER = join(DATA_FOLDER, "metafeatures")
 
 UTILS_FOLDER = join(ROOT_FOLDER, "src", "utils")

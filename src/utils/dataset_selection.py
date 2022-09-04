@@ -51,35 +51,12 @@ def select_datasets(
     openml_df = openml_df.loc[openml_df['NumberOfMissingValues'] == 0]
 
     # Constrain and Shuffle/Sample
-    constrain = DATASET_CONSTRAIN[size]
-    selected_dataset = openml_df[
-        ( openml_df.NumberOfInstances <= constrain["MaxNumberOfInstances"] ) &
-        ( openml_df.NumberOfInstances >= constrain["MinNumberOfInstances"] ) &
-        ( openml_df.NumberOfClasses <= constrain["MaxNumberOfClasses"] ) &
-        ( openml_df.NumberOfClasses >= constrain["MinNumberOfClasses"] ) &
-        ( openml_df.NumberOfFeatures <= constrain["MaxNumberOfFeatures"] ) &
-        ( openml_df.NumberOfFeatures >= constrain["MinNumberOfFeatures"] )
-        ].sample(frac=1, random_state=SEED_VALUE)
+    selected_dataset = _constrain(openml_df, size)
 
     # If size is medium we can also take the benchmark datasets from OpenML.
     # They are around 100.
     if size == "medium":
-        # Benchmark dataset
-        tasks_openml_100 = openml.tasks.list_tasks(tag="OpenML100", output_format="dataframe")
-        tasks_openml_cc18 = openml.tasks.list_tasks(tag="OpenML-CC18", output_format="dataframe")
-        # Concat of datasets
-        tasks = pd.concat( [tasks_openml_cc18,tasks_openml_100] )
-        # Drop duplicated
-        tasks.drop_duplicates(subset ="tid", inplace = True)
-        # Discard the datasets with missing values
-        tasks = tasks.loc[tasks['NumberOfMissingValues'] == 0]
-
-        selected_dataset = pd.concat( [tasks, selected_dataset] )
-
-        msg = "Since the size selected is 'medium' we also select from OpenML benchmark datasets."
-        logging.info(msg)
-        logging.info("We have found %s datasets from the benchmark.",str(len(tasks)))
-
+        selected_dataset = _medium(selected_dataset)
 
     # Drop duplicated name and tid
     selected_dataset.drop_duplicates(subset ="name", inplace = True)
@@ -126,8 +103,7 @@ def select_datasets(
             logging.info( "%s/%s %s", str(actual_dataset_num), str(n_dataset), dataset_name)
 
         except Exception: # pylint: disable=broad-except
-            msg = "Error while dowloading, dataset skipped"
-            exception_logging(msg)
+            exception_logging("Error while dowloading, dataset skipped")
 
 
         if actual_dataset_num >= n_dataset:
@@ -138,6 +114,42 @@ def select_datasets(
 
     return list_dataset_name
 
+def _medium(selected_dataset):
+    """
+        Private function to help extract medium datasets.
+    """
+    # Benchmark dataset
+    tasks_openml_100 = openml.tasks.list_tasks(tag="OpenML100", output_format="dataframe")
+    tasks_openml_cc18 = openml.tasks.list_tasks(tag="OpenML-CC18", output_format="dataframe")
+    # Concat of datasets
+    tasks = pd.concat( [tasks_openml_cc18,tasks_openml_100] )
+    # Drop duplicated
+    tasks.drop_duplicates(subset ="tid", inplace = True)
+    # Discard the datasets with missing values
+    tasks = tasks.loc[tasks['NumberOfMissingValues'] == 0]
+
+    selected_dataset = pd.concat( [tasks, selected_dataset] )
+
+    msg = "Since the size selected is 'medium' we also select from OpenML benchmark datasets."
+    logging.info(msg)
+    logging.info("We have found %s datasets from the benchmark.",str(len(tasks)))
+    return selected_dataset
+
+def _constrain(openml_df, size):
+    """
+        Private function to help select datasets based on the constrains of the size.
+    """
+    constrain = DATASET_CONSTRAIN[size]
+    selected_dataset = openml_df[
+        ( openml_df.NumberOfInstances <= constrain["MaxNumberOfInstances"] ) &
+        ( openml_df.NumberOfInstances >= constrain["MinNumberOfInstances"] ) &
+        ( openml_df.NumberOfClasses <= constrain["MaxNumberOfClasses"] ) &
+        ( openml_df.NumberOfClasses >= constrain["MinNumberOfClasses"] ) &
+        ( openml_df.NumberOfFeatures <= constrain["MaxNumberOfFeatures"] ) &
+        ( openml_df.NumberOfFeatures >= constrain["MinNumberOfFeatures"] )
+        ].sample(frac=1, random_state=SEED_VALUE)
+
+    return selected_dataset
 
 def check_missing_values(datasets_path:str) -> list:
     """

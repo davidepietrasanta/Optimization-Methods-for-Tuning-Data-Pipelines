@@ -42,8 +42,11 @@ def extract_machine_learning_performances(
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
 
-        :param dataset_path: Path where the dataset is. Datasets should be in a CSV format.
-        :param save_path: The path were to save the trained model.
+        :param datasets_path: Path where the dataset is. Datasets should be in a CSV format.
+        :param save_model_path: The path were to save the trained model.
+        :param save_performance_path: The path were to save the performances.
+        :param performance_file_name: The name of the performances file (should be .csv)
+        :param preprocessing: Name of the preprocessing choosen.
 
         :return: The performances.
     """
@@ -55,17 +58,14 @@ def extract_machine_learning_performances(
     else:
         performances['preprocessing']  = 'None'
 
-    save_path = save_performance_path
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
+    if not os.path.exists(save_performance_path):
+        os.makedirs(save_performance_path)
 
-    perf_path = join(save_path, performance_file_name)
+    perf_path = join(save_performance_path, performance_file_name)
 
     for j, dataset_name in enumerate(list_datasets):
         logging.debug("Dataset: '%s'...(%s/%s)",
             dataset_name, str(j+1), str( len(list_datasets) ) )
-
-        dataset_path = join(datasets_path, dataset_name)
 
         for i, algorithm in enumerate(LIST_OF_ML_MODELS):
             logging.info(
@@ -80,7 +80,7 @@ def extract_machine_learning_performances(
                 # Extract performances
                 try:
                     [_, performance] = machine_learning_algorithm(
-                        dataset_path,
+                        join(datasets_path, dataset_name),
                         algorithm,
                         save_path = save_model_path)
 
@@ -104,10 +104,11 @@ def extract_machine_learning_performances(
                     logging.info("'%s' metafeatures saved in csv.", dataset_name)
 
                 except Exception: # pylint: disable=broad-except
-                    msg = "Error while extracting performance from '"
-                    msg += dataset_name + "' with '" + algorithm + "' and '"
-                    msg += preprocessing + "', skipped."
-                    exception_logging(msg)
+                    exception_logging(
+                        "Error while extracting performance from '"+
+                        dataset_name + "' with '" + algorithm + "' and '" +
+                        preprocessing + "', skipped."
+                    )
 
             else:
                 logging.info("'%s' with '%s' and '%s' skipped because of already in csv.",
@@ -174,9 +175,10 @@ def machine_learning_algorithm(
     # Save of the model
     logging.debug("Saving the trained model...")
 
-    save_name = dataset_name + '-' + algorithm + '.joblib'
     directory = join(save_path, algorithm)
-    file_path = join(directory, save_name)
+    file_path = join(
+        directory,
+        dataset_name + '-' + algorithm + '.joblib')
 
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -332,7 +334,7 @@ def prediction_metrics(
     """
     model.n_jobs = 2
     prediction_test_y = model.predict(test_x)
-    # TO DO: Fix Precidiction
+
     metrics_values = {}
     if not regression:
         if (metrics is None) or ('accuracy' in metrics):
@@ -356,7 +358,12 @@ def prediction_metrics(
 
     return metrics_values
 
-def _check_csv_ml_algorithm(csv_path, dataset_name, preprocessing, algorithm):
+def _check_csv_ml_algorithm(
+    csv_path:str,
+    dataset_name:str,
+    preprocessing:str,
+    algorithm:str
+    ) -> bool:
     """
         Check if in the csv file there is line with same
         'dataset_name', 'preprocessing' and 'algorithm'.

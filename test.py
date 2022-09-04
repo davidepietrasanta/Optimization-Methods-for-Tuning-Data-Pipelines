@@ -7,6 +7,8 @@ from src.test.preprocessing_methods_test import test_all as test_preprocessing_m
 from src.test.metafeatures_extraction_test import test_all as test_metafeatures_extraction
 from src.test.machine_learning_test import test_all as test_machine_learning
 from src.test.metalearner_test import test_all as test_metalearner
+from src.test.data_preparation_test import test_all as test_data_preparations
+from src.test.preprocessing_improvement_test import test_all as test_preprocessing_improvement
 from src.config import TEST_FOLDER
 
 def test_all() -> bool:
@@ -31,12 +33,17 @@ def test_all() -> bool:
     clean_test()
     print("Test on 'machine_learning' passed.")
 
+    assert test_data_preparations()
+    print("Test on 'data_preparations' passed.")
     assert test_metalearner()
     clean_test()
     print("Test on 'metalearner' passed.")
 
-    print("All tests passed!")
+    assert test_preprocessing_improvement()
+    clean_test()
+    print("Test on 'preprocessing_improvement' passed.")
 
+    print("All tests passed!")
     return True
 
 def clean_test() -> bool:

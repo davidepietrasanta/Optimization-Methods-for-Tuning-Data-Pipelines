@@ -179,6 +179,3 @@ def split_train_test(
     test = dataframe.iloc[test_inds]
 
     return [train, test]
-
-# To DO:
-# Choose a model/algorithm

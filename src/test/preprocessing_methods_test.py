@@ -8,6 +8,7 @@ from src.utils.preprocessing_methods import preprocess_all_datasets
 from src.utils.preprocessing_methods import preprocessing
 from src.utils.preprocessing_methods import categorical_string_to_number
 from src.utils.preprocessing_methods import preprocess_dataset
+from src.utils.preprocessing_methods import categorical_algorithm_to_number
 from src.config import TEST_FOLDER, LIST_OF_PREPROCESSING
 from src.config import delete_dir
 from src.exceptions import custom_value_error_test
@@ -19,6 +20,7 @@ def test_all() -> bool:
     assert test_preprocess_all_datasets()
     assert test_preprocessing()
     assert test_categorical_string_to_number()
+    assert test_categorical_algorithm_to_number()
     assert test_preprocess_dataset()
     return True
 
@@ -112,6 +114,25 @@ def test_categorical_string_to_number() -> bool:
     dataset_without_cat  = pd.read_csv(dataset_path)
     dataset = categorical_string_to_number(dataset_without_cat)
     assert dataset.equals( dataset_without_cat )
+
+    return True
+
+def test_categorical_algorithm_to_number() -> bool:
+    """
+        Function to test the function 'categorical_algorithm_to_number'.
+    """
+    dataframe = pd.DataFrame.from_dict({
+        'algorithms': ['logistic_regression', 18, 'naive_bayes', 'naive_bayess'],
+        'numbers' : [0, 1, 2, 3]
+        })
+
+    new_dataframe = categorical_algorithm_to_number(dataframe)
+
+    solution = pd.DataFrame.from_dict({
+        'algorithms': [1, 18, 2, 'naive_bayess'],
+        'numbers' : [0, 1, 2, 3]
+        })
+    assert solution.equals(new_dataframe)
 
     return True
 

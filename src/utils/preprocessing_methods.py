@@ -202,7 +202,10 @@ def categorical_algorithm_to_number(dataset:pd.DataFrame) -> pd.DataFrame:
         :return: The transformed data.
     """
     dataset_copy = dataset.copy(deep=True)
-    dataset_copy.replace(LIST_OF_ML_MODELS, CATEGORICAL_LIST_OF_ML_MODELS)
+    dataset_copy.replace(
+        LIST_OF_ML_MODELS,
+        CATEGORICAL_LIST_OF_ML_MODELS,
+        inplace=True)
     return dataset_copy
 
 def min_max_scaler(x_data):
@@ -244,7 +247,7 @@ def select_percentile(x_data, y_data, perc:int=10):
     # Force n_features to be at least 2
     if new_data.shape[1] < 2:
         # It's not sure it solves the problem
-        # but there is a good probability to do so
+        # but there is a good probability
         n_original_features = positive_x_data.shape[1]
         new_percentile = 1 / (n_original_features / 2)
         new_percentile = (new_percentile * 100) +1

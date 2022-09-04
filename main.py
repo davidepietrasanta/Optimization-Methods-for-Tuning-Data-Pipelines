@@ -39,7 +39,7 @@ if __name__ == '__main__':
     prova = join(DATASET_FOLDER, 'prova')
 
     # pylint: disable=pointless-string-statement
-    #"""
+    """
     data_preparation(
         data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
@@ -47,12 +47,10 @@ if __name__ == '__main__':
         metafeatures_extraction = True, #True
         model_training = True,
         quotient=True)
-    #"""
+    """
 
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
-    # pylint: disable=pointless-string-statement
-    """
     train_metalearner(
         metafeatures_path = delta_path,
         algorithm='gaussian_process')
@@ -68,7 +66,7 @@ if __name__ == '__main__':
     #emnist-balanced-test.csv #wine-quality-white.csv
     new_dataset = join(
             DATASET_FOLDER,
-            join('Test', 'emnist-balanced-test.csv')
+            join('Test', 'wine-quality-white.csv')
             )
 
     predicted_improvement(
@@ -91,13 +89,15 @@ if __name__ == '__main__':
         algorithm = 'svm',
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_knn.joblib')
     )
-    """
+
     logging.info("************END************")
 
 # TO DO:
-# Make private all function not used outside file (for all the files)
 # Optimization part
-# Fix Test
+# Knn regressor, better with 'uniform' of 'distance' weights?
+# Tuning Metalearner model
+# 1 Layer all possibilities
+# 3 Layer + 3 preprocessing (SS, PCA, FA), with presence and absence
 
 # PYLINT WARNINGS
 # pylint: disable=too-many-arguments

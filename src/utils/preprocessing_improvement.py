@@ -60,38 +60,13 @@ def predicted_improvement(
     """
 
     if preprocessing is None and preprocessing_path is None:
-        msg = "One between 'preprocessing' and 'preprocessing_path' must not be None."
-        raise ValueError(msg)
+        raise ValueError("One between 'preprocessing' and 'preprocessing_path' must not be None.")
 
     if algorithm not in LIST_OF_ML_MODELS:
         raise CustomValueError(list_name='ml_models', input_value=algorithm)
 
     logging.debug("Preprocessing the dataset: %s", dataset_path)
-    if preprocessing_path is not None:
-        logging.debug("Dataset already preprocessed.")
-    elif preprocessing is not None:
-        logging.debug("Dataset NOT already preprocessed.")
-        if preprocessing not in LIST_OF_PREPROCESSING:
-            raise CustomValueError(list_name='preprocessing', input_value=preprocessing)
-
-
-        preprocessing_path = dirname(dataset_path)
-        if not exists(preprocessing_path):
-            makedirs(preprocessing_path)
-
-        try:
-            _ = preprocess_dataset(
-                dataset_path = dataset_path,
-                method = preprocessing,
-                save_path = preprocessing_path)
-        except Exception: # pylint: disable=broad-except
-            msg = "Error while preprocessing the dataset."
-            exception_logging(msg)
-            return None
-
-        preprocessing_path = join(preprocessing_path, preprocessing)
-        preprocessing_path = join(preprocessing_path, basename(dataset_path))
-
+    preprocessing_path = _preprocess_dataset(dataset_path, preprocessing_path, preprocessing)
     logging.debug("Dataset preprocessed.")
 
     logging.debug("Extract metafeatures from raw dataset...")
@@ -120,11 +95,8 @@ def predicted_improvement(
         non_preprocessed.append(data_metafeatures[metafeatures])
         preprocessed.append(preprocessed_data_metafeatures[metafeatures])
 
-    # To do: np.insert
     delta = delta_funct(preprocessed, non_preprocessed)
-    delta = list(delta)
-    delta.insert(0, ml_model_to_categorical(algorithm))
-    delta = np.array(delta)
+    delta = np.insert(delta, 0, ml_model_to_categorical(algorithm))
     delta = delta.reshape(1, -1) # reshape 2D
     logging.debug("Delta calculated")
 
@@ -136,12 +108,14 @@ def predicted_improvement(
     if preprocessing is None:
         preprocessing = "Unknown"
 
-    msg = "The delta improvement estimation for the dataset '" + basename(dataset_path)
-    msg += "' with the preprocessing '" + preprocessing
-    msg += "' and the algorithm '" + algorithm
-    msg += "' is '" + str(prediction)
-    msg +=  "' [metalearner: '" + basename(metalearner_path) + "'])"
-
+    msg = str(
+        "The delta improvement estimation for the dataset '"
+        + basename(dataset_path)
+        + "' with the preprocessing '" + preprocessing
+        + "' and the algorithm '" + algorithm
+        + "' is '" + str(prediction)
+        +  "' [metalearner: '" + basename(metalearner_path) + "'])"
+    )
     logging.info("%s", msg)
     return prediction
 
@@ -149,9 +123,44 @@ def predicted_improvement(
 def ml_model_to_categorical(ml_model_name:str) -> int:
     """
         Convert the machine learning model name into a fixed integer.
+        If the machine learning model is not known raise CustomValueError.
     """
     if ml_model_name not in LIST_OF_ML_MODELS:
         raise CustomValueError(list_name='ml_models', input_value=ml_model_name)
 
     index = LIST_OF_ML_MODELS.index(ml_model_name)
     return CATEGORICAL_LIST_OF_ML_MODELS[index]
+
+def _preprocess_dataset(
+    dataset_path,
+    preprocessing_path,
+    preprocessing
+    ):
+    """
+        ciao
+    """
+    if preprocessing_path is not None:
+        logging.debug("Dataset already preprocessed.")
+    elif preprocessing is not None:
+        logging.debug("Dataset NOT already preprocessed.")
+        if preprocessing not in LIST_OF_PREPROCESSING:
+            raise CustomValueError(list_name='preprocessing', input_value=preprocessing)
+
+
+        preprocessing_path = dirname(dataset_path)
+        if not exists(preprocessing_path):
+            makedirs(preprocessing_path)
+
+        try:
+            _ = preprocess_dataset(
+                dataset_path = dataset_path,
+                method = preprocessing,
+                save_path = preprocessing_path)
+        except Exception: # pylint: disable=broad-except
+            msg = "Error while preprocessing the dataset."
+            exception_logging(msg)
+            return None
+
+        preprocessing_path = join(preprocessing_path, preprocessing)
+        preprocessing_path = join(preprocessing_path, basename(dataset_path))
+    return preprocessing_path

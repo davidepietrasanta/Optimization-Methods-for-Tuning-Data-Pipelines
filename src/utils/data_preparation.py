@@ -10,7 +10,7 @@ import logging
 import ast
 import pandas as pd
 import numpy as np
-from src.config import DATASET_FOLDER
+from src.config import DATASET_FOLDER, TEMP_MODEL_FOLDER
 from src.config import METAFEATURES_FOLDER, MODEL_FOLDER
 from src.config import LIST_OF_PREPROCESSING, LIST_OF_ML_MODELS
 from src.config import LIST_OF_ML_MODELS_FOR_METALEARNING
@@ -410,6 +410,7 @@ def choose_performance_from_metafeatures(
 def delta_or_metafeatures(
     delta_path:str,
     metafeatures_path:str,
+    model_save_path:str = TEMP_MODEL_FOLDER,
     algorithm:str = 'random_forest') -> bool:
     """
         Check if it's better to use delta_metafeatures or metafeatures.
@@ -417,6 +418,7 @@ def delta_or_metafeatures(
 
         :param delta_path: Path to delta_metafeatures CSV file (delta.csv).
         :param metafeatures_path: Path to metafeatures CSV file (metafeatures.csv).
+        :param model_save_path: Path where to save the ML model.
         :param algorithm: A machine learning model/algorithm.
 
         :return: True if delta_metafeatures is better than metafeatures, else False.
@@ -427,7 +429,8 @@ def delta_or_metafeatures(
 
     [_, delta_performances ] = train_metalearner(
         metafeatures_path = delta_path,
-        algorithm=algorithm)
+        algorithm=algorithm,
+        save_path=model_save_path)
 
     choose_performance_from_metafeatures(
         metafeatures_path = metafeatures_path,
@@ -438,7 +441,8 @@ def delta_or_metafeatures(
 
     [_, meta_performances ] = train_metalearner(
         metafeatures_path = new_metafeatures_path,
-        algorithm=algorithm)
+        algorithm=algorithm,
+        save_path=model_save_path)
 
     d_or_m = delta_performances['mse'] < meta_performances['mse']
 
@@ -459,7 +463,6 @@ def delta_funct(
     quotient:bool=True) -> np.array:
     """
         Function to calculate the delta.
-        Avoid to have error with quotient.
 
         :param preprocessed, preprocessed np.array
         :param non_preprocessed, non preprocessed np.array
@@ -482,9 +485,10 @@ def delta_funct(
                 non_preprocessed[index] = epsilon
 
             # 0/0 should be 1, since there is no change
-            if preprocessed[index] == 0:
+            if preprocessed[index] == 0 and non_preprocessed[index] == 0:
                 logging.debug("Nominator equal to zero (index '%d').",index)
-                preprocessed[index] = epsilon
+                preprocessed[index] = 1
+                non_preprocessed[index] = 1
 
             # positive/negative should be >1, since 4/-2 is increasing
             # so 4/-2 should be (4 + 2)/2 = 6/2 = 3, since is increasing of 3 time
@@ -496,7 +500,7 @@ def delta_funct(
             # * <1, if nominator > denominator since -4/-2 is decreasing
             # * >1, if nominator < denominator since -2/-6 is increasing
             # so -4/-2 should be 2/4=1/2=0.5, since is decreasing
-            # and -2/-6 should be 6/3=2, since is increasing
+            # and -2/-6 should be 6/2=3, since is increasing
             if preprocessed[index] < 0 and non_preprocessed[index] < 0:
                 abs_preprocessed = abs(preprocessed[index])
                 preprocessed[index] = abs(non_preprocessed[index])
@@ -513,7 +517,7 @@ def delta_funct(
             delta.append(preprocessed[index]/non_preprocessed[index])
 
     else:
-        delta = np.diff([preprocessed, non_preprocessed], axis=0)
+        delta = np.subtract(preprocessed, non_preprocessed)
 
     delta = np.asarray(delta)
     return delta

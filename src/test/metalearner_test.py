@@ -8,10 +8,7 @@ import pandas as pd
 import numpy as np
 from src.config import TEST_FOLDER
 from src.utils.metalearner import split_train_test
-from src.utils.metalearner import data_preparation
 from src.utils.metalearner import train_metalearner
-from src.utils.metalearner import delta_or_metafeatures
-from src.utils.metalearner import choose_performance_from_metafeatures
 from src.exceptions import custom_value_error_test
 
 def test_all() -> bool:
@@ -19,10 +16,7 @@ def test_all() -> bool:
         Function to test all the metalearner methods.
     """
     assert test_split_train_test()
-    assert test_data_preparation()
     assert test_train_metalearner()
-    assert test_choose_performance_from_metafeatures()
-    assert test_delta_or_metafeatures()
 
     assert clear_all()
     return True
@@ -51,31 +45,6 @@ def test_split_train_test() -> bool:
     # Check we didn't miss any data
     conc = np.concatenate((train_unique, test_unique))
     assert np.array_equal(all_unique.sort() ,conc.sort())
-
-    return True
-
-def test_data_preparation() -> bool:
-    """
-        Function to test the function 'data_preparation'.
-    """
-    dataset_path = join(TEST_FOLDER, 'data')
-    save_path = join(TEST_FOLDER, 'data', 'save')
-
-    # Test with quotient false
-    data = data_preparation(
-        data_path=dataset_path,
-        save_path= save_path,
-        quotient=False)
-
-    assert data is not None
-
-    # Test with quotient true
-    data = data_preparation(
-        data_path=dataset_path,
-        save_path= save_path,
-        quotient=True)
-
-    assert data is not None
 
     return True
 
@@ -114,65 +83,11 @@ def test_train_metalearner() -> bool:
         save_path = save_path)
     assert model is not None
 
-    return True
-
-def test_choose_performance_from_metafeatures() -> bool:
-    """
-        Function to test the function 'choose_performance_from_metafeatures'.
-    """
-    save_path = join(TEST_FOLDER, 'data', 'save')
-    metafeatures_path = join(save_path, "metafeatures.csv")
-
-    choose_performance_from_metafeatures(
-        metafeatures_path = metafeatures_path,
-        metric='f1_score',
-        copy_name='new_metafeatures.csv')
-
-    new_metafeatures_path = join(save_path, "new_metafeatures.csv")
-
-    train_metalearner(
-        metafeatures_path = new_metafeatures_path,
-        algorithm='random_forest',
-        save_path=save_path)
-
-    return True
-
-def test_delta_or_metafeatures() -> bool:
-    """
-        Function to test the function 'delta_or_metafeatures'.
-    """
-    save_path = join(TEST_FOLDER, 'data', 'save')
-
-    delta_path = join(save_path, "delta.csv")
-    metafeatures_path = join(save_path, "metafeatures.csv")
-
-    # Test function with algorithm not in list
-    assert custom_value_error_test(
-        delta_or_metafeatures,
-        delta_path=delta_path,
-        metafeatures_path=metafeatures_path,
-        algorithm='')
-
-    # Test function with algorithm not in list
-    assert custom_value_error_test(
-        delta_or_metafeatures,
-        delta_path=delta_path,
-        metafeatures_path=metafeatures_path,
-        algorithm='RF')
-
-    choice = delta_or_metafeatures(
-        delta_path=delta_path,
-        metafeatures_path=metafeatures_path,
-        algorithm='random_forest')
-
-    assert choice
-
-    choice = delta_or_metafeatures(
-        delta_path=delta_path,
-        metafeatures_path=metafeatures_path,
-        algorithm='knn')
-
-    assert choice
+    model = train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='gaussian_process',
+        save_path = save_path)
+    assert model is not None
 
     return True
 
