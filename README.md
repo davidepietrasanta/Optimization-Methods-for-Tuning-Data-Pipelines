@@ -17,8 +17,8 @@ lib
 ├── src                         # Actual code
 │   ├─ test                     # Test code
 │   ├─ utils                    # General utility code
-│   ├─ out                      # Store eventual data
-|   └─ config.py                # Common knowledge
+│   ├─ exceptions.py            # To handle custom exceptions
+|   └─ config.py                # Common knowledge for the project
 |── main.py
 |── requirements.txt
 |── setup.py

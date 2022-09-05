@@ -108,7 +108,7 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
         dataset = categorical_string_to_number(dataset)
 
         # Separate X from y
-        if 'y' in list(dataset.columns):
+        if "y" in list(dataset.columns):
             y_label = dataset["y"].to_list()
             x_label = dataset.drop(["y"], axis=1).to_numpy()
         else:

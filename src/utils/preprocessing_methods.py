@@ -122,8 +122,12 @@ def preprocess_dataset(
     dataset = pd.read_csv(dataset_path)
     dataset = categorical_string_to_number(dataset)
 
-    y_data = dataset["y"].to_numpy()
-    x_data  = dataset.drop(["y"], axis=1).to_numpy()
+    if "y" in list(dataset.columns):
+        y_data = dataset["y"].to_numpy()
+        x_data  = dataset.drop(["y"], axis=1).to_numpy()
+    else:
+        y_data = dataset.iloc[: , -1].to_numpy()
+        x_data = dataset.iloc[: , :-1].to_numpy()
 
     # Preprocessing
     transformed_data = preprocessing(method, x_data, y_data)

@@ -7,7 +7,10 @@ from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=u
 from src.config import METAFEATURES_FOLDER, METAFEATURES_MODEL_FOLDER # pylint: disable=unused-import
 from src.utils.metalearner import train_metalearner # pylint: disable=unused-import
 from src.utils.data_preparation import data_preparation, delta_or_metafeatures # pylint: disable=unused-import
-from src.utils.preprocessing_improvement import predicted_improvement # pylint: disable=unused-import
+from src.utils.preprocessing_improvement import predicted_improvement, one_step_bruteforce # pylint: disable=unused-import
+from src.utils.preprocessing_improvement import best_one_step_bruteforce, max_in_dict # pylint: disable=unused-import
+from src.utils.preprocessing_improvement import pipeline_experiments, preprocessing_experiment # pylint: disable=unused-import
+from src.utils.metafeatures_extraction import metafeature # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -50,7 +53,7 @@ if __name__ == '__main__':
     """
 
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
-
+    """
     train_metalearner(
         metafeatures_path = delta_path,
         algorithm='gaussian_process')
@@ -62,33 +65,36 @@ if __name__ == '__main__':
     train_metalearner(
         metafeatures_path = delta_path,
         algorithm='knn')
-
+    """
     #emnist-balanced-test.csv #wine-quality-white.csv
     new_dataset = join(
             DATASET_FOLDER,
             join('Test', 'wine-quality-white.csv')
             )
 
-    predicted_improvement(
-        dataset_path= new_dataset,
-        preprocessing = 'pca',
-        algorithm = 'svm',
-        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_gaussian_process.joblib')
-    )
+    list_of_experiments = [
+        ['standard_scaler'],
+        ['standard_scaler', 'pca'],
+        ['standard_scaler', 'pca', 'feature_agglomeration'],
+        ['standard_scaler', 'feature_agglomeration'],
+        ['standard_scaler', 'feature_agglomeration', 'pca'],
+        ['pca'],
+        ['pca', 'feature_agglomeration'],
+        ['feature_agglomeration'],
+        ['feature_agglomeration', 'pca'],
+    ]
 
-    predicted_improvement(
-        dataset_path= new_dataset,
-        preprocessing = 'pca',
-        algorithm = 'svm',
+    results = pipeline_experiments(
+        dataset_path = new_dataset,
+        algorithm = 'naive_bayes',
+        list_of_experiments = list_of_experiments,
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_random_forest.joblib')
-    )
+        )
 
-    predicted_improvement(
-        dataset_path= new_dataset,
-        preprocessing = 'pca',
-        algorithm = 'svm',
-        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_knn.joblib')
-    )
+    print(results)
+
+    [key, value] = max_in_dict(results)
+    print(f"The best experiment is {key}, with {value} estimated improvement.")
 
     logging.info("************END************")
 
@@ -96,8 +102,6 @@ if __name__ == '__main__':
 # Optimization part
 # Knn regressor, better with 'uniform' of 'distance' weights?
 # Tuning Metalearner model
-# 1 Layer all possibilities
-# 3 Layer + 3 preprocessing (SS, PCA, FA), with presence and absence
 
 # PYLINT WARNINGS
 # pylint: disable=too-many-arguments

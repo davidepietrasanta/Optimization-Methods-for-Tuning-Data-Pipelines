@@ -155,7 +155,7 @@ def machine_learning_algorithm(
 
     train, test = train_test_split(dataset, test_size=TEST_SIZE, random_state=SEED_VALUE)
 
-    if 'y' in list(dataset.columns):
+    if "y" in list(dataset.columns):
         train_y = train["y"].to_numpy()
         train_x = train.drop(["y"], axis=1).to_numpy()
 
