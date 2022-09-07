@@ -5,7 +5,7 @@ from os.path import join
 import logging
 from src.config import DATASET_FOLDER_MEDIUM ,DATASET_FOLDER # pylint: disable=unused-import
 from src.config import METAFEATURES_FOLDER, METAFEATURES_MODEL_FOLDER # pylint: disable=unused-import
-from src.utils.metalearner import train_metalearner # pylint: disable=unused-import
+from src.utils.metalearner import train_metalearner, hyper_parameters_optimization # pylint: disable=unused-import
 from src.utils.data_preparation import data_preparation, delta_or_metafeatures # pylint: disable=unused-import
 from src.utils.preprocessing_improvement import predicted_improvement, one_step_bruteforce # pylint: disable=unused-import
 from src.utils.preprocessing_improvement import best_one_step_bruteforce, max_in_dict # pylint: disable=unused-import
@@ -46,25 +46,43 @@ if __name__ == '__main__':
     data_preparation(
         data_path=DATASET_FOLDER_MEDIUM, #DATASET_FOLDER_MEDIUM #prova
         data_selection = False,
-        data_preprocess = True, #True
-        metafeatures_extraction = True, #True
-        model_training = True,
+        data_preprocess = False, #True
+        metafeatures_extraction = False, #True
+        model_training = False,
         quotient=True)
     """
-
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
-    """
-    train_metalearner(
-        metafeatures_path = delta_path,
-        algorithm='gaussian_process')
 
     train_metalearner(
         metafeatures_path = delta_path,
-        algorithm='random_forest')
+        algorithm='random_forest',
+        tuning=False)
 
     train_metalearner(
         metafeatures_path = delta_path,
-        algorithm='knn')
+        algorithm='random_forest',
+        tuning=True)
+
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='knn',
+        tuning=False)
+
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='knn',
+        tuning=True)
+
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='gaussian_process',
+        tuning=False)
+
+    train_metalearner(
+        metafeatures_path = delta_path,
+        algorithm='gaussian_process',
+        tuning=True)
+
     """
     #emnist-balanced-test.csv #wine-quality-white.csv
     new_dataset = join(
@@ -95,6 +113,8 @@ if __name__ == '__main__':
 
     [key, value] = max_in_dict(results)
     print(f"The best experiment is {key}, with {value} estimated improvement.")
+    """
+    #hyper_parameters_optimization()
 
     logging.info("************END************")
 

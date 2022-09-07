@@ -359,9 +359,8 @@ def _delta_metafeatures(
     delta_df.set_axis(metafeatures.columns.values.tolist(), axis=1, inplace=True)
     delta_df.rename(
         columns={
-            'preprocessing': 'dataset_name',
-            'algorithm': 'preprocessing',
-            'dataset_name': 'algorithm'},
+            'preprocessing': 'performance',
+            'performance': 'preprocessing'},
         inplace=True)
 
     delta_df.to_csv(join(save_path, 'delta.csv'), index=False)

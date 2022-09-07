@@ -5,6 +5,7 @@
 import shutil
 from os.path import join, exists
 from pathlib import Path
+from skopt.space import Categorical, Integer, Real
 from pandas import read_csv
 
 ROOT_FOLDER = Path(__file__).parent.parent
@@ -78,6 +79,25 @@ LIST_OF_ML_MODELS_FOR_METALEARNING = [
     "knn",
     "random_forest",
     "gaussian_process"]
+
+SEARCH_SPACE = {}
+
+SEARCH_SPACE['knn'] = {
+    'p' : Integer(1, 5),
+    'leaf_size' : Integer(5,100),
+    'weights' : Categorical(['uniform', 'distance']),
+    'algorithm' : Categorical(['auto', 'ball_tree', 'kd_tree'])
+}
+
+SEARCH_SPACE['random_forest'] = {
+    'n_estimators' : Integer(50, 200),
+    'criterion' : Categorical(['squared_error','absolute_error','poisson'])
+}
+
+SEARCH_SPACE['gaussian_process'] = {
+    'n_restarts_optimizer' : Integer(0, 10),
+    'alpha' : Real(1e-12, 1e-3, 'log-uniform')
+}
 
 LIST_OF_PREPROCESSING = [
     "min_max_scaler",

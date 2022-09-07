@@ -15,9 +15,10 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import ConstantKernel
 from sklearn.gaussian_process.kernels import RBF
+from skopt import BayesSearchCV
 from src.config import METAFEATURES_MODEL_FOLDER
 from src.config import LIST_OF_ML_MODELS_FOR_METALEARNING
-from src.config import SEED_VALUE, TEST_SIZE
+from src.config import SEED_VALUE, TEST_SIZE, SEARCH_SPACE
 from src.exceptions import CustomValueError
 from .machine_learning_algorithms import prediction_metrics
 from .preprocessing_methods import categorical_string_to_number,categorical_algorithm_to_number
@@ -25,7 +26,8 @@ from .preprocessing_methods import categorical_string_to_number,categorical_algo
 def train_metalearner(
     metafeatures_path:str,
     algorithm:str ='random_forest',
-    save_path:str = METAFEATURES_MODEL_FOLDER):
+    save_path:str = METAFEATURES_MODEL_FOLDER,
+    tuning:bool = True):
     """
         Given a dataset and a model it train
          the meta-learner.
@@ -66,7 +68,8 @@ def train_metalearner(
 
     # Train
     logging.info("Training '%s'...", algorithm)
-    ml_model = _train(algorithm, train_x, train_y)
+    ml_model = _train(algorithm, train_x, train_y, tuning)
+    logging.info("Model trained.")
 
     # Save
     logging.info("Saving the model...('%s')", algorithm)
@@ -82,22 +85,37 @@ def train_metalearner(
     logging.info("Performances: %s", performances)
     return [ml_model, performances]
 
-def _train(algorithm:str, train_x, train_y):
+def _train(algorithm:str, train_x, train_y, tuning):
 
     if algorithm not in LIST_OF_ML_MODELS_FOR_METALEARNING:
         raise CustomValueError(list_name='ml_models_for_metalearning', input_value=algorithm)
 
     if algorithm == 'knn':
         n_classes = len( set(train_y) )
-        model = knn_regression(train_x, train_y, n_classes)
+        model = knn_regression(
+            train_x,
+            train_y,
+            n_classes,
+            tuning)
     elif algorithm == 'random_forest':
-        model = random_forest_regression(train_x, train_y)
+        model = random_forest_regression(
+            train_x,
+            train_y,
+            tuning)
     elif algorithm == 'gaussian_process':
-        model = gaussian_process(train_x, train_y)
+        model = gaussian_process(
+            train_x,
+            train_y,
+            tuning)
 
     return model
 
-def knn_regression(x_train, y_train, n_neighbors:int):
+def knn_regression(
+    x_train,
+    y_train,
+    n_neighbors:int,
+    tuning:bool
+    ):
     """
         Given X and y return a trained K-Neighbors model.
 
@@ -107,13 +125,27 @@ def knn_regression(x_train, y_train, n_neighbors:int):
 
         :return: A trained model.
     """
-    model = KNeighborsRegressor(
-        n_neighbors = n_neighbors,
-        weights = "distance"
-        ).fit(x_train, y_train)
+    model = KNeighborsRegressor(n_neighbors = n_neighbors)
+
+    if tuning:
+        search_space = SEARCH_SPACE['knn']
+        best_param = hyper_parameters_optimization(
+            model,
+            x_train,
+            y_train,
+            search_space)
+
+        # Set best param to the model
+        model.set_params(**best_param)
+
+    model.fit(x_train, y_train)
     return model
 
-def random_forest_regression(x_train, y_train):
+def random_forest_regression(
+    x_train,
+    y_train,
+    tuning:bool
+    ):
     """
         Given X and y return a trained Random Forest model.
 
@@ -122,12 +154,27 @@ def random_forest_regression(x_train, y_train):
 
         :return: A trained model.
     """
-    model = RandomForestRegressor(
-        random_state=SEED_VALUE
-        ).fit(x_train, y_train)
+    model = RandomForestRegressor(random_state=SEED_VALUE)
+
+    if tuning:
+        search_space = SEARCH_SPACE['random_forest']
+        best_param = hyper_parameters_optimization(
+            model,
+            x_train,
+            y_train,
+            search_space)
+
+        # Set best param to the model
+        model.set_params(**best_param)
+
+    model.fit(x_train, y_train)
     return model
 
-def gaussian_process(x_train, y_train):
+def gaussian_process(
+    x_train,
+    y_train,
+    tuning:bool
+    ):
     """
         Given X and y return a trained Gaussian Process model.
 
@@ -136,6 +183,8 @@ def gaussian_process(x_train, y_train):
 
         :return: A trained model.
     """
+    # Note that the kernel hyperparameters are optimized
+    # during fitting unless the bounds are marked as “fixed”.
     kernel = ConstantKernel(
         1.0,
         #constant_value_bounds="fixed"
@@ -147,8 +196,20 @@ def gaussian_process(x_train, y_train):
     model = GaussianProcessRegressor(
         kernel = kernel,
         n_restarts_optimizer = 5,
-        random_state=SEED_VALUE
-        ).fit(x_train, y_train)
+        random_state=SEED_VALUE)
+
+    if tuning:
+        search_space = SEARCH_SPACE['gaussian_process']
+        best_param = hyper_parameters_optimization(
+            model,
+            x_train,
+            y_train,
+            search_space)
+
+        # Set best param to the model
+        model.set_params(**best_param)
+
+    model.fit(x_train, y_train)
     return model
 
 def split_train_test(
@@ -179,3 +240,32 @@ def split_train_test(
     test = dataframe.iloc[test_inds]
 
     return [train, test]
+
+def hyper_parameters_optimization(model, x_train, y_train, search_space):
+    """
+        Function to do the hyper-parameters optimization of a given
+         sklearn machine learning model.
+         To do so it uses the Bayesian Optimization method.
+
+        :param model: sklearn estimator you want to tune.
+        :param search_space: Search space you want to consider.
+
+        :return: Best param for the model.
+    """
+    logging.info("Tuning the hyper-parameters of the model...")
+
+    # Define the search
+    search = BayesSearchCV(
+        estimator=model,
+        search_spaces=search_space,
+        n_iter = 100, # [50, 100, 200]
+        n_jobs=4,
+        random_state = SEED_VALUE
+        )
+
+    search.fit(x_train, y_train)
+
+    logging.info("Model best parameters are: %s", str(dict(search.best_params_)))
+    logging.info("Model tuned:")
+
+    return search.best_params_
