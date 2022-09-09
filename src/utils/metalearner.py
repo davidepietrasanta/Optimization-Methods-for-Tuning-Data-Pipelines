@@ -183,31 +183,23 @@ def gaussian_process(
 
         :return: A trained model.
     """
+    if tuning:
     # Note that the kernel hyperparameters are optimized
     # during fitting unless the bounds are marked as “fixed”.
-    kernel = ConstantKernel(
-        1.0,
-        #constant_value_bounds="fixed"
-        )*RBF(
+        kernel = ConstantKernel(1.0)*RBF(1.0)
+    else:
+        kernel = ConstantKernel(
             1.0,
-            #length_scale_bounds="fixed"
-            )
+            constant_value_bounds="fixed"
+            )*RBF(
+                1.0,
+                length_scale_bounds="fixed"
+                )
 
     model = GaussianProcessRegressor(
         kernel = kernel,
         n_restarts_optimizer = 5,
         random_state=SEED_VALUE)
-
-    if tuning:
-        search_space = SEARCH_SPACE['gaussian_process']
-        best_param = hyper_parameters_optimization(
-            model,
-            x_train,
-            y_train,
-            search_space)
-
-        # Set best param to the model
-        model.set_params(**best_param)
 
     model.fit(x_train, y_train)
     return model
@@ -258,8 +250,8 @@ def hyper_parameters_optimization(model, x_train, y_train, search_space):
     search = BayesSearchCV(
         estimator=model,
         search_spaces=search_space,
-        n_iter = 100, # [50, 100, 200]
-        n_jobs=4,
+        n_iter = 50, # [50, 100, 200]
+        n_jobs=50, #4
         random_state = SEED_VALUE
         )
 

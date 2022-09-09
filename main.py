@@ -48,9 +48,9 @@ if __name__ == '__main__':
         data_selection = False,
         data_preprocess = False, #True
         metafeatures_extraction = False, #True
-        model_training = False,
+        model_training = False, #True
         quotient=True)
-    """
+
     delta_path = join(METAFEATURES_FOLDER, "delta.csv")
 
     train_metalearner(
@@ -106,15 +106,13 @@ if __name__ == '__main__':
         dataset_path = new_dataset,
         algorithm = 'naive_bayes',
         list_of_experiments = list_of_experiments,
-        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_random_forest.joblib')
+        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_gaussian_process.joblib')
         )
 
     print(results)
 
     [key, value] = max_in_dict(results)
     print(f"The best experiment is {key}, with {value} estimated improvement.")
-    """
-    #hyper_parameters_optimization()
 
     logging.info("************END************")
 
