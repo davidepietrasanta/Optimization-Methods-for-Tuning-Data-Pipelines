@@ -11,6 +11,7 @@ from src.utils.preprocessing_improvement import predicted_improvement, one_step_
 from src.utils.preprocessing_improvement import best_one_step_bruteforce, max_in_dict # pylint: disable=unused-import
 from src.utils.preprocessing_improvement import pipeline_experiments, preprocessing_experiment # pylint: disable=unused-import
 from src.utils.metafeatures_extraction import metafeature # pylint: disable=unused-import
+from src.utils.experiments import pipeline_true_experiments, experiment_on_dataset # pylint: disable=unused-import
 
 if __name__ == '__main__':
     VERBOSE = True
@@ -102,17 +103,12 @@ if __name__ == '__main__':
         ['feature_agglomeration', 'pca'],
     ]
 
-    results = pipeline_experiments(
+    results = experiment_on_dataset(
         dataset_path = new_dataset,
         algorithm = 'naive_bayes',
-        list_of_experiments = list_of_experiments,
-        metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_gaussian_process.joblib')
-        )
+        list_of_experiments = list_of_experiments)
 
-    print(results)
-
-    [key, value] = max_in_dict(results)
-    print(f"The best experiment is {key}, with {value} estimated improvement.")
+    logging.info("results = %s", str(results) )
 
     logging.info("************END************")
 
