@@ -63,6 +63,8 @@ Run with
 python3 main.py
 ```
 
+To better understand how to use the framework you can consult the `Tutorial.ipynb` file.
+
 ## Test
 
 Test all with
@@ -92,6 +94,12 @@ We want to be able to predict the delta performance, i.e. the difference between
 This will be the output of the meta-learner.
 
 ![Delta](/images/Delta.jpg)
+
+## Training Dataset Map
+
+A simple scheme on how the dataset used for the training of the Meta-learner is created.
+
+![Dataset map](/images/Dataset%20Map.jpg)
 
 ## Mind Map
 

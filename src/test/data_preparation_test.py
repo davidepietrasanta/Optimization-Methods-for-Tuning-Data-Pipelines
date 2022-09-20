@@ -107,7 +107,7 @@ def test_delta_or_metafeatures() -> bool:
         metafeatures_path=metafeatures_path,
         algorithm='knn')
 
-    assert choice
+    assert not choice
 
     return True
 
