@@ -220,16 +220,16 @@ def _metafeatures_extraction(
     if metafeatures_extraction:
         logging.info("Extracting the meta-features... [3/6]")
 
-        logging.info("Extracting from the non-preprocessed dataset - 0/%s",
-        str(len(LIST_OF_PREPROCESSING)))
+        logging.info("Extracting from the non-preprocessed dataset - 0/%d",
+        len(LIST_OF_PREPROCESSING))
         metafeatures_extraction_data(
             datasets_path = dataset_path,
             save_path = metafeatures_path,
             name_saved_csv = None)
 
         for i, preprocessing in enumerate(LIST_OF_PREPROCESSING):
-            logging.info("Extracting %s - %s/%s",
-            preprocessing, str(i+1), str(len(LIST_OF_PREPROCESSING)))
+            logging.info("Extracting %s - %d/%d",
+            preprocessing, i+1, len(LIST_OF_PREPROCESSING))
 
             data_preprocessing_path = join(dataset_path, preprocessing)
             metafeatures_extraction_data(
@@ -249,8 +249,8 @@ def _model_training(
         logging.info("Training the models... [4/6]")
 
         logging.info(
-            "Training with the non-preprocessed dataset (0/%s)",
-            str(len(LIST_OF_PREPROCESSING)))
+            "Training with the non-preprocessed dataset (0/%d)",
+            len(LIST_OF_PREPROCESSING))
         extract_machine_learning_performances(
             datasets_path = dataset_path,
             save_model_path = MODEL_FOLDER,
@@ -260,8 +260,8 @@ def _model_training(
 
         for n_preprocessing, preprocessing in enumerate(LIST_OF_PREPROCESSING):
             logging.info(
-                "Training with %s (%s/%s)",
-                preprocessing, str(n_preprocessing+1), str(len(LIST_OF_PREPROCESSING)))
+                "Training with %s (%d/%d)",
+                preprocessing, n_preprocessing+1, len(LIST_OF_PREPROCESSING))
 
             data_preprocessing_path = join(dataset_path, preprocessing)
             extract_machine_learning_performances(
@@ -401,6 +401,7 @@ def choose_performance_from_metafeatures(
 
     metafeatures = metafeatures.drop(["Unnamed: 0"], axis=1)
     metafeatures["performance"] = perf_metric
+    metafeatures.replace([np.inf], 10000, inplace=True)
 
     metafeatures_path = dirname(metafeatures_path)
     metafeatures.to_csv(join(metafeatures_path, copy_name), index=False)
@@ -429,7 +430,8 @@ def delta_or_metafeatures(
     [_, delta_performances ] = train_metalearner(
         metafeatures_path = delta_path,
         algorithm=algorithm,
-        save_path=model_save_path)
+        save_path=model_save_path,
+        tuning=False)
 
     choose_performance_from_metafeatures(
         metafeatures_path = metafeatures_path,
@@ -441,12 +443,13 @@ def delta_or_metafeatures(
     [_, meta_performances ] = train_metalearner(
         metafeatures_path = new_metafeatures_path,
         algorithm=algorithm,
-        save_path=model_save_path)
+        save_path=model_save_path,
+        tuning=False)
 
-    d_or_m = delta_performances['mse'] < meta_performances['mse']
+    d_or_m = delta_performances['mae'] < meta_performances['mae']
 
-    logging.info("The delta mse is: %s", str(delta_performances['mse']) )
-    logging.info("The metafeatures mse is: %s", str(meta_performances['mse']) )
+    logging.info("The delta performances are: %s", str(delta_performances) )
+    logging.info("The metafeatures performances are: %s", str(meta_performances) )
 
     winner = "'metafeatures'"
     if d_or_m:

@@ -54,8 +54,8 @@ def preprocess_all_datasets(
     preprocessed_datasets = []
 
     for i, dataset_name in enumerate(list_datasets):
-        logging.info("Transforming dataset: '%s'...(%s/%s)",
-        dataset_name, str(i+1), str(n_datasets))
+        logging.info("Transforming dataset: '%s'...(%d/%d)",
+        dataset_name, i+1, n_datasets)
 
         dataset_path = join(datasets_path, dataset_name)
         n_methods = 0

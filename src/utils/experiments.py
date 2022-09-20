@@ -172,6 +172,7 @@ def experiment_on_dataset(
         :return: A dict with all the performances/delta.
     """
     results = {}
+    results['time(s)'] = {}
 
     start = time.time()
     results['gp'] = pipeline_experiments(
@@ -180,7 +181,7 @@ def experiment_on_dataset(
         list_of_experiments = list_of_experiments,
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_gaussian_process.joblib')
         )
-    results['time(s)']['gp'] = start - time.time()
+    results['time(s)']['gp'] = time.time() - start
 
     logging.info("Estimations with Gaussian Process model")
     logging.info("%s", str(results['gp']))
@@ -192,7 +193,7 @@ def experiment_on_dataset(
         list_of_experiments = list_of_experiments,
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_random_forest.joblib')
         )
-    results['time(s)']['rf'] = start - time.time()
+    results['time(s)']['rf'] = time.time() - start
 
     logging.info("Estimations with Random Forest model")
     logging.info("%s", str(results['rf']))
@@ -204,7 +205,7 @@ def experiment_on_dataset(
         list_of_experiments = list_of_experiments,
         metalearner_path = join(METAFEATURES_MODEL_FOLDER, 'metalearner_knn.joblib')
         )
-    results['time(s)']['knn'] = start - time.time()
+    results['time(s)']['knn'] = time.time() - start
 
     logging.info("Estimations with KNN model")
     logging.info("%s", str(results['knn']))
@@ -226,7 +227,7 @@ def experiment_on_dataset(
         dataset_path = dataset_path,
         algorithm = algorithm,
         list_of_experiments = list_of_experiments)
-    results['time(s)']['true'] = start - time.time()
+    results['time(s)']['true'] = time.time() - start
 
     logging.info("True performances")
     logging.info("%s", str(results['true_results']) )

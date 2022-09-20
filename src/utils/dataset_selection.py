@@ -66,8 +66,8 @@ def select_datasets(
     if len(selected_dataset) < n_dataset:
         n_dataset = len(selected_dataset)
 
-    logging.info( "%s datasets were found, %s were selected.",
-        str(len(selected_dataset)), str(n_dataset))
+    logging.info( "%d datasets were found, %d were selected.",
+        len(selected_dataset), n_dataset)
 
     list_dataset_name = []
     actual_dataset_num = 0
@@ -100,7 +100,7 @@ def select_datasets(
             actual_dataset_num = actual_dataset_num + 1
             list_dataset_name.append( dataset_name )
 
-            logging.info( "%s/%s %s", str(actual_dataset_num), str(n_dataset), dataset_name)
+            logging.info( "%d/%d %s", actual_dataset_num, n_dataset, dataset_name)
 
         except Exception: # pylint: disable=broad-except
             exception_logging("Error while dowloading, dataset skipped")
@@ -109,8 +109,8 @@ def select_datasets(
         if actual_dataset_num >= n_dataset:
             break
 
-    logging.info("%s datasets were actually downloaded.",
-    str(len(list_dataset_name)))
+    logging.info("%d datasets were actually downloaded.",
+    len(list_dataset_name))
 
     return list_dataset_name
 
@@ -132,7 +132,7 @@ def _medium(selected_dataset):
 
     msg = "Since the size selected is 'medium' we also select from OpenML benchmark datasets."
     logging.info(msg)
-    logging.info("We have found %s datasets from the benchmark.",str(len(tasks)))
+    logging.info("We have found %d datasets from the benchmark.", len(tasks))
     return selected_dataset
 
 def _constrain(openml_df, size):
@@ -167,8 +167,8 @@ def check_missing_values(datasets_path:str) -> list:
     list_datasets = sorted([f for f in listdir(datasets_path) if isfile(join(datasets_path, f))])
 
     for i, dataset_name in enumerate(list_datasets):
-        logging.debug("Checking for missing values in ' %s ... (%s/%s)",
-            dataset_name, str(i+1), str(len(list_datasets)))
+        logging.debug("Checking for missing values in ' %s ... (%d/%d)",
+            dataset_name, i+1, len(list_datasets))
 
         dataset_path = join(datasets_path, dataset_name)
 

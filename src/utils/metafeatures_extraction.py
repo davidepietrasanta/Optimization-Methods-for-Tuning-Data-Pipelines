@@ -47,8 +47,8 @@ def metafeatures_extraction_data(
 
     for i, dataset_name in enumerate(list_datasets):
         logging.info(
-            "Extracting metafeatures from: %s'...(%s/%s) [%s]",
-            dataset_name,str(i+1), str(n_datasets), str(basename(datasets_path))
+            "Extracting metafeatures from: %s'...(%d/%d) [%s]",
+            dataset_name, i+1, n_datasets, str(basename(datasets_path))
             )
 
         dataset_path = join(datasets_path, dataset_name)
@@ -141,8 +141,8 @@ def metafeature(dataset_path:str, verbose:bool =False) -> None or dict:
 
         logging.debug("Extracted intrinsic dimensionality: %s",str(basename(dataset_path)))
 
-        logging.debug("%s meta-features were extracted from the dataset: %s",
-            str(len(dict_ft)), str(dataset_path))
+        logging.debug("%d meta-features were extracted from the dataset: %s",
+            len(dict_ft), str(dataset_path))
 
         return dict_ft
 

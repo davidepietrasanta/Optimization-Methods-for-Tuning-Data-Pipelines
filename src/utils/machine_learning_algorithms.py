@@ -64,15 +64,15 @@ def extract_machine_learning_performances(
     perf_path = join(save_performance_path, performance_file_name)
 
     for j, dataset_name in enumerate(list_datasets):
-        logging.debug("Dataset: '%s'...(%s/%s)",
-            dataset_name, str(j+1), str( len(list_datasets) ) )
+        logging.debug("Dataset: '%s'...(%d/%d)",
+            dataset_name, j+1, len(list_datasets) )
 
         for i, algorithm in enumerate(LIST_OF_ML_MODELS):
             logging.info(
-                "Extracting performance from: '%s' [%s/%s] with '%s' and '%s'...(%s/%s)",
-                dataset_name, str(j+1), str(len(list_datasets)),
+                "Extracting performance from: '%s' [%d/%d] with '%s' and '%s'...(%d/%d)",
+                dataset_name, j+1, len(list_datasets),
                 algorithm, preprocessing,
-                str(i+1), str(len(LIST_OF_ML_MODELS))
+                i+1,len(LIST_OF_ML_MODELS)
                 )
 
             # If the metafeatures are already been extracted we don't do it again
