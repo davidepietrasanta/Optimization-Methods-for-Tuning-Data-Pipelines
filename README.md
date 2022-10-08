@@ -106,3 +106,9 @@ A simple scheme on how the dataset used for the training of the Meta-learner is 
 From the pre-processed and raw data, metafeatures are extracted. A ML-model is then executed on both in order to collect the performances. Delta between performances and metafeatures is calculated so that we can train the meta-learner.
 
 ![Mind map](/images/Mind%20Map.jpg)
+
+## Dependency
+
+File dependency of the project.
+
+![Dependency](/images/architecture.jpg)
