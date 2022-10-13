@@ -56,7 +56,8 @@ def pipeline_true_experiments(
     logging.info("Calculating performances without preprocessing...")
     [_, prediction] = machine_learning_algorithm(
         dataset_path = dataset_path,
-        algorithm = algorithm)
+        algorithm = algorithm,
+        cross_validation = True)
 
     results['None'] = prediction['f1_score']
 
@@ -117,6 +118,7 @@ def preprocessing_pipeline(
     [_, prediction] = machine_learning_algorithm(
         dataset_path = preprocessed_dataset_path,
         algorithm = algorithm,
+        cross_validation = True
     )
 
     # f1_score

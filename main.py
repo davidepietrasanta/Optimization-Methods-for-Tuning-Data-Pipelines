@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     new_dataset = join(
             DATASET_FOLDER,
-            join('Test', 'emnist-balanced.csv')
+            join('Test', 'wine-quality-white.csv')
             )
 
     list_of_experiments = [

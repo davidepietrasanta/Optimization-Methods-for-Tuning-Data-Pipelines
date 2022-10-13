@@ -25,6 +25,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
+from sklearn.model_selection import cross_val_score
 
 from src.config import LIST_OF_ML_MODELS, MODEL_FOLDER
 from src.config import METAFEATURES_FOLDER
@@ -124,7 +125,8 @@ def extract_machine_learning_performances(
 def machine_learning_algorithm(
     dataset_path:str,
     algorithm:str,
-    save_path:str = MODEL_FOLDER):
+    save_path:str = MODEL_FOLDER,
+    cross_validation:bool = False):
     """
         Given a path to a dataset and an algorithm, it return, and save,
          the trained model and the performance.
@@ -139,6 +141,7 @@ def machine_learning_algorithm(
          "svm",
          "perceptron"].
         :param save_path: The path were to save the trained model.
+        :param cross_validation: Train using a 10-fold cross validation.
 
         :return: A trained model with the performance.
     """
@@ -187,9 +190,12 @@ def machine_learning_algorithm(
 
     # Test
     logging.debug("Testing...")
-
-    prediction = prediction_metrics(model, test_x, test_y)
-    logging.debug("Prediction performance on test set: %s", prediction)
+    if cross_validation:
+        prediction = cross_validation_score(model, dataset)
+        logging.debug("Prediction performance with 10-fold cv: %s", prediction)
+    else:
+        prediction = prediction_metrics(model, test_x, test_y)
+        logging.debug("Prediction performance on test set: %s", prediction)
 
     return [model, prediction]
 
@@ -229,6 +235,33 @@ def train_algorithm(algorithm:str, train_x, train_y):
 
     return model
 
+def cross_validation_score(model, dataset):
+    """
+        Return f1_score of the model calculated with 10-fold cross validation.
+        Only for classification model.
+
+        :param model: A trained sklearn model
+        :param dataset: Test input variables
+
+        :return: The mean of the f1_score of the model calculated with 10-fold cross validation.
+    """
+
+    if "y" in list(dataset.columns):
+        dataset_y = dataset["y"].to_numpy()
+        dataset_x = dataset.drop(["y"], axis=1).to_numpy()
+    else:
+        dataset_y = dataset.iloc[: , -1].tolist()
+        dataset_x = dataset.iloc[: , :-1].to_numpy()
+
+    scores = cross_val_score(model, dataset_x, dataset_y, cv=10, scoring='f1_macro')
+    prediction = {
+        "f1_score_all" : scores,
+        "f1_score" : scores.mean(),
+        "cv_std" : scores.std(),
+        "cv_mean" : scores.mean(),
+    }
+
+    return prediction
 
 def logistic_regression(x_train, y_train):
     """
